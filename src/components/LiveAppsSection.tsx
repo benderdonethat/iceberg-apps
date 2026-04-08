@@ -47,14 +47,16 @@ export default function LiveAppsSection() {
             ))}
           </div>
 
-          <a
-            href="https://app-production-ef06.up.railway.app/slack/install"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground hover:shadow-[0_0_25px_-5px_hsl(var(--cyan-glow)/0.6)] transition-all duration-300 min-h-[48px]"
-          >
-            Add to Slack · Free
-          </a>
+          <div className="flex justify-center">
+            <a
+              href="https://app-production-ef06.up.railway.app/slack/install"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground hover:shadow-[0_0_25px_-5px_hsl(var(--cyan-glow)/0.6)] transition-all duration-300 min-h-[48px]"
+            >
+              Add to Slack · Free
+            </a>
+          </div>
         </div>
       </div>
     </section>
