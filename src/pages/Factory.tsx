@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import icebergLogo from "@/assets/hero-iceberg.png";
+import apps from "@/data/apps";
 
 const categories = ["Team", "Ops", "Sales", "Productivity", "Streaming", "Other"] as const;
 const pricingOptions = ["Free", "Freemium", "Paid"] as const;
@@ -182,6 +183,30 @@ export default function Factory() {
   const [customFeature, setCustomFeature] = useState("");
   const [status, setStatus] = useState<string>("roadmap");
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<"build" | "intel">("build");
+  const [intel, setIntel] = useState<any>(null);
+  const [intelLoading, setIntelLoading] = useState(false);
+  const [intelError, setIntelError] = useState("");
+
+  const fetchIntel = useCallback(async () => {
+    setIntelLoading(true);
+    setIntelError("");
+    try {
+      const currentAppNames = apps.map((a) => `${a.name} (${a.category}, ${a.status})`);
+      const res = await fetch("/api/market-intel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-key": password || sessionStorage.getItem("factory_pw") || "" },
+        body: JSON.stringify({ currentApps: currentAppNames }),
+      });
+      if (!res.ok) throw new Error("Failed to fetch intel");
+      const json = await res.json();
+      setIntel(json.data);
+    } catch (e: any) {
+      setIntelError(e.message || "Failed to load");
+    } finally {
+      setIntelLoading(false);
+    }
+  }, [password]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,6 +221,7 @@ export default function Factory() {
       if (res.ok) {
         setAuthed(true);
         sessionStorage.setItem("factory_auth", "1");
+        sessionStorage.setItem("factory_pw", password);
       } else {
         setAuthError(true);
       }
@@ -292,18 +318,175 @@ export default function Factory() {
             <p className="text-xs text-[#6b7d8d]">freeslackapps.com — build dashboard</p>
           </div>
           <div className="ml-auto flex items-center gap-3">
-            <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${
-              status === "live" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" :
-              status === "featured" ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400" :
-              "border-white/10 bg-white/5 text-[#6b7d8d]"
-            }`}>
-              {status.toUpperCase()}
-            </span>
+            <button
+              onClick={() => setActiveTab("build")}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                activeTab === "build" ? "border-[#4dd4e6]/50 bg-[#4dd4e6]/10 text-[#4dd4e6]" : "border-white/10 text-[#6b7d8d] hover:border-white/20"
+              }`}
+            >
+              Build
+            </button>
+            <button
+              onClick={() => { setActiveTab("intel"); if (!intel && !intelLoading) fetchIntel(); }}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                activeTab === "intel" ? "border-amber-500/50 bg-amber-500/10 text-amber-400" : "border-white/10 text-[#6b7d8d] hover:border-white/20"
+              }`}
+            >
+              Market Intel
+            </button>
+            {activeTab === "build" && (
+              <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${
+                status === "live" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" :
+                status === "featured" ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400" :
+                "border-white/10 bg-white/5 text-[#6b7d8d]"
+              }`}>
+                {status.toUpperCase()}
+              </span>
+            )}
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 py-10">
+        {/* ── MARKET INTEL TAB ─────────────────────── */}
+        {activeTab === "intel" && (
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Market Intel</h2>
+                <p className="text-sm text-[#6b7d8d] mt-1">Gaps in the Slack ecosystem scored by opportunity size</p>
+              </div>
+              <button
+                onClick={fetchIntel}
+                disabled={intelLoading}
+                className="px-4 py-2 rounded-lg text-xs font-medium border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 transition-all disabled:opacity-50"
+              >
+                {intelLoading ? "Analyzing..." : intel ? "Refresh" : "Load Intel"}
+              </button>
+            </div>
+
+            {intelLoading && (
+              <div className="text-center py-20">
+                <div className="text-2xl mb-3 animate-pulse">🔍</div>
+                <p className="text-[#6b7d8d] text-sm">Analyzing Slack ecosystem data...</p>
+                <p className="text-[#3a4550] text-xs mt-1">This takes 10-15 seconds</p>
+              </div>
+            )}
+
+            {intelError && <p className="text-red-400 text-sm text-center py-10">{intelError}</p>}
+
+            {intel && !intelLoading && (
+              <>
+                {/* Market Summary */}
+                <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6">
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-400 mb-2">Market Summary</div>
+                  <p className="text-sm text-[#a8c8d8] leading-relaxed">{intel.market_summary}</p>
+                  <p className="text-[10px] text-[#3a4550] mt-3">Generated {new Date(intel.generated_at).toLocaleString()}</p>
+                </div>
+
+                {/* Catalog Gaps */}
+                {intel.catalog_gaps && intel.catalog_gaps.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-3">Your Catalog Gaps</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {intel.catalog_gaps.map((gap: any, i: number) => (
+                        <div key={i} className={`rounded-xl border p-4 ${
+                          gap.priority === "high" ? "border-red-500/30 bg-red-500/5" :
+                          gap.priority === "medium" ? "border-amber-500/30 bg-amber-500/5" :
+                          "border-white/10 bg-white/[0.02]"
+                        }`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-semibold text-[#f0f0f5]">{gap.category}</span>
+                            <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full border ${
+                              gap.priority === "high" ? "border-red-500/40 text-red-400" :
+                              gap.priority === "medium" ? "border-amber-500/40 text-amber-400" :
+                              "border-white/20 text-[#6b7d8d]"
+                            }`}>{gap.priority}</span>
+                          </div>
+                          <p className="text-[11px] text-[#6b7d8d] leading-relaxed">{gap.gap}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Opportunities */}
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-4">Top Opportunities</h3>
+                  <div className="space-y-4">
+                    {intel.opportunities?.map((opp: any) => (
+                      <div key={opp.rank} className="rounded-2xl border border-white/10 bg-[#0c0e16] p-6 hover:border-amber-500/20 transition-all">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl">{opp.emoji}</span>
+                            <div>
+                              <h4 className="text-base font-bold text-[#f0f0f5]">{opp.name}</h4>
+                              <p className="text-xs text-[#6b7d8d]">{opp.desc}</p>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0 ml-4">
+                            <div className={`text-2xl font-bold ${
+                              opp.score >= 80 ? "text-emerald-400" :
+                              opp.score >= 60 ? "text-amber-400" :
+                              "text-[#6b7d8d]"
+                            }`}>{opp.score}</div>
+                            <div className="text-[9px] text-[#3a4550] uppercase tracking-wider">/100</div>
+                          </div>
+                        </div>
+
+                        {/* Score bar */}
+                        <div className="w-full h-1.5 rounded-full bg-white/5 mb-4">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              opp.score >= 80 ? "bg-emerald-500" :
+                              opp.score >= 60 ? "bg-amber-500" :
+                              "bg-[#6b7d8d]"
+                            }`}
+                            style={{ width: `${opp.score}%` }}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 text-xs mb-4">
+                          <div>
+                            <span className="text-[#3a4550] uppercase tracking-wider text-[9px]">Target</span>
+                            <p className="text-[#a8c8d8] mt-0.5">{opp.target_audience}</p>
+                          </div>
+                          <div>
+                            <span className="text-[#3a4550] uppercase tracking-wider text-[9px]">Category</span>
+                            <p className="text-[#a8c8d8] mt-0.5">{opp.category}</p>
+                          </div>
+                          <div>
+                            <span className="text-[#3a4550] uppercase tracking-wider text-[9px]">Competitor</span>
+                            <p className="text-[#a8c8d8] mt-0.5">{opp.competitor} — {opp.competitor_price}</p>
+                          </div>
+                          <div>
+                            <span className="text-[#3a4550] uppercase tracking-wider text-[9px]">Why the gap</span>
+                            <p className="text-[#a8c8d8] mt-0.5">{opp.gap_reason}</p>
+                          </div>
+                        </div>
+
+                        <div className="mb-4">
+                          <span className="text-[#3a4550] uppercase tracking-wider text-[9px]">Why now</span>
+                          <p className="text-[11px] text-[#6b7d8d] mt-0.5 leading-relaxed">{opp.why_now}</p>
+                        </div>
+
+                        {/* Suggested features */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {opp.suggested_features?.map((f: string) => (
+                            <span key={f} className="text-[10px] px-2 py-0.5 rounded-full border border-white/10 text-[#6b7d8d]">{f}</span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ── BUILD TAB ────────────────────────────── */}
+        {activeTab === "build" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* LEFT — Form */}
           <div className="space-y-6">
@@ -558,6 +741,7 @@ export default function Factory() {
             </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   );
