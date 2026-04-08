@@ -8,8 +8,8 @@ const emojiSuggestions = [
   "🧾", "⏱️", "🎣", "💸", "📅", "🤝", "🧍", "🚀", "🏆", "🔄",
   "🏖️", "😊", "📊", "🎫", "📋", "🎯", "💰", "📄", "🤑", "💼",
   "📝", "📖", "🔗", "🔔", "📢", "🚢", "💬", "🔐", "🔌", "🎤",
-  "🤖", "⚡", "🛡️", "🎮", "📡", "🧊", "🔥", "💎", "🎯", "🧲",
-  "📦", "🏗️", "🛒", "🎁", "📈", "🧪", "🗂️", "✅", "🪝", "🌊",
+  "🤖", "⚡", "🛡️", "🎮", "📡", "🧊", "🔥", "💎", "🧲", "🌊",
+  "📦", "🏗️", "🛒", "🎁", "📈", "🧪", "🗂️", "✅", "🪝", "🔧",
 ];
 
 const pricingColors: Record<string, string> = {
@@ -17,6 +17,155 @@ const pricingColors: Record<string, string> = {
   Freemium: "border-cyan-500/40 bg-cyan-500/10 text-cyan-400",
   Paid: "border-amber-500/40 bg-amber-500/10 text-amber-400",
 };
+
+// ── Feature Library (by category) ───────────────────
+const featureLibrary: Record<string, string[]> = {
+  Team: [
+    "Schedule recurring check-ins",
+    "Threaded responses per person",
+    "Weekly summary digest",
+    "Skip weekends/holidays",
+    "Anonymous submissions",
+    "Public shoutouts in channel",
+    "Leaderboard tracking",
+    "Custom emoji reactions",
+    "Monthly recognition recap",
+    "Vote on action items",
+    "Team availability calendar",
+    "Auto-update Slack status",
+    "Progress tracking per person",
+    "Manager notifications",
+    "Custom checklist templates",
+    "Trend graphs over time",
+    "Flag low morale early",
+    "Multi-choice support",
+    "Auto-close with results",
+    "Role-based permissions",
+  ],
+  Ops: [
+    "Create from Slack command",
+    "Auto reminders on schedule",
+    "Track status (open/closed/paid)",
+    "Monthly summary reports",
+    "CSV export",
+    "Per-client status cards",
+    "Milestone tracking",
+    "SLA tracking",
+    "Assign and prioritize",
+    "Resolution time reports",
+    "Set budgets per project",
+    "Burn rate alerts",
+    "Contract end date tracking",
+    "Renewal reminders",
+    "Upload documents",
+    "Auto-notify stakeholders",
+    "Approval workflows",
+    "Audit log of all actions",
+    "Custom fields per record",
+    "Dashboard with key metrics",
+  ],
+  Sales: [
+    "Webhook form capture",
+    "Auto-qualify by criteria",
+    "Route to sales channel",
+    "Lead response timer",
+    "Kanban-style deal stages",
+    "Move deals via buttons",
+    "Win/loss tracking",
+    "Revenue forecasting",
+    "Generate tracking links",
+    "Click and conversion stats",
+    "Payout calculator",
+    "Track candidates by stage",
+    "Interview scheduling",
+    "Team feedback collection",
+    "Pipeline value summary",
+    "Auto follow-up reminders",
+    "Lead scoring",
+    "Commission tracking",
+    "Contact history log",
+    "Monthly sales reports",
+  ],
+  Productivity: [
+    "AI-generated summaries",
+    "Action item extraction",
+    "Post to any channel",
+    "Search past entries",
+    "Save as wiki entries",
+    "Tag by topic",
+    "Auto-suggest when asked",
+    "Save with tags",
+    "Most-shared leaderboard",
+    "Route alerts from any source",
+    "Severity levels",
+    "On-call rotation",
+    "Escalation rules",
+    "Version tagging",
+    "Team read receipts",
+    "Log deploys and releases",
+    "Weekly digest",
+    "Upvote and prioritize",
+    "Encrypted storage",
+    "Share with expiration",
+    "Access audit log",
+    "Scheduled syncs",
+    "Error alerts in Slack",
+    "Slide-by-slide feedback",
+    "Export summary",
+  ],
+  Streaming: [
+    "Sales tracking with platform fees",
+    "P&L per stream session",
+    "Real inventory tracking",
+    "Velocity and sell-through rate",
+    "AI insights from real data",
+    "Customer database",
+    "VIP detection",
+    "Brand vault",
+    "Content generator",
+    "Giveaway manager",
+    "Revenue goals with progress",
+    "CSV export for taxes",
+    "Multi-platform support",
+    "Stream scheduling",
+    "Product catalog management",
+    "Break tracking",
+    "Viewer analytics",
+    "Auto price calculations",
+    "Shipping label integration",
+    "Live chat commands",
+  ],
+  Other: [
+    "Custom slash commands",
+    "Modal-based forms",
+    "Scheduled notifications",
+    "Webhook integrations",
+    "Data import/export",
+    "Multi-workspace support",
+    "Admin dashboard",
+    "Usage analytics",
+    "Custom branding",
+    "API access",
+    "Role-based access control",
+    "Audit logging",
+    "Automated workflows",
+    "Template system",
+    "Backup and restore",
+  ],
+};
+
+// ── Tag Library (by category) ───────────────────────
+const tagLibrary: Record<string, string[]> = {
+  Team: ["Team", "HR", "Culture", "Remote", "Standups", "Recognition", "Onboarding", "Morale", "Polls", "Retrospectives"],
+  Ops: ["Operations", "Invoicing", "Billing", "Tickets", "Support", "Budgets", "Contracts", "Project Management", "Clients", "Finance"],
+  Sales: ["Sales", "Lead Gen", "Pipeline", "CRM", "Affiliates", "Hiring", "Revenue", "Deals", "Outreach", "Commissions"],
+  Productivity: ["Productivity", "Notes", "Wiki", "Alerts", "Changelog", "Shipping", "Feedback", "Security", "Integrations", "Automation"],
+  Streaming: ["Streamers", "Live Selling", "Inventory", "Sales", "Whatnot", "TikTok", "eBay", "Analytics", "Revenue", "Giveaways"],
+  Other: ["Utility", "Integration", "Workflow", "Custom", "Admin", "Analytics"],
+};
+
+// ── Shared tag options (always available) ───────────
+const sharedTags = ["Free", "Freemium", "Paid", "Slack", "AI-Powered", "No Setup"];
 
 export default function Factory() {
   const [authed, setAuthed] = useState(false);
@@ -28,8 +177,9 @@ export default function Factory() {
   const [desc, setDesc] = useState("");
   const [category, setCategory] = useState<string>("Team");
   const [pricing, setPricing] = useState<string>("Free");
-  const [features, setFeatures] = useState(["", "", "", ""]);
-  const [tags, setTags] = useState("");
+  const [features, setFeatures] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [customFeature, setCustomFeature] = useState("");
   const [status, setStatus] = useState<string>("roadmap");
   const [copied, setCopied] = useState(false);
 
@@ -63,26 +213,35 @@ export default function Factory() {
 
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  const updateFeature = (i: number, val: string) => {
-    const next = [...features];
-    next[i] = val;
-    setFeatures(next);
+  const toggleFeature = (f: string) => {
+    setFeatures((prev) => prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f]);
   };
 
-  const addFeature = () => setFeatures([...features, ""]);
-  const removeFeature = (i: number) => setFeatures(features.filter((_, idx) => idx !== i));
+  const addCustomFeature = () => {
+    if (customFeature.trim() && !features.includes(customFeature.trim())) {
+      setFeatures([...features, customFeature.trim()]);
+      setCustomFeature("");
+    }
+  };
 
-  const tagList = tags.split(",").map((t) => t.trim()).filter(Boolean);
+  const toggleTag = (t: string) => {
+    setSelectedTags((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
+  };
+
+  const availableFeatures = featureLibrary[category] || featureLibrary.Other;
+  const availableTags = [...(tagLibrary[category] || tagLibrary.Other), ...sharedTags];
+  // Dedupe tags
+  const uniqueTags = [...new Set(availableTags)];
 
   const output = `  {
     name: "${name}",
     slug: "${slug}",
     emoji: "${emoji}",
     desc: "${desc}",
-    features: [${features.filter(Boolean).map((f) => `"${f}"`).join(", ")}],
+    features: [${features.map((f) => `"${f}"`).join(", ")}],
     pricing: "${pricing}",
     category: "${category}",
-    tags: [${tagList.map((t) => `"${t}"`).join(", ")}],
+    tags: [${selectedTags.map((t) => `"${t}"`).join(", ")}],
     status: "${status}",
   },`;
 
@@ -148,18 +307,16 @@ export default function Factory() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* LEFT — Form */}
           <div className="space-y-6">
-            {/* Name + Emoji */}
+            {/* Name */}
             <div>
               <label className="text-xs font-semibold uppercase tracking-widest text-[#4dd4e6] mb-2 block">App Name</label>
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Standup Bot"
-                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-[#f0f0f5] placeholder:text-[#3a4550] focus:outline-none focus:border-[#4dd4e6]/50 text-sm"
-                />
-              </div>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Standup Bot"
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-[#f0f0f5] placeholder:text-[#3a4550] focus:outline-none focus:border-[#4dd4e6]/50 text-sm"
+              />
               {slug && <p className="text-[10px] text-[#3a4550] mt-1.5 font-mono">slug: {slug}</p>}
             </div>
 
@@ -167,9 +324,9 @@ export default function Factory() {
             <div>
               <label className="text-xs font-semibold uppercase tracking-widest text-[#4dd4e6] mb-2 block">Emoji</label>
               <div className="flex flex-wrap gap-1.5 p-3 rounded-lg border border-white/10 bg-white/[0.02]">
-                {emojiSuggestions.map((e) => (
+                {emojiSuggestions.map((e, i) => (
                   <button
-                    key={e}
+                    key={`${e}-${i}`}
                     onClick={() => setEmoji(e)}
                     className={`w-9 h-9 rounded-md text-lg flex items-center justify-center transition-all ${
                       emoji === e ? "bg-[#4dd4e6]/20 ring-1 ring-[#4dd4e6]/50 scale-110" : "hover:bg-white/5"
@@ -255,50 +412,86 @@ export default function Factory() {
               </div>
             </div>
 
-            {/* Features */}
+            {/* Features — Click to Add */}
             <div>
-              <label className="text-xs font-semibold uppercase tracking-widest text-[#4dd4e6] mb-2 block">Features</label>
-              <div className="space-y-2">
-                {features.map((f, i) => (
-                  <div key={i} className="flex gap-2">
-                    <span className="text-[#3a4550] text-xs mt-3 w-4 text-right shrink-0">{i + 1}.</span>
-                    <input
-                      type="text"
-                      value={f}
-                      onChange={(e) => updateFeature(i, e.target.value)}
-                      placeholder={`Feature ${i + 1}`}
-                      className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-[#f0f0f5] placeholder:text-[#3a4550] focus:outline-none focus:border-[#4dd4e6]/50"
-                    />
-                    {features.length > 1 && (
-                      <button onClick={() => removeFeature(i)} className="text-[#3a4550] hover:text-red-400 text-xs px-1">✕</button>
-                    )}
-                  </div>
-                ))}
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-semibold uppercase tracking-widest text-[#4dd4e6]">Features</label>
+                <span className="text-[10px] text-[#3a4550]">{features.length} selected</span>
               </div>
-              {features.length < 8 && (
-                <button onClick={addFeature} className="mt-2 text-xs text-[#4dd4e6] hover:text-[#4dd4e6]/80 font-medium">
-                  + Add feature
-                </button>
-              )}
-            </div>
 
-            {/* Tags */}
-            <div>
-              <label className="text-xs font-semibold uppercase tracking-widest text-[#4dd4e6] mb-2 block">Tags</label>
-              <input
-                type="text"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder="Freelancers, Billing, Free (comma separated)"
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-[#f0f0f5] placeholder:text-[#3a4550] focus:outline-none focus:border-[#4dd4e6]/50 text-sm"
-              />
-              {tagList.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {tagList.map((t) => (
-                    <span key={t} className="text-[10px] px-2 py-0.5 rounded-full border border-white/10 text-[#6b7d8d]">{t}</span>
+              {/* Selected features */}
+              {features.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {features.map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => toggleFeature(f)}
+                      className="text-[11px] px-2.5 py-1 rounded-lg border border-[#4dd4e6]/30 bg-[#4dd4e6]/10 text-[#4dd4e6] hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-all flex items-center gap-1"
+                    >
+                      {f} <span className="text-[9px] opacity-60">✕</span>
+                    </button>
                   ))}
                 </div>
               )}
+
+              {/* Available features */}
+              <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 max-h-48 overflow-y-auto">
+                <div className="flex flex-wrap gap-1.5">
+                  {availableFeatures.filter((f) => !features.includes(f)).map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => toggleFeature(f)}
+                      className="text-[11px] px-2.5 py-1 rounded-lg border border-white/10 text-[#6b7d8d] hover:border-[#4dd4e6]/30 hover:text-[#4dd4e6] hover:bg-[#4dd4e6]/5 transition-all"
+                    >
+                      + {f}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Custom feature input */}
+              <div className="flex gap-2 mt-2">
+                <input
+                  type="text"
+                  value={customFeature}
+                  onChange={(e) => setCustomFeature(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addCustomFeature())}
+                  placeholder="Custom feature..."
+                  className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-[#f0f0f5] placeholder:text-[#3a4550] focus:outline-none focus:border-[#4dd4e6]/50"
+                />
+                <button
+                  onClick={addCustomFeature}
+                  className="px-3 py-2 rounded-lg border border-white/10 text-xs text-[#6b7d8d] hover:border-[#4dd4e6]/30 hover:text-[#4dd4e6] transition-all"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+            {/* Tags — Click to Toggle */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-semibold uppercase tracking-widest text-[#4dd4e6]">Tags</label>
+                <span className="text-[10px] text-[#3a4550]">{selectedTags.length} selected</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {uniqueTags.map((t) => {
+                  const active = selectedTags.includes(t);
+                  return (
+                    <button
+                      key={t}
+                      onClick={() => toggleTag(t)}
+                      className={`text-[11px] px-2.5 py-1 rounded-full border transition-all ${
+                        active
+                          ? "border-[#4dd4e6]/40 bg-[#4dd4e6]/10 text-[#4dd4e6]"
+                          : "border-white/10 text-[#6b7d8d] hover:border-white/20"
+                      }`}
+                    >
+                      {active ? "✓ " : ""}{t}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -312,7 +505,7 @@ export default function Factory() {
                 <h3 className="text-lg font-bold text-[#f0f0f5]">{name || "App Name"}</h3>
                 <p className="text-sm text-[#6b7d8d] mt-1.5 leading-relaxed">{desc || "Description goes here"}</p>
                 <div className="flex flex-wrap gap-1.5 mt-4">
-                  {tagList.length > 0 ? tagList.map((t) => (
+                  {selectedTags.length > 0 ? selectedTags.map((t) => (
                     <span key={t} className="text-[11px] px-2.5 py-0.5 rounded-full border border-white/10 text-[#6b7d8d]">{t}</span>
                   )) : (
                     <span className="text-[11px] px-2.5 py-0.5 rounded-full border border-white/10 text-[#3a4550]">tags</span>
@@ -328,12 +521,12 @@ export default function Factory() {
             </div>
 
             {/* Feature Preview */}
-            {features.some(Boolean) && (
+            {features.length > 0 && (
               <div>
                 <label className="text-xs font-semibold uppercase tracking-widest text-[#4dd4e6] mb-3 block">Feature Preview</label>
                 <div className="rounded-2xl border border-white/10 bg-[#0c0e16] p-6">
                   <div className="space-y-2.5">
-                    {features.filter(Boolean).map((f) => (
+                    {features.map((f) => (
                       <div key={f} className="flex items-start gap-2.5 text-sm text-[#6b7d8d]">
                         <span className="text-[#4dd4e6] mt-0.5 shrink-0 text-xs">✦</span>
                         <span>{f}</span>
