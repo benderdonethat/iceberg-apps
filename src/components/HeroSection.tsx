@@ -31,7 +31,7 @@ export default function HeroSection() {
       <div className="relative z-10 max-w-3xl mx-auto px-6 text-center py-32">
         
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] animate-fade-up">
-          Free Slack apps<br className="hidden sm:block" /> that <span className="text-primary">actually work</span>
+          The Slack apps your business needs.<br /> All <span className="text-primary">free</span>.
         </h1>
         <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-fade-up-delay-1">
           We build tools for streamers, freelancers, and teams. And give them away. New apps drop every week.
