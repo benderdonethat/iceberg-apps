@@ -87,6 +87,19 @@ ${appUpdates ? `What we shipped this week: ${appUpdates.join(', ')}` : 'This wee
 
 Generate exactly 6 sections. Each must be concise, valuable, and feel like it was written by someone who actually builds things — not a marketing team. No filler. Every sentence earns its place.
 
+CRITICAL WRITING RULES — FOLLOW THESE EXACTLY:
+- Write like a real person texting a friend, not a blog post or corporate email
+- NEVER use em dashes (—). Use periods, commas, or just start a new sentence
+- NEVER use "dive into", "deep dive", "leverage", "unlock", "empower", "harness", "game-changer", "seamlessly", "robust", "cutting-edge", "revolutionize", "streamline" (ironic but no), "elevate", "supercharge"
+- NEVER use "Here's the thing:", "Let me be honest:", "I'll be real:", or any throat-clearing
+- NEVER use bullet points with dashes. If listing things, use plain sentences or numbered items
+- Keep sentences short. Mix up sentence length. Some long. Some not.
+- Use contractions (don't, can't, won't, it's). Nobody writes "do not" in a casual email
+- Use "I" not "we" — this is one person writing
+- Swear if it fits but don't force it
+- Sound like someone who's tired from building all day but excited about what they made
+- The reader should feel like they're reading a text from someone they respect, not a newsletter
+
 SECTIONS:
 
 1. **WHAT I BUILT THIS WEEK** — First person. What @icebergsampson actually worked on. ${appUpdates ? `Include: ${appUpdates.join(', ')}` : 'Reference Stream Line development, a new feature, or progress on the next app.'} Make it specific and real. 3-4 sentences.
