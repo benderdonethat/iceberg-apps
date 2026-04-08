@@ -19,7 +19,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[70svh] flex items-center justify-center overflow-hidden">
       <img
         src={heroImg}
         alt="Glowing iceberg in dark ocean"
