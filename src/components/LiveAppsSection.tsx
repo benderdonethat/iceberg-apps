@@ -1,4 +1,5 @@
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import streamLineLogo from "@/assets/stream-line-logo.png";
 
 const features = [
   "Sales tracking & P&L with platform fees",
@@ -15,16 +16,16 @@ export default function LiveAppsSection() {
   const { ref, isVisible } = useScrollReveal();
 
   return (
-    <section id="apps" className="py-24 px-6" ref={ref}>
+    <section id="apps" className="py-28 px-6" ref={ref}>
       <div className={`max-w-4xl mx-auto transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
         <span className="text-xs font-semibold tracking-widest uppercase text-primary">Live Now</span>
-        <div className="mt-8 rounded-2xl border border-border bg-card p-6 sm:p-10 glow-cyan-hover transition-shadow duration-500">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
-            <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center overflow-hidden">
-              {/* Logo placeholder — upload actual Stream Line logo */}
-              <div className="w-full h-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center">
-                <span className="text-primary font-bold text-lg">SL</span>
-              </div>
+        <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-foreground">Our first app is here.</h2>
+        <p className="mt-3 text-muted-foreground max-w-xl">Built for live sellers. Free forever. No catch.</p>
+
+        <div className="mt-10 rounded-2xl border border-border bg-card p-8 sm:p-10 glow-cyan-hover transition-shadow duration-500">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-5 mb-8">
+            <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-muted flex items-center justify-center">
+              <img src={streamLineLogo} alt="Stream Line logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <div className="flex items-center gap-3 flex-wrap">
@@ -33,10 +34,11 @@ export default function LiveAppsSection() {
                   Live · Free Forever
                 </span>
               </div>
-              <p className="text-muted-foreground mt-1">The free operations bot for live streamers</p>
+              <p className="text-muted-foreground mt-1.5">The free operations bot for live streamers</p>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-10">
             {features.map((f) => (
               <div key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
                 <span className="text-primary mt-0.5 shrink-0">✦</span>
@@ -44,6 +46,7 @@ export default function LiveAppsSection() {
               </div>
             ))}
           </div>
+
           <a
             href="https://app-production-ef06.up.railway.app/slack/install"
             target="_blank"

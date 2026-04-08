@@ -31,7 +31,10 @@ export default function FeaturedAppsSection() {
   };
 
   return (
-    <section id="coming" className="py-24 px-6" ref={ref}>
+    <section id="coming" className="py-28 px-6 relative" ref={ref}>
+      {/* Subtle section divider */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
       <div className={`max-w-6xl mx-auto transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
         <span className="text-xs font-semibold tracking-widest uppercase text-primary">What's Next</span>
         <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-foreground">Building in public. Shipping every week.</h2>
@@ -45,21 +48,21 @@ export default function FeaturedAppsSection() {
             return (
               <div
                 key={app.slug}
-                className="rounded-2xl border border-border bg-card p-6 glow-cyan-hover transition-all duration-300 hover:border-primary/30 flex flex-col"
+                className="group rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:border-primary/30 hover:shadow-[0_0_30px_-10px_hsl(var(--cyan-glow)/0.15)] flex flex-col"
                 style={{ transitionDelay: `${i * 50}ms` }}
               >
-                <div className="text-2xl mb-2">{app.emoji}</div>
-                <h3 className="text-xl font-bold text-foreground">{app.name}</h3>
-                <p className="text-sm text-muted-foreground/70 mt-1.5 flex-1 leading-relaxed">{app.desc}</p>
+                <div className="text-3xl mb-3">{app.emoji}</div>
+                <h3 className="text-lg font-bold text-foreground">{app.name}</h3>
+                <p className="text-sm text-muted-foreground mt-1.5 flex-1 leading-relaxed">{app.desc}</p>
                 <div className="flex flex-wrap gap-1.5 mt-4">
                   {app.tags.map((t) => (
-                    <span key={t} className="text-[11px] px-2 py-0.5 rounded-full border border-border text-muted-foreground">{t}</span>
+                    <span key={t} className="text-[11px] px-2.5 py-0.5 rounded-full border border-border text-muted-foreground">{t}</span>
                   ))}
                 </div>
                 <button
                   onClick={() => !reminded && setModalApp(app)}
                   disabled={reminded}
-                  className={`mt-5 self-start rounded-lg px-5 py-2 text-sm font-medium transition-all min-h-[44px] ${
+                  className={`mt-5 self-start rounded-lg px-5 py-2.5 text-sm font-medium transition-all min-h-[44px] ${
                     reminded
                       ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
                       : "border border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground"

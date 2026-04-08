@@ -51,25 +51,28 @@ export default function RoadmapSection() {
   };
 
   return (
-    <section className="py-24 px-6" ref={ref}>
+    <section className="py-28 px-6 relative" ref={ref}>
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
       <div className={`max-w-6xl mx-auto transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-        <h3 className="text-xl font-semibold text-foreground mb-8">Full Roadmap</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+        <span className="text-xs font-semibold tracking-widest uppercase text-primary">Roadmap</span>
+        <h3 className="mt-4 text-2xl sm:text-3xl font-bold text-foreground mb-10">Everything we're building</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5">
           {roadmapApps.map((app) => {
             const reminded = remindedSlugs.has(app.slug);
             return (
               <div
                 key={app.slug}
-                className="rounded-lg border border-border bg-card/50 px-3 py-2.5 flex items-center gap-2.5 group hover:border-primary/20 transition-colors"
+                className="rounded-xl border border-border bg-card/50 px-4 py-3 flex items-center gap-3 group hover:border-primary/20 hover:bg-card transition-all duration-200"
               >
-                <span className="text-base shrink-0">{app.emoji}</span>
+                <span className="text-lg shrink-0">{app.emoji}</span>
                 <div className="flex-1 min-w-0">
-                  <span className="text-sm font-medium text-foreground">{app.name}</span>
+                  <span className="text-sm font-semibold text-foreground">{app.name}</span>
                   <p className="text-xs text-muted-foreground leading-snug">{app.desc}</p>
                 </div>
                 <button
                   onClick={() => !reminded && handleRemind(app)}
-                  className={`text-[11px] shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                  className={`text-xs shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors ${
                     reminded ? "text-emerald-400" : "text-muted-foreground hover:text-primary"
                   }`}
                 >
