@@ -44,7 +44,7 @@ export default function HeroSection() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@email.com"
-              className="flex-1 rounded-lg border border-border bg-muted/50 backdrop-blur-sm px-4 py-3.5 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm min-h-[48px]"
+              className="flex-1 rounded-lg border border-border bg-muted/50 backdrop-blur-sm px-4 py-3.5 text-foreground placeholder:text-muted-foreground placeholder:text-center focus:outline-none focus:ring-2 focus:ring-primary text-sm min-h-[48px] text-center"
             />
             <button
               type="submit"
