@@ -19,6 +19,10 @@ const pricingColors: Record<string, string> = {
 };
 
 export default function Factory() {
+  const [authed, setAuthed] = useState(false);
+  const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
   const [name, setName] = useState("");
   const [emoji, setEmoji] = useState("🤖");
   const [desc, setDesc] = useState("");
@@ -28,6 +32,34 @@ export default function Factory() {
   const [tags, setTags] = useState("");
   const [status, setStatus] = useState<string>("roadmap");
   const [copied, setCopied] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError(false);
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (res.ok) {
+        setAuthed(true);
+        sessionStorage.setItem("factory_auth", "1");
+      } else {
+        setAuthError(true);
+      }
+    } catch {
+      setAuthError(true);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // Check session on mount
+  useState(() => {
+    if (sessionStorage.getItem("factory_auth") === "1") setAuthed(true);
+  });
 
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -59,6 +91,36 @@ export default function Factory() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  if (!authed) {
+    return (
+      <div className="min-h-screen bg-[#080a10] text-[#f0f0f5] flex items-center justify-center">
+        <form onSubmit={handleLogin} className="w-full max-w-sm px-6">
+          <div className="text-center mb-8">
+            <img src={icebergLogo} alt="logo" className="w-16 h-16 rounded-xl object-cover mx-auto mb-4" />
+            <h1 className="text-xl font-bold">App Factory</h1>
+            <p className="text-xs text-[#6b7d8d] mt-1">freeslackapps.com — admin access</p>
+          </div>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            autoFocus
+            className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-[#f0f0f5] placeholder:text-[#3a4550] focus:outline-none focus:border-[#4dd4e6]/50 text-sm mb-3"
+          />
+          <button
+            type="submit"
+            disabled={authLoading}
+            className="w-full rounded-lg bg-[#4dd4e6] py-3 text-sm font-semibold text-[#080a10] hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {authLoading ? "Checking..." : "Enter"}
+          </button>
+          {authError && <p className="text-red-400 text-xs text-center mt-3">Wrong password</p>}
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#080a10] text-[#f0f0f5]">
