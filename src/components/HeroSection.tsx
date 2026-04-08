@@ -57,7 +57,7 @@ export default function HeroSection() {
           <p className="mt-10 text-primary font-medium animate-fade-up">You're in ✓</p>
         )}
         <p className="mt-4 text-xs text-muted-foreground/70 animate-fade-up-delay-3">
-          5 emails total. No spam. Unsubscribe anytime.
+          Only get the updates you want. No spam. Unsubscribe anytime.
         </p>
       </div>
     </section>
