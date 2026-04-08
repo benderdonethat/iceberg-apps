@@ -36,12 +36,16 @@ export default async function handler(req, res) {
           content: `You are a Slack ecosystem market analyst. Analyze the current state of the Slack App Directory and identify gaps and opportunities for FREE Slack apps.
 
 CONTEXT:
-- Slack has 200M+ weekly active users across 750,000+ organizations (Salesforce Q3 2025 earnings)
+- Today's date is ${new Date().toISOString().split('T')[0]}. Only cite data from 2025 or 2026. Do NOT reference anything from 2024 or earlier.
+- Slack has 200M+ weekly active users across 750,000+ organizations (Salesforce FY2026 earnings)
 - The Slack App Directory has 2,600+ apps but most are enterprise-priced ($5-25/user/month)
 - Small teams (2-50 people) are massively underserved — they can't afford per-seat pricing
-- The fastest growing Slack segments: remote teams, agencies, freelancers, creators, small e-commerce
-- 65% of Slack workspaces have fewer than 50 members (Slack internal data, 2024)
-- Top Slack app categories by install volume: productivity, project management, communication, developer tools, HR, sales, analytics
+- The fastest growing Slack segments: remote teams, agencies, freelancers, creators, small e-commerce, AI-native startups
+- 65%+ of Slack workspaces have fewer than 50 members
+- AI-powered Slack apps are the fastest growing category in 2025-2026
+- Top Slack app categories by install volume: productivity, project management, communication, developer tools, HR, sales, analytics, AI assistants
+
+IMPORTANT: Only cite sources, reports, and data points from 2025 or 2026. Reference recent earnings reports, recent G2/Capterra reviews, recent industry surveys (Gartner, Forrester, McKinsey, etc.), recent competitor pricing pages, and recent Slack blog posts. If you cannot find a 2025-2026 source for a claim, state the claim without a date rather than citing old data.
 
 THE CATALOG WE ALREADY HAVE (do NOT suggest these):
 ${(currentApps || []).join('\n')}
@@ -66,7 +70,8 @@ IMPORTANT RULES:
 - Prefer apps that are visible to the whole team (higher virality)
 - Do NOT suggest apps that require complex external integrations (calendar sync, email parsing, etc.)
 - Be specific. "Project tracker" is too generic. "Client deliverable tracker with deadline alerts" is specific.
-- Every data point you cite must be real and verifiable. Do not fabricate sources.
+- Every data point you cite must be real, verifiable, and from 2025 or 2026. Do not fabricate sources or cite outdated reports.
+- Prioritize citing: Salesforce/Slack earnings calls, G2 2025-2026 reviews, Gartner/Forrester 2025-2026 reports, competitor pricing pages (as of today), recent tech news (TechCrunch, The Verge, etc.)
 
 FORMAT: Return as valid JSON:
 {
