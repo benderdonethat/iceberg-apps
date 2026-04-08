@@ -63,11 +63,11 @@ export default async function handler(req, res) {
                   ` : ''}
                   <div style="width:60px;height:2px;background:#4dd4e6;margin:24px 0;"></div>
                   <p style="color:#6b7d8d;font-size:13px;line-height:1.6;">
-                    See all apps at <a href="https://igotminimoney.com" style="color:#a8c8d8;text-decoration:none;">igotminimoney.com</a>
+                    See all apps at <a href="https://freeslackapps.com" style="color:#a8c8d8;text-decoration:none;">freeslackapps.com</a>
                   </p>
                   <p style="color:#3a4550;font-size:11px;margin-top:40px;">
-                    You're getting this because you signed up at igotminimoney.com<br>
-                    <a href="https://igotminimoney.com" style="color:#3a4550;">Unsubscribe</a>
+                    You're getting this because you signed up at freeslackapps.com<br>
+                    <a href="https://freeslackapps.com" style="color:#3a4550;">Unsubscribe</a>
                   </p>
                 </div>
               </div>

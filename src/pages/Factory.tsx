@@ -68,7 +68,7 @@ export default function Factory() {
           <img src={icebergLogo} alt="logo" className="w-10 h-10 rounded-lg object-cover" />
           <div>
             <h1 className="text-lg font-bold tracking-tight">App Factory</h1>
-            <p className="text-xs text-[#6b7d8d]">igotminimoney.com — build dashboard</p>
+            <p className="text-xs text-[#6b7d8d]">freeslackapps.com — build dashboard</p>
           </div>
           <div className="ml-auto flex items-center gap-3">
             <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${

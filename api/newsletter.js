@@ -78,7 +78,7 @@ async function generateNewsletter(apiKey, customTopic, appUpdates) {
 
   const prompt = `Generate a weekly newsletter for @icebergsampson — one person building AI-powered businesses, Slack apps, and automation systems. The brand is premium, dark, ice-blue aesthetic. The voice is direct, confident, no fluff — like a sharp friend who builds things and shares what works.
 
-The creator (David / @icebergsampson) builds free Slack apps at igotminimoney.com. He just launched Stream Line — a free operations bot for live streamers. He documents the build process on YouTube (@manplusbrain) and Instagram (@icebergsampson).
+The creator (David / @icebergsampson) builds free Slack apps at freeslackapps.com. He just launched Stream Line — a free operations bot for live streamers. He documents the build process on YouTube (@manplusbrain) and Instagram (@icebergsampson).
 
 Week of: ${weekOf}
 
@@ -228,7 +228,7 @@ function buildNewsletterHTML(content) {
               <div style="background:#0f1a28;border:1px solid rgba(77,212,230,0.15);border-radius:10px;padding:24px;">
                 <div style="font-size:15px;font-weight:700;color:#f0f0f5;margin-bottom:8px;">Free Slack apps that actually work</div>
                 <div style="font-size:13px;color:#6b7d8d;margin-bottom:16px;">Stream Line is live. More apps shipping every week.</div>
-                <a href="https://igotminimoney.com" style="display:inline-block;padding:10px 24px;background:#2ba8c3;color:white;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">See all apps</a>
+                <a href="https://freeslackapps.com" style="display:inline-block;padding:10px 24px;background:#2ba8c3;color:white;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">See all apps</a>
               </div>
             </td></tr>
 
@@ -237,11 +237,11 @@ function buildNewsletterHTML(content) {
               <div style="margin-bottom:10px;">
                 <a href="https://instagram.com/icebergsampson" style="color:#4d6070;text-decoration:none;font-size:12px;margin:0 10px;">Instagram</a>
                 <a href="https://youtube.com/@manplusbrain" style="color:#4d6070;text-decoration:none;font-size:12px;margin:0 10px;">YouTube</a>
-                <a href="https://igotminimoney.com" style="color:#4d6070;text-decoration:none;font-size:12px;margin:0 10px;">Apps</a>
+                <a href="https://freeslackapps.com" style="color:#4d6070;text-decoration:none;font-size:12px;margin:0 10px;">Apps</a>
               </div>
               <div style="font-size:11px;color:#2a3540;margin-top:14px;">
-                You signed up at igotminimoney.com<br>
-                <a href="https://igotminimoney.com" style="color:#2a3540;">Unsubscribe</a>
+                You signed up at freeslackapps.com<br>
+                <a href="https://freeslackapps.com" style="color:#2a3540;">Unsubscribe</a>
               </div>
             </td></tr>
 

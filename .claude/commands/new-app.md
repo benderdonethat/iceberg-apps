@@ -1,6 +1,6 @@
 # /new-app — App Factory Dashboard
 
-You are launching the igotminimoney.com App Factory. Display the branded dashboard below, then guide the user through designing a new Slack app listing.
+You are launching the freeslackapps.com App Factory. Display the branded dashboard below, then guide the user through designing a new Slack app listing.
 
 ## Step 1: Display the Dashboard
 
@@ -26,7 +26,7 @@ Print this EXACTLY (do not skip or summarize):
 
   ─────────────────────────────────────────────────────
               A P P   F A C T O R Y
-          igotminimoney.com  |  new build
+          freeslackapps.com  |  new build
   ─────────────────────────────────────────────────────
 
   PICK A CATEGORY:

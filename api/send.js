@@ -88,7 +88,7 @@ function buildWelcomeHTML(isNewsletter) {
 
               <!-- SEE ALL APPS -->
               <div style="text-align:center;margin-bottom:16px;">
-                <a href="https://igotminimoney.com" style="display:inline-block;padding:10px 24px;background:transparent;border:1px solid rgba(77,212,230,0.25);color:#4dd4e6;text-decoration:none;border-radius:6px;font-weight:600;font-size:13px;">See all apps at igotminimoney.com</a>
+                <a href="https://freeslackapps.com" style="display:inline-block;padding:10px 24px;background:transparent;border:1px solid rgba(77,212,230,0.25);color:#4dd4e6;text-decoration:none;border-radius:6px;font-weight:600;font-size:13px;">See all apps at freeslackapps.com</a>
               </div>
             </td></tr>
 
@@ -97,11 +97,11 @@ function buildWelcomeHTML(isNewsletter) {
               <div style="margin-bottom:10px;">
                 <a href="https://instagram.com/icebergsampson" style="color:#4d6070;text-decoration:none;font-size:12px;margin:0 10px;">Instagram</a>
                 <a href="https://youtube.com/@manplusbrain" style="color:#4d6070;text-decoration:none;font-size:12px;margin:0 10px;">YouTube</a>
-                <a href="https://igotminimoney.com" style="color:#4d6070;text-decoration:none;font-size:12px;margin:0 10px;">Apps</a>
+                <a href="https://freeslackapps.com" style="color:#4d6070;text-decoration:none;font-size:12px;margin:0 10px;">Apps</a>
               </div>
               <div style="font-size:11px;color:#2a3540;margin-top:14px;">
-                You signed up at igotminimoney.com<br>
-                <a href="https://igotminimoney.com" style="color:#2a3540;">Unsubscribe</a>
+                You signed up at freeslackapps.com<br>
+                <a href="https://freeslackapps.com" style="color:#2a3540;">Unsubscribe</a>
               </div>
             </td></tr>
 

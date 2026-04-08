@@ -51,7 +51,7 @@ export default async function handler(req, res) {
               <p style="color:#6b7d8d;font-size:13px;line-height:1.6;">
                 follow the build at <a href="https://instagram.com/icebergsampson" style="color:#a8c8d8;text-decoration:none;">@icebergsampson</a>
               </p>
-              <p style="color:#3a4550;font-size:11px;margin-top:40px;">igotminimoney.com</p>
+              <p style="color:#3a4550;font-size:11px;margin-top:40px;">freeslackapps.com</p>
             </div>
           </div>
         `,
