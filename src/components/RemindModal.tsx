@@ -28,11 +28,21 @@ export default function RemindModal({ open, onClose, appName, appSlug, onSuccess
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 400));
-    setDone(true);
-    setLoading(false);
-    onSuccess(email);
-    setTimeout(() => onClose(), 1200);
+    try {
+      const res = await fetch("/api/remind", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, appName, appSlug }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      setDone(true);
+      onSuccess(email);
+      setTimeout(() => onClose(), 1200);
+    } catch {
+      setDone(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
