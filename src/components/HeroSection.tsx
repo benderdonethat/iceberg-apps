@@ -48,7 +48,7 @@ export default function HeroSection() {
         className="absolute inset-0 w-full h-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background" />
-      <div className="relative z-10 max-w-3xl mx-auto px-6 text-center py-32">
+      <div className="relative z-10 max-w-3xl mx-auto px-6 text-center pt-32 pb-16">
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] animate-fade-up">
           Free Slack apps<br className="hidden sm:block" /> that <span className="text-primary">actually work</span>
         </h1>
