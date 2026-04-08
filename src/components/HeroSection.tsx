@@ -31,10 +31,10 @@ export default function HeroSection() {
       <div className="relative z-10 max-w-3xl mx-auto px-6 text-center py-32">
         
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] animate-fade-up">
-          The Slack apps your business needs.<br /> All <span className="text-primary">free</span>.
+          Free Slack apps<br className="hidden sm:block" /> that <span className="text-primary">actually work</span>
         </h1>
         <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-fade-up-delay-1">
-          We build tools for streamers, freelancers, and teams. And give them away. New apps drop every week.
+          The Slack apps your business needs. All free.
         </p>
         {!submitted ? (
           <form onSubmit={handleSubmit} className="mt-10 flex flex-col sm:flex-row gap-3 max-w-md mx-auto animate-fade-up-delay-2">
