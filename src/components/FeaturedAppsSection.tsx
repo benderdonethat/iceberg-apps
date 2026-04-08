@@ -8,15 +8,17 @@ interface AppCard {
   desc: string;
   tags: string[];
   emoji: string;
+  features: string[];
+  pricing: string;
 }
 
 const apps: AppCard[] = [
-  { name: "Invoice Pilot", slug: "invoice-pilot", desc: "Track invoices, send payment reminders, mark paid.", tags: ["Freelancers", "Billing", "Free"], emoji: "🧾" },
-  { name: "Time Punch", slug: "time-punch", desc: "Clock in/out, track hours by client/project.", tags: ["Agencies", "Time Tracking", "Freemium"], emoji: "⏱️" },
-  { name: "Lead Catcher", slug: "lead-catcher", desc: "Form submissions and DMs routed to Slack with auto-qualification.", tags: ["Sales", "Lead Gen", "Freemium"], emoji: "🎣" },
-  { name: "Expense Drop", slug: "expense-drop", desc: "Snap receipts, log expenses, monthly reports.", tags: ["Finance", "Receipts", "Paid"], emoji: "💸" },
-  { name: "Content Cal", slug: "content-cal", desc: "Content calendar in Slack. Schedule posts, assign creators.", tags: ["Content", "Social Media", "Freemium"], emoji: "📅" },
-  { name: "Deal Flow", slug: "deal-flow", desc: "Lightweight sales pipeline. Lead to close.", tags: ["Sales", "Pipeline", "Freemium"], emoji: "🤝" },
+  { name: "Invoice Pilot", slug: "invoice-pilot", desc: "Track invoices, send payment reminders, mark paid.", tags: ["Freelancers", "Billing", "Free"], emoji: "🧾", pricing: "Free", features: ["Create invoices from Slack", "Auto payment reminders", "Track paid/unpaid status", "Monthly revenue summary"] },
+  { name: "Time Punch", slug: "time-punch", desc: "Clock in/out, track hours by client/project.", tags: ["Agencies", "Time Tracking", "Freemium"], emoji: "⏱️", pricing: "Freemium", features: ["Clock in/out via Slack", "Track hours by project", "Weekly timesheet reports", "Export for payroll"] },
+  { name: "Lead Catcher", slug: "lead-catcher", desc: "Form submissions and DMs routed to Slack with auto-qualification.", tags: ["Sales", "Lead Gen", "Freemium"], emoji: "🎣", pricing: "Freemium", features: ["Webhook form capture", "Auto-qualify by criteria", "Route to sales channel", "Lead response timer"] },
+  { name: "Expense Drop", slug: "expense-drop", desc: "Snap receipts, log expenses, monthly reports.", tags: ["Finance", "Receipts", "Paid"], emoji: "💸", pricing: "Paid", features: ["Upload receipts via Slack", "Categorize expenses", "Monthly expense reports", "CSV export for taxes"] },
+  { name: "Content Cal", slug: "content-cal", desc: "Content calendar in Slack. Schedule posts, assign creators.", tags: ["Content", "Social Media", "Freemium"], emoji: "📅", pricing: "Freemium", features: ["Visual content calendar", "Assign posts to creators", "Deadline reminders", "Platform tagging"] },
+  { name: "Deal Flow", slug: "deal-flow", desc: "Lightweight sales pipeline. Lead to close.", tags: ["Sales", "Pipeline", "Freemium"], emoji: "🤝", pricing: "Freemium", features: ["Kanban-style deal stages", "Move deals via buttons", "Win/loss tracking", "Revenue forecasting"] },
 ];
 
 export default function FeaturedAppsSection() {
@@ -32,7 +34,6 @@ export default function FeaturedAppsSection() {
 
   return (
     <section id="coming" className="py-28 px-6 relative" ref={ref}>
-      {/* Subtle section divider */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
       <div className={`max-w-6xl mx-auto transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
@@ -84,6 +85,9 @@ export default function FeaturedAppsSection() {
           appSlug={modalApp.slug}
           savedEmail={savedEmail}
           onSuccess={(email) => handleSuccess(modalApp.slug, email)}
+          features={modalApp.features}
+          pricing={modalApp.pricing}
+          emoji={modalApp.emoji}
         />
       )}
     </section>
