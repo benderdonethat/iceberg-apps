@@ -1,5 +1,5 @@
 import { useState } from "react";
-import heroImg from "@/assets/hero-iceberg.jpg";
+import heroImg from "@/assets/hero-iceberg.png";
 
 export default function HeroSection() {
   const [email, setEmail] = useState("");
