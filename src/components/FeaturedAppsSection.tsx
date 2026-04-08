@@ -1,29 +1,12 @@
 import { useState } from "react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { featuredApps, type App } from "@/data/apps";
 import RemindModal from "./RemindModal";
-
-interface AppCard {
-  name: string;
-  slug: string;
-  desc: string;
-  tags: string[];
-  emoji: string;
-  features: string[];
-  pricing: string;
-}
-
-const apps: AppCard[] = [
-  { name: "Invoice Pilot", slug: "invoice-pilot", desc: "Track invoices, send payment reminders, mark paid.", tags: ["Freelancers", "Billing", "Free"], emoji: "🧾", pricing: "Free", features: ["Create invoices from Slack", "Auto payment reminders", "Track paid/unpaid status", "Monthly revenue summary"] },
-  { name: "Time Punch", slug: "time-punch", desc: "Clock in/out, track hours by client/project.", tags: ["Agencies", "Time Tracking", "Freemium"], emoji: "⏱️", pricing: "Freemium", features: ["Clock in/out via Slack", "Track hours by project", "Weekly timesheet reports", "Export for payroll"] },
-  { name: "Lead Catcher", slug: "lead-catcher", desc: "Form submissions and DMs routed to Slack with auto-qualification.", tags: ["Sales", "Lead Gen", "Freemium"], emoji: "🎣", pricing: "Freemium", features: ["Webhook form capture", "Auto-qualify by criteria", "Route to sales channel", "Lead response timer"] },
-  { name: "Expense Drop", slug: "expense-drop", desc: "Snap receipts, log expenses, monthly reports.", tags: ["Finance", "Receipts", "Paid"], emoji: "💸", pricing: "Paid", features: ["Upload receipts via Slack", "Categorize expenses", "Monthly expense reports", "CSV export for taxes"] },
-  { name: "Content Cal", slug: "content-cal", desc: "Content calendar in Slack. Schedule posts, assign creators.", tags: ["Content", "Social Media", "Freemium"], emoji: "📅", pricing: "Freemium", features: ["Visual content calendar", "Assign posts to creators", "Deadline reminders", "Platform tagging"] },
-  { name: "Deal Flow", slug: "deal-flow", desc: "Lightweight sales pipeline. Lead to close.", tags: ["Sales", "Pipeline", "Freemium"], emoji: "🤝", pricing: "Freemium", features: ["Kanban-style deal stages", "Move deals via buttons", "Win/loss tracking", "Revenue forecasting"] },
-];
 
 export default function FeaturedAppsSection() {
   const { ref, isVisible } = useScrollReveal();
-  const [modalApp, setModalApp] = useState<AppCard | null>(null);
+  const apps = featuredApps();
+  const [modalApp, setModalApp] = useState<App | null>(null);
   const [remindedSlugs, setRemindedSlugs] = useState<Set<string>>(new Set());
   const [savedEmail, setSavedEmail] = useState("");
 
@@ -31,6 +14,8 @@ export default function FeaturedAppsSection() {
     setRemindedSlugs((prev) => new Set(prev).add(slug));
     setSavedEmail(email);
   };
+
+  if (apps.length === 0) return null;
 
   return (
     <section id="coming" className="py-28 px-6 relative" ref={ref}>
