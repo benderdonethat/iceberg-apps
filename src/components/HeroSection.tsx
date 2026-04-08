@@ -33,7 +33,7 @@ export default function HeroSection() {
           Free Slack apps that actually work
         </h1>
         <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-up-delay-1">
-          We build tools for streamers, freelancers, and teams — and give them away. New apps drop every week.
+          We build tools for streamers, freelancers, and teams. And give them away. New apps drop every week.
         </p>
         {!submitted ? (
           <form onSubmit={handleSubmit} className="mt-10 flex flex-col sm:flex-row gap-3 max-w-md mx-auto animate-fade-up-delay-2">

@@ -30,7 +30,7 @@ export default function LiveAppsSection() {
               <div className="flex items-center gap-3 flex-wrap">
                 <h3 className="text-2xl font-bold text-foreground">Stream Line</h3>
                 <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-                  Live — Free Forever
+                  Live · Free Forever
                 </span>
               </div>
               <p className="text-muted-foreground mt-1">The free operations bot for live streamers</p>
@@ -50,7 +50,7 @@ export default function LiveAppsSection() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground hover:shadow-[0_0_25px_-5px_hsl(var(--cyan-glow)/0.6)] transition-all duration-300 min-h-[48px]"
           >
-            Add to Slack — Free
+            Add to Slack · Free
           </a>
         </div>
       </div>

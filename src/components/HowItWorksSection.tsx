@@ -1,7 +1,7 @@
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const steps = [
-  { num: "01", title: "Pick an app", desc: "Browse the catalog. Every app is built for a specific workflow — streaming ops, invoicing, time tracking, you name it." },
+  { num: "01", title: "Pick an app", desc: "Browse the catalog. Every app is built for a specific workflow: streaming ops, invoicing, time tracking, you name it." },
   { num: "02", title: "Add to Slack", desc: "One click to install. Most apps take less than 5 minutes to set up. No code, no config files." },
   { num: "03", title: "Start using it", desc: "Buttons and menus, not slash commands. Everything works right inside Slack where your team already lives." },
 ];
