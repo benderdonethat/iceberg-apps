@@ -48,9 +48,9 @@ export default function FeaturedAppsSection() {
                 className="rounded-2xl border border-border bg-card p-6 glow-cyan-hover transition-all duration-300 hover:border-primary/30 flex flex-col"
                 style={{ transitionDelay: `${i * 50}ms` }}
               >
-                <div className="text-3xl mb-3">{app.emoji}</div>
-                <h3 className="text-lg font-semibold text-foreground">{app.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1 flex-1">{app.desc}</p>
+                <div className="text-2xl mb-2">{app.emoji}</div>
+                <h3 className="text-xl font-bold text-foreground">{app.name}</h3>
+                <p className="text-sm text-muted-foreground/70 mt-1.5 flex-1 leading-relaxed">{app.desc}</p>
                 <div className="flex flex-wrap gap-1.5 mt-4">
                   {app.tags.map((t) => (
                     <span key={t} className="text-[11px] px-2 py-0.5 rounded-full border border-border text-muted-foreground">{t}</span>
@@ -59,10 +59,10 @@ export default function FeaturedAppsSection() {
                 <button
                   onClick={() => !reminded && setModalApp(app)}
                   disabled={reminded}
-                  className={`mt-5 w-full rounded-lg py-2.5 text-sm font-medium transition-all min-h-[44px] ${
+                  className={`mt-5 self-start rounded-lg px-5 py-2 text-sm font-medium transition-all min-h-[44px] ${
                     reminded
                       ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 cursor-default"
-                      : "bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
+                      : "border border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground"
                   }`}
                 >
                   {reminded ? "✓ You'll be notified" : "Remind Me"}
@@ -80,7 +80,7 @@ export default function FeaturedAppsSection() {
           appName={modalApp.name}
           appSlug={modalApp.slug}
           savedEmail={savedEmail}
-          onSuccess={() => handleSuccess(modalApp.slug, savedEmail || "")}
+          onSuccess={(email) => handleSuccess(modalApp.slug, email)}
         />
       )}
     </section>

@@ -20,7 +20,12 @@ export default function LiveAppsSection() {
         <span className="text-xs font-semibold tracking-widest uppercase text-primary">Live Now</span>
         <div className="mt-8 rounded-2xl border border-border bg-card p-6 sm:p-10 glow-cyan-hover transition-shadow duration-500">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
-            <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center text-2xl">📡</div>
+            <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center overflow-hidden">
+              {/* Logo placeholder — upload actual Stream Line logo */}
+              <div className="w-full h-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center">
+                <span className="text-primary font-bold text-lg">SL</span>
+              </div>
+            </div>
             <div>
               <div className="flex items-center gap-3 flex-wrap">
                 <h3 className="text-2xl font-bold text-foreground">Stream Line</h3>
@@ -43,7 +48,7 @@ export default function LiveAppsSection() {
             href="https://app-production-ef06.up.railway.app/slack/install"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity min-h-[44px]"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground hover:shadow-[0_0_25px_-5px_hsl(var(--cyan-glow)/0.6)] transition-all duration-300 min-h-[48px]"
           >
             Add to Slack — Free
           </a>
