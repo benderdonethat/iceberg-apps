@@ -44,12 +44,6 @@ export default function RoadmapSection() {
 
   const handleRemind = (app: RoadmapApp) => {
     if (savedEmail) {
-      // Auto-submit
-      fetch("/api/remind", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: savedEmail, appName: app.name, appSlug: app.slug }),
-      }).catch(() => {});
       setRemindedSlugs((prev) => new Set(prev).add(app.slug));
     } else {
       setModalApp(app);
@@ -60,29 +54,27 @@ export default function RoadmapSection() {
     <section className="py-24 px-6" ref={ref}>
       <div className={`max-w-6xl mx-auto transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
         <h3 className="text-xl font-semibold text-foreground mb-8">Full Roadmap</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
           {roadmapApps.map((app) => {
             const reminded = remindedSlugs.has(app.slug);
             return (
               <div
                 key={app.slug}
-                className="rounded-xl border border-border bg-card/50 p-4 flex items-start gap-3 group hover:border-primary/20 transition-colors"
+                className="rounded-lg border border-border bg-card/50 px-3 py-2.5 flex items-center gap-2.5 group hover:border-primary/20 transition-colors"
               >
-                <span className="text-xl shrink-0 mt-0.5">{app.emoji}</span>
+                <span className="text-base shrink-0">{app.emoji}</span>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium text-foreground truncate">{app.name}</span>
-                    <button
-                      onClick={() => !reminded && handleRemind(app)}
-                      className={`text-[11px] shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center ${
-                        reminded ? "text-emerald-400" : "text-primary hover:underline"
-                      }`}
-                    >
-                      {reminded ? "✓" : "Remind me"}
-                    </button>
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{app.desc}</p>
+                  <span className="text-sm font-medium text-foreground">{app.name}</span>
+                  <p className="text-xs text-muted-foreground leading-snug">{app.desc}</p>
                 </div>
+                <button
+                  onClick={() => !reminded && handleRemind(app)}
+                  className={`text-[11px] shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center ${
+                    reminded ? "text-emerald-400" : "text-muted-foreground hover:text-primary"
+                  }`}
+                >
+                  {reminded ? "✓" : "Remind me"}
+                </button>
               </div>
             );
           })}
@@ -96,8 +88,9 @@ export default function RoadmapSection() {
           appName={modalApp.name}
           appSlug={modalApp.slug}
           savedEmail={savedEmail}
-          onSuccess={() => {
+          onSuccess={(email) => {
             setRemindedSlugs((prev) => new Set(prev).add(modalApp.slug));
+            setSavedEmail(email);
           }}
         />
       )}
