@@ -1,21 +1,41 @@
 import { useState } from "react";
 import heroImg from "@/assets/hero-iceberg.png";
 
+const PREFERENCE_OPTIONS = [
+  { key: "releases", label: "New Slack App Releases" },
+  { key: "newsletter", label: "Newsletter" },
+  { key: "prompts", label: "All Available Prompts" },
+] as const;
+
+type Step = "email" | "preferences" | "done";
+
 export default function HeroSection() {
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [step, setStep] = useState<Step>("email");
+  const [preferences, setPreferences] = useState<Record<string, boolean>>({
+    releases: true,
+    newsletter: true,
+    prompts: true,
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const togglePref = (key: string) =>
+    setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
+
+  const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+    setStep("preferences");
+  };
+
+  const handleConfirm = async () => {
     try {
       await fetch("/api/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, preferences }),
       });
     } catch {}
-    setSubmitted(true);
+    setStep("done");
   };
 
   return (
@@ -29,36 +49,80 @@ export default function HeroSection() {
       />
       <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background" />
       <div className="relative z-10 max-w-3xl mx-auto px-6 text-center py-32">
-        
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] animate-fade-up">
           Free Slack apps<br className="hidden sm:block" /> that <span className="text-primary">actually work</span>
         </h1>
         <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-fade-up-delay-1">
           The Slack apps your business needs. All free.
         </p>
-        {!submitted ? (
-          <form onSubmit={handleSubmit} className="mt-10 flex flex-col sm:flex-row gap-3 max-w-md mx-auto animate-fade-up-delay-2">
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your email here"
-              className="flex-1 rounded-lg border border-border bg-muted/50 backdrop-blur-sm px-4 py-3.5 text-foreground placeholder:text-muted-foreground placeholder:text-center focus:outline-none focus:ring-2 focus:ring-primary text-sm min-h-[48px] text-center"
-            />
+
+        {step === "email" && (
+          <>
+            <form onSubmit={handleEmailSubmit} className="mt-10 flex flex-col sm:flex-row gap-3 max-w-md mx-auto animate-fade-up-delay-2">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your email here"
+                className="flex-1 rounded-lg border border-border bg-muted/50 backdrop-blur-sm px-4 py-3.5 text-foreground placeholder:text-muted-foreground placeholder:text-center focus:outline-none focus:ring-2 focus:ring-primary text-sm min-h-[48px] text-center"
+              />
+              <button
+                type="submit"
+                className="rounded-lg bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground hover:shadow-[0_0_25px_-5px_hsl(var(--cyan-glow)/0.6)] transition-all duration-300 min-h-[48px] whitespace-nowrap"
+              >
+                Get Updates
+              </button>
+            </form>
+            <p className="mt-4 text-xs text-muted-foreground/70 animate-fade-up-delay-3">
+              Only get the updates you want. No spam. Unsubscribe anytime.
+            </p>
+          </>
+        )}
+
+        {step === "preferences" && (
+          <div className="mt-10 max-w-sm mx-auto animate-fade-up">
+            <p className="text-sm font-medium text-foreground mb-4">What would you like to receive?</p>
+            <div className="flex flex-col gap-3">
+              {PREFERENCE_OPTIONS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => togglePref(key)}
+                  className={`flex items-center justify-between rounded-lg border px-4 py-3 text-sm transition-all duration-200 ${
+                    preferences[key]
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-muted/30 text-muted-foreground"
+                  }`}
+                >
+                  <span>{label}</span>
+                  <span
+                    className={`w-9 h-5 rounded-full relative transition-colors duration-200 ${
+                      preferences[key] ? "bg-primary" : "bg-muted-foreground/30"
+                    }`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-primary-foreground transition-transform duration-200 ${
+                        preferences[key] ? "translate-x-4" : "translate-x-0"
+                      }`}
+                    />
+                  </span>
+                </button>
+              ))}
+            </div>
             <button
-              type="submit"
-              className="rounded-lg bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground hover:shadow-[0_0_25px_-5px_hsl(var(--cyan-glow)/0.6)] transition-all duration-300 min-h-[48px] whitespace-nowrap"
+              onClick={handleConfirm}
+              disabled={!Object.values(preferences).some(Boolean)}
+              className="mt-6 w-full rounded-lg bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground hover:shadow-[0_0_25px_-5px_hsl(var(--cyan-glow)/0.6)] transition-all duration-300 min-h-[48px] disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Get Updates
+              Confirm
             </button>
-          </form>
-        ) : (
+          </div>
+        )}
+
+        {step === "done" && (
           <p className="mt-10 text-primary font-medium animate-fade-up">You're in ✓</p>
         )}
-        <p className="mt-4 text-xs text-muted-foreground/70 animate-fade-up-delay-3">
-          Only get the updates you want. No spam. Unsubscribe anytime.
-        </p>
       </div>
     </section>
   );
