@@ -37,7 +37,7 @@ export default function HeroSection() {
           We build tools for streamers, freelancers, and teams. And give them away. New apps drop every week.
         </p>
         {!submitted ? (
-          <form onSubmit={handleSubmit} className="mt-10 flex flex-col sm:flex-row gap-3 max-w-md mx-auto animate-fade-up-delay-2">
+          <form onSubmit={handleSubmit} className="mt-10 flex flex-col sm:flex-row gap-3 max-w-md mx-auto animate-fade-up-delay-2 items-center">
             <input
               type="email"
               required
