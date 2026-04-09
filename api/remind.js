@@ -40,21 +40,7 @@ export default async function handler(req, res) {
         to: email,
         reply_to: 'justforaistorage@gmail.com',
         subject: `You're on the list — ${appName} is coming`,
-        html: `
-          <div style="background:#0a0c12;padding:40px 24px;font-family:-apple-system,Helvetica,Arial,sans-serif;">
-            <div style="max-width:500px;margin:0 auto;">
-              <h1 style="color:#F0F0F5;font-size:22px;font-weight:700;margin-bottom:16px;">You'll be first to know.</h1>
-              <p style="color:#6b7d8d;font-size:15px;line-height:1.6;margin-bottom:24px;">
-                <strong style="color:#a8c8d8;">${appName}</strong> is being built right now. When it drops, you'll get an email with a direct link to install it on Slack.
-              </p>
-              <div style="width:60px;height:2px;background:#4dd4e6;margin-bottom:24px;"></div>
-              <p style="color:#6b7d8d;font-size:13px;line-height:1.6;">
-                follow the build at <a href="https://instagram.com/icebergsampson" style="color:#a8c8d8;text-decoration:none;">@icebergsampson</a>
-              </p>
-              <p style="color:#3a4550;font-size:11px;margin-top:40px;">freeslackapps.com</p>
-            </div>
-          </div>
-        `,
+        text: `Hey — ${appName} is being built right now.\n\nWhen it drops, you'll get an email with a direct link to install it on Slack. No spam, just the launch notification.\n\nfreeslackapps.com\n\n— @icebergsampson`,
       }),
     });
 
