@@ -38,12 +38,27 @@ const Privacy = () => {
 
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-2">Data Encryption</h2>
-            <p>All sensitive data stored by our Slack apps (bot tokens, article content in Sensei) is encrypted using AES-256-GCM before it touches the database.</p>
+            <p>All sensitive data stored by our Slack apps (bot tokens, article content in Sensei, platform API keys in Stream Line) is encrypted using AES-256-GCM before it touches the database. Database-level Row Level Security ensures that one workspace's data can never be accessed by another workspace, even in the event of an application-level bug.</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-2">Data Retention</h2>
+            <p>Your data is stored for as long as your Slack app is installed. If you uninstall an app, your workspace is marked inactive but data is retained for 90 days in case you reinstall. After 90 days, data associated with inactive workspaces may be permanently deleted. Email subscriber data is retained until you unsubscribe.</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-2">AI Features</h2>
+            <p>Some of our apps use Claude (by Anthropic) for optional AI features such as answering questions, generating content, and converting threads to articles. AI responses are generated from your own data and may occasionally be inaccurate. We do not use your data to train any AI models. AI features can be disabled from each app's Setup menu. No data is sent to AI providers beyond what is needed to generate the specific response you requested.</p>
+          </section>
+
+          <section>
+            <h2 className="text-lg font-semibold text-foreground mb-2">Your Rights</h2>
+            <p>You can request access to, transfer of, or deletion of your data at any time. To make a request, email iceberg@freeslackapps.com with your workspace name and the app in question. We will respond within 5 business days. If you uninstall the app from your Slack workspace, the bot token is immediately invalidated and the app can no longer access your workspace.</p>
           </section>
 
           <section>
             <h2 className="text-lg font-semibold text-foreground mb-2">Contact</h2>
-            <p>Questions about this policy? Reach out at iceberg@freeslackapps.com.</p>
+            <p>Questions about this policy? Email <a href="mailto:iceberg@freeslackapps.com" className="text-primary hover:underline">iceberg@freeslackapps.com</a>. We respond within 2 business days.</p>
           </section>
         </div>
       </div>
