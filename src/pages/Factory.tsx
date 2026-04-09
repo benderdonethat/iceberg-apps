@@ -845,24 +845,19 @@ export default function Factory() {
             {auditApp && !auditLoading && (
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     const app = apps.find((a: any) => a.name === auditApp);
                     if (app) {
                       const autoChanges = `Current features: ${app.features.join('. ')}. Status: ${app.status}. Pricing: ${app.pricing}. Category: ${app.category}.`;
                       setUpdateChanges(autoChanges);
-                      submitAuditUpdate();
+                      await submitAuditUpdate();
+                      runNewAudit();
                     }
                   }}
-                  disabled={updateLoading}
-                  className="px-4 py-2 rounded-lg text-xs font-medium border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 transition-all disabled:opacity-50"
+                  disabled={updateLoading || auditLoading}
+                  className="px-4 py-2 rounded-lg text-xs font-medium border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 transition-all disabled:opacity-50"
                 >
-                  {updateLoading ? "Syncing..." : "Sync from Catalog"}
-                </button>
-                <button
-                  onClick={() => runNewAudit()}
-                  className="px-4 py-2 rounded-lg text-xs font-medium border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 transition-all"
-                >
-                  Run New Audit
+                  {updateLoading ? "Syncing profile..." : "Run Audit"}
                 </button>
                 {auditData && (
                   <span className="text-[10px] text-[#3a4550]">
