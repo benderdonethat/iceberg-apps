@@ -199,6 +199,30 @@ export default function Factory() {
   const [auditError, setAuditError] = useState("");
   const [auditApp, setAuditApp] = useState<string>("");
   const [auditCompare, setAuditCompare] = useState<any>(null);
+  const [updateChanges, setUpdateChanges] = useState("");
+  const [updateResult, setUpdateResult] = useState<any>(null);
+  const [updateLoading, setUpdateLoading] = useState(false);
+
+  const submitAuditUpdate = async () => {
+    if (!auditApp || !updateChanges.trim()) return;
+    setUpdateLoading(true);
+    setUpdateResult(null);
+    try {
+      const res = await fetch("/api/audit-update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-key": password || sessionStorage.getItem("factory_pw") || "" },
+        body: JSON.stringify({ appName: auditApp, changes: updateChanges }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const json = await res.json();
+      setUpdateResult(json.data);
+      setUpdateChanges("");
+    } catch (e: any) {
+      setAuditError(e.message);
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
 
   const fetchIntel = useCallback(async () => {
     setIntelLoading(true);
@@ -1080,6 +1104,93 @@ export default function Factory() {
                   </div>
                 )}
               </>
+            )}
+
+            {/* Report Changes */}
+            {auditApp && !auditLoading && (
+              <div className="mt-8">
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-3">Report Changes</h3>
+                <p className="text-[10px] text-[#3a4550] mb-3">Tell the audit system what you shipped. It verifies, updates scores, and tells you what to build next.</p>
+                <textarea
+                  value={updateChanges}
+                  onChange={(e) => setUpdateChanges(e.target.value)}
+                  placeholder="Added CSV import with auto-detect for Whatnot/TikTok/eBay. Added stream comparison view. Fixed UX by moving Log Stream button above tabs."
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-[#f0f0f5] placeholder:text-[#3a4550] focus:outline-none focus:border-blue-500/50 min-h-[80px] resize-none"
+                />
+                <button
+                  onClick={submitAuditUpdate}
+                  disabled={updateLoading || !updateChanges.trim()}
+                  className="mt-2 px-4 py-2 rounded-lg text-xs font-medium border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 transition-all disabled:opacity-50"
+                >
+                  {updateLoading ? "Verifying..." : "Submit Changes"}
+                </button>
+              </div>
+            )}
+
+            {/* Update Results */}
+            {updateResult && (
+              <div className="mt-6 space-y-4">
+                <div className="rounded-2xl border border-blue-500/20 bg-blue-500/[0.03] p-5">
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-blue-400 mb-3">Verification Results</div>
+                  <div className="space-y-2">
+                    {updateResult.verification?.map((v: any, i: number) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border shrink-0 mt-0.5 ${
+                          v.status === 'verified' ? 'border-emerald-500/40 text-emerald-400' :
+                          v.status === 'questionable' ? 'border-amber-500/40 text-amber-400' :
+                          'border-red-500/40 text-red-400'
+                        }`}>{v.status}</span>
+                        <div>
+                          <p className="text-xs text-[#f0f0f5]">{v.change}</p>
+                          <p className="text-[10px] text-[#6b7d8d]">{v.reason}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {updateResult.score_impact && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="rounded-lg border border-white/10 bg-white/[0.02] p-4 text-center">
+                      <div className={`text-2xl font-bold ${updateResult.score_impact.readiness_delta > 0 ? 'text-emerald-400' : 'text-[#6b7d8d]'}`}>
+                        +{updateResult.score_impact.readiness_delta}
+                      </div>
+                      <div className="text-[9px] text-[#3a4550] mt-1">Readiness Score</div>
+                    </div>
+                    <div className="rounded-lg border border-white/10 bg-white/[0.02] p-4 text-center">
+                      <div className={`text-2xl font-bold ${updateResult.score_impact.ux_delta > 0 ? 'text-emerald-400' : 'text-[#6b7d8d]'}`}>
+                        +{updateResult.score_impact.ux_delta}
+                      </div>
+                      <div className="text-[9px] text-[#3a4550] mt-1">UX Score</div>
+                    </div>
+                  </div>
+                )}
+
+                {updateResult.resolved_improvements?.length > 0 && (
+                  <div>
+                    <div className="text-[9px] font-semibold uppercase tracking-widest text-emerald-400 mb-2">Resolved</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {updateResult.resolved_improvements.map((r: string, i: number) => (
+                        <span key={i} className="text-[11px] px-2.5 py-1 rounded-lg border border-emerald-500/20 bg-emerald-500/5 text-emerald-400">✓ {r}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {updateResult.next_priorities?.length > 0 && (
+                  <div>
+                    <div className="text-[9px] font-semibold uppercase tracking-widest text-amber-400 mb-2">Next Priorities</div>
+                    <div className="space-y-2">
+                      {updateResult.next_priorities.map((p: any, i: number) => (
+                        <div key={i} className="rounded-lg border border-amber-500/15 bg-amber-500/[0.03] p-3">
+                          <p className="text-xs font-medium text-[#f0f0f5]">{p.title}</p>
+                          <p className="text-[10px] text-[#6b7d8d] mt-1">{p.why}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         )}
