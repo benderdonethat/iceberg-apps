@@ -18,11 +18,14 @@ Use ONLY the correct competitors from the profile. If web search returns a compe
 ## Rule 3: Feature Scoring Must Be Specific
 When scoring a feature, explain specifically WHY. Not "we do this better" but "we calculate platform fees automatically for 6 platforms while they require manual entry."
 
-## Rule 4: UX Scoring Must Reference Slack Constraints
-Slack App Home max 100 blocks, no custom CSS, no collapsible sections, no real tabs (faked with buttons), modals max 100 blocks, modal titles max 24 chars. Score within these constraints.
+## Rule 4: UX Scoring Must Be Platform-Relative
+These apps run inside Slack. Slack App Home max 100 blocks, no custom CSS, no collapsible sections, no real tabs (faked with buttons), modals max 100 blocks, modal titles max 24 chars. Score UX relative to what is achievable within Slack, NOT relative to web apps. A Slack app that maximizes the platform (button-driven, modal flows, App Home dashboard, confirmation DMs) should score 85-95 on UX. Competitors with web UIs have different constraints and are not a valid UX comparison. The question is: "Does this app use Slack's capabilities as well as possible?"
 
-## Rule 5: Don't Flag Known Limitations
-The profile lists known limitations. Don't report these as issues.
+## Rule 5: Don't Penalize Known Limitations
+The profile lists known limitations. Do NOT report these as issues AND do NOT reduce scores for them. These are declared platform constraints, not defects. If the known limitations say "no images in articles" due to Slack modal limitations, that cannot reduce the readiness or UX score. Only penalize for limitations that are NOT listed in the profile and that the developer could actually fix.
+
+## Rule 5b: Price Advantage Floor
+If the app is completely free and competitors charge per-user, Price Advantage must score 95-100. There is no scenario where free loses to paid on price.
 
 ## Rule 6: Conservative Projections
 Brand new free Slack app with no audience: 5-20 installs in 30 days. With active LinkedIn outreach: 15-50. Do NOT project hundreds.
@@ -39,7 +42,13 @@ Never use emojis, ---, or em dashes.
 ## Rule 10: Show Scoring Math
 Readiness: Core problem (40%) + UX (25%) + Price advantage (20%) + Differentiation (15%)
 UX: First impression (25%) + Clicks to task (25%) + Visual clarity (25%) + Feedback loops (25%)
-Apply weights mathematically.`;
+Apply weights mathematically.
+
+## Rule 11: Differentiation Scoring
+Features marked "unique" (no competitor equivalent) must score high on differentiation. If an app has 2+ unique features that competitors don't offer at any price, differentiation should be 85+. If those unique features use AI, add 5 points. The question is: "Would a user get this capability anywhere else?"
+
+## Rule 12: Security and Team Features Are Readiness Multipliers
+If the app has database-level RLS, encryption, role-based access, invite codes, and audit logging, these are enterprise-grade features that free competitors (Google Docs, Sheets) never have and paid competitors often lack. Add 5-10 points to Core Problem score when these are present because they directly reduce adoption risk for teams.`;
 
 const APP_PROFILES = {
   'stream-line': `# Stream Line
