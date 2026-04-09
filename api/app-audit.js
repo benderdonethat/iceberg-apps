@@ -1,6 +1,6 @@
 /**
  * App Audit — competitive edge analysis for any app in the catalog.
- * Compares feature-by-feature vs the top competitor, suggests only
+ * Compares feature-by-feature vs the CORRECT competitor, suggests only
  * high-impact improvements, and flags when to stop iterating.
  *
  * POST /api/app-audit
@@ -23,31 +23,44 @@ export default async function handler(req, res) {
   if (!app || !app.name) return res.status(400).json({ error: 'app data required' });
 
   try {
-    // Step 1: Search for the primary competitor
+    // Step 1: Find the RIGHT competitor with precise search
     let competitorData = '';
-    try {
-      const searchRes = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': ANTHROPIC_KEY,
-          'anthropic-version': '2023-06-01',
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 2000,
-          tools: [{ type: 'web_search_20250305' }],
-          messages: [{ role: 'user', content: `Find the top paid Slack app competitor for an app that does this: "${app.desc}" (category: ${app.category}). Search for their current pricing page, their full feature list, their G2/Capterra reviews (especially 1-3 star reviews with specific complaints), and their Slack App Directory listing. Return: app name, exact pricing, full feature list, review score, number of reviews, and the top 5 specific user complaints from real reviews.` }],
-        }),
-      });
-      const searchData = await searchRes.json();
-      const textBlocks = (searchData.content || []).filter(b => b.type === 'text').map(b => b.text);
-      if (textBlocks.length > 0) competitorData = textBlocks.join('\n');
-    } catch (e) {
-      // Continue without search data
+    const searchQueries = [
+      {
+        query: `"${app.desc}" Slack app paid alternative pricing 2026`,
+        prompt: `Find paid Slack apps that do EXACTLY this: "${app.desc}". Not apps in the same general category. Apps that solve the SAME specific problem for the SAME specific audience. Return their name, what they do, their exact pricing, and their core features.`
+      },
+      {
+        query: `site:g2.com "${app.category}" Slack app reviews complaints`,
+        prompt: `Find G2 reviews for paid Slack apps that handle "${app.desc}". What do users complain about? What do they wish was different?`
+      },
+    ];
+
+    for (const { query, prompt } of searchQueries) {
+      try {
+        const searchRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': ANTHROPIC_KEY,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1500,
+            tools: [{ type: 'web_search_20250305' }],
+            messages: [{ role: 'user', content: `${prompt}\n\nSearch: ${query}` }],
+          }),
+        });
+        const searchData = await searchRes.json();
+        const textBlocks = (searchData.content || []).filter(b => b.type === 'text').map(b => b.text);
+        if (textBlocks.length > 0) competitorData += textBlocks.join('\n') + '\n\n';
+      } catch (e) {
+        // Continue without this search
+      }
     }
 
-    // Step 2: Run the audit
+    // Step 2: Run the audit with strict competitor validation
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -60,7 +73,7 @@ export default async function handler(req, res) {
         max_tokens: 4000,
         messages: [{
           role: 'user',
-          content: `You are a product strategist auditing a Slack app against its primary competitor. Be brutally honest and actionable.
+          content: `You are a precise product strategist. You audit Slack apps against their ACTUAL competitors. Getting the competitor wrong wastes engineering time on the wrong features, so accuracy here is critical.
 
 OUR APP:
 - Name: ${app.name}
@@ -71,59 +84,85 @@ OUR APP:
 - Status: ${app.status}
 
 COMPETITOR RESEARCH:
-${competitorData || 'No search data available. Use your knowledge of paid Slack apps in the ' + app.category + ' category.'}
+${competitorData || 'No search data available.'}
 
-AUDIT INSTRUCTIONS:
+STEP 1: IDENTIFY THE CORRECT COMPETITOR
 
-1. Identify the PRIMARY COMPETITOR — the most popular paid Slack app in this space. Use the search data above.
+This is the most important step. Get this wrong and the entire audit is useless.
 
-2. FEATURE-BY-FEATURE COMPARISON — For each of our features, compare it to how the competitor handles the same thing. Rate each as:
-   - "ahead" — we do this better or they don't have it
-   - "match" — roughly equal
-   - "behind" — they do this better
-   - "unique" — we have this, they don't (our advantage)
+The correct competitor must pass ALL of these tests:
+- It solves the SAME core problem as our app (not a related problem, not the same category, the SAME problem)
+- It targets the SAME audience (if our app is for streamers who sell products, the competitor must also be for streamers who sell products, not streamers in general)
+- A user would realistically choose between our app and this competitor (they are substitutes, not complements)
+- It is a Slack app OR a tool that integrates with Slack OR a tool our users currently use instead of a Slack app for this purpose
 
-3. READINESS SCORE (1-100) — How ready is this app to compete? Score based on:
-   - Feature parity (do we match their core features?) — 40%
-   - UX advantage (is ours simpler/faster to use in Slack?) — 25%
-   - Price advantage (are we free/cheaper?) — 20%
-   - Differentiation (do we have unique features they lack?) — 15%
+WRONG competitor examples to AVOID:
+- Picking a tool that operates in the same industry but solves a different problem (e.g. StreamElements for a sales tracking app. StreamElements does overlays and chat, not sales tracking)
+- Picking a massive platform when our app does one specific thing (e.g. Salesforce for a simple lead tracker)
+- Picking a free tool as the competitor (we need to compare against what people PAY for)
 
-4. VERDICT — One of:
-   - "SHIP" (80+): Ready to compete. Ship it and start outreach.
-   - "IMPROVE" (50-79): Close but has gaps. Fix the improvements listed, then ship.
-   - "REBUILD" (below 50): Fundamental gaps. Needs significant work before competing.
+If no paid competitor exists that passes all tests, the competitor is "spreadsheets" or "manual tracking" and the audit should reflect that our app has no direct paid competitor, which is actually a strength.
 
-5. HIGH-IMPACT IMPROVEMENTS ONLY — List max 3-5 improvements. Each must:
-   - Directly affect whether a user would choose us over the competitor
-   - Be buildable in under 4 hours
-   - Have clear impact on user retention or acquisition
-   Rate each as: "critical" (blocks shipping), "high" (ship but fix soon), or "medium" (nice to have)
-   Include effort estimate: "1 hour", "2-3 hours", "half day"
+STEP 2: FEATURE COMPARISON
 
-6. STOP LIST — Features or areas that are ALREADY GOOD ENOUGH. More work here would be wasted effort. Be specific. This prevents infinite improvement loops.
+For each of OUR features, compare against how the competitor handles that SAME need:
+- "ahead": we do this better or more elegantly
+- "match": roughly equal capability
+- "behind": they do this meaningfully better
+- "unique": we have this, they don't. This is our differentiation.
+- "n/a": this feature doesn't apply to what the competitor does
 
-IMPORTANT RULES:
-- NEVER use "---", "—", or any dash-based separators or em dashes in any output. Use periods and new sentences instead.
-- Do NOT suggest improvements that are just "nice to have". Every improvement must directly help us steal users from the competitor.
-- Do NOT suggest more than 5 improvements. If we need more than 5 things, the verdict should be REBUILD.
-- Be specific about implementations. Not "improve UX" but "add one-click rerun button to the results modal".
-- The stop list is critical. Tell us what to STOP working on so we focus on what matters.
+IMPORTANT: If a feature is "n/a" because the competitor doesn't operate in that space, that is a signal you may have picked the wrong competitor. Re-evaluate.
+
+STEP 3: READINESS SCORE (1-100)
+
+Score based on:
+- Do we solve our users' core problem well? (40%)
+- Is our UX simpler and faster than alternatives? (25%)
+- Is our price advantage clear? (20%)
+- Do we have unique features competitors lack? (15%)
+
+STEP 4: VERDICT
+
+- "SHIP" (80+): Core problem solved, unique advantages exist. Ship and start outreach.
+- "IMPROVE" (50-79): Close but specific gaps hurt adoption. Fix improvements, then ship.
+- "REBUILD" (below 50): Fundamental gaps in solving the core problem.
+
+STEP 5: IMPROVEMENTS (max 3-5)
+
+Each improvement must:
+- Fix a gap that would cause a user to NOT switch from their current solution to our app
+- Be specific and buildable (not "improve UX" but "add bulk import via CSV upload button on the inventory screen")
+- Only relate to features within our app's scope. Do NOT suggest features that belong to a different type of product.
+
+Rate: "critical" (users can't adopt without this), "high" (users will adopt but churn without this), "medium" (nice for retention)
+
+STEP 6: STOP LIST
+
+What is already good enough. Be specific. This prevents wasting time on diminishing returns.
+
+CRITICAL RULES:
+- NEVER use "---" or em dashes in output. Use periods and new sentences.
+- NEVER suggest features from a different product category. If our app tracks sales, don't suggest adding chat overlays. If our app is a knowledge base, don't suggest adding project management.
+- NEVER compare against a tool that solves a fundamentally different problem.
+- If you are unsure about the competitor, say so. A wrong competitor is worse than no competitor.
+- Be honest. If the app is already strong for its purpose, say so. Don't invent problems.
 
 FORMAT: Return as valid JSON:
 {
-  "primary_competitor": "Competitor App Name",
-  "competitor_price": "$X/user/month",
+  "primary_competitor": "Name (or 'No direct paid competitor' if none passes the tests)",
+  "competitor_price": "$X/user/month or 'N/A'",
+  "competitor_validation": "One sentence explaining WHY this is the right competitor. What specific problem do both apps solve for the same audience?",
   "readiness_score": 75,
-  "summary": "One sentence assessment of competitive position",
+  "summary": "One sentence assessment",
   "verdict": "SHIP / IMPROVE / REBUILD",
   "verdict_reason": "One sentence explaining the verdict",
   "feature_audit": [
     {
       "feature": "Feature name",
-      "status": "ahead / match / behind / unique",
+      "status": "ahead / match / behind / unique / n/a",
       "our_implementation": "How we do it",
-      "their_implementation": "How they do it (or 'N/A' if they don't)"
+      "their_implementation": "How they do it (or 'N/A')"
     }
   ],
   "improvements": [
@@ -131,12 +170,12 @@ FORMAT: Return as valid JSON:
       "title": "Specific improvement",
       "description": "What to build and how",
       "impact": "critical / high / medium",
-      "effort": "1 hour / 2-3 hours / half day",
-      "why_it_matters": "How this directly helps us steal users from the competitor"
+      "effort": "quick / moderate / significant",
+      "why_it_matters": "How this directly helps adoption or retention"
     }
   ],
   "stop_improving": [
-    "Feature or area that's already good enough — stop working on it"
+    "Feature or area that is already good enough"
   ]
 }`
         }],
@@ -144,7 +183,35 @@ FORMAT: Return as valid JSON:
     });
 
     const data = await response.json();
-    const text = data.content?.[0]?.text || '';
+
+    if (data.error) {
+      // Retry without web search
+      const retryRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': ANTHROPIC_KEY,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 4000,
+          messages: [{
+            role: 'user',
+            content: `Audit this app: ${app.name} - ${app.desc}. Features: ${(app.features || []).join(', ')}. Return JSON with the audit.`,
+          }],
+        }),
+      });
+      const retryData = await retryRes.json();
+      const retryText = (retryData.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n');
+      try {
+        const match = retryText.match(/\{[\s\S]*\}/);
+        if (match) return res.status(200).json({ success: true, data: JSON.parse(match[0]) });
+      } catch (e) {}
+      return res.status(500).json({ error: 'audit failed' });
+    }
+
+    const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n');
 
     try {
       const jsonMatch = text.match(/\{[\s\S]*\}/);
