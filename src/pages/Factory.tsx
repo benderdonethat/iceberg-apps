@@ -841,9 +841,23 @@ export default function Factory() {
               </div>
             </div>
 
-            {/* Run New Audit button */}
+            {/* Audit Actions */}
             {auditApp && !auditLoading && (
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    const app = apps.find((a: any) => a.name === auditApp);
+                    if (app) {
+                      const autoChanges = `Current features: ${app.features.join('. ')}. Status: ${app.status}. Pricing: ${app.pricing}. Category: ${app.category}.`;
+                      setUpdateChanges(autoChanges);
+                      submitAuditUpdate();
+                    }
+                  }}
+                  disabled={updateLoading}
+                  className="px-4 py-2 rounded-lg text-xs font-medium border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 transition-all disabled:opacity-50"
+                >
+                  {updateLoading ? "Syncing..." : "Sync from Catalog"}
+                </button>
                 <button
                   onClick={() => runNewAudit()}
                   className="px-4 py-2 rounded-lg text-xs font-medium border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 transition-all"
@@ -1112,27 +1126,6 @@ export default function Factory() {
               </>
             )}
 
-            {/* Sync Changes */}
-            {auditApp && !auditLoading && (
-              <div className="mt-8">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-3">Sync Changes</h3>
-                <p className="text-[10px] text-[#3a4550] mb-3">Pull the latest feature list from the catalog and update the audit profile automatically.</p>
-                <button
-                  onClick={() => {
-                    const app = apps.find((a: any) => a.name === auditApp);
-                    if (app) {
-                      const autoChanges = `Current features: ${app.features.join('. ')}. Status: ${app.status}. Pricing: ${app.pricing}. Category: ${app.category}.`;
-                      setUpdateChanges(autoChanges);
-                      submitAuditUpdate();
-                    }
-                  }}
-                  disabled={updateLoading}
-                  className="px-4 py-2 rounded-lg text-xs font-medium border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 transition-all disabled:opacity-50"
-                >
-                  {updateLoading ? "Syncing..." : "Sync from Catalog"}
-                </button>
-              </div>
-            )}
 
             {/* Update Results */}
             {updateResult && (
