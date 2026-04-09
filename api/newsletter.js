@@ -204,13 +204,17 @@ FORMAT: Return as valid JSON:
   return null;
 }
 
+function mdBold(text) {
+  return (text || '').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+}
+
 function buildNewsletterHTML(content) {
   let newsHTML = '';
   for (const item of (content.news || [])) {
     newsHTML += `
       <tr><td style="padding:0 0 20px 0;">
-        <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">${item.headline}</div>
-        <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${item.body}</div>
+        <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">${mdBold(item.headline)}</div>
+        <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${mdBold(item.body)}</div>
       </td></tr>
     `;
   }
@@ -229,7 +233,7 @@ function buildNewsletterHTML(content) {
 
             <!-- OPENING -->
             <tr><td style="padding:0 24px 28px;">
-              <div style="font-size:15px;color:#333;line-height:1.7;">${content.opening}</div>
+              <div style="font-size:15px;color:#333;line-height:1.7;">${mdBold(content.opening)}</div>
             </td></tr>
 
             <!-- DIVIDER -->
@@ -249,8 +253,8 @@ function buildNewsletterHTML(content) {
             <!-- THE BUILD -->
             <tr><td style="padding:28px 24px;">
               <div style="font-size:11px;font-weight:700;color:#999;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">The Build</div>
-              <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">${content.build?.headline || ''}</div>
-              <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${content.build?.body || ''}</div>
+              <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">${mdBold(content.build?.headline || '')}</div>
+              <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${mdBold(content.build?.body || '')}</div>
             </td></tr>
 
             <!-- DIVIDER -->
@@ -259,8 +263,8 @@ function buildNewsletterHTML(content) {
             <!-- TOOL OF THE WEEK -->
             <tr><td style="padding:28px 24px;">
               <div style="font-size:11px;font-weight:700;color:#999;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Tool of the Week</div>
-              <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">${content.tool?.name || ''}</div>
-              <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${content.tool?.body || ''}</div>
+              <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">${mdBold(content.tool?.name || '')}</div>
+              <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${mdBold(content.tool?.body || '')}</div>
             </td></tr>
 
             <!-- DIVIDER -->
@@ -269,8 +273,8 @@ function buildNewsletterHTML(content) {
             <!-- INDUSTRY INSIGHT -->
             <tr><td style="padding:28px 24px;">
               <div style="font-size:11px;font-weight:700;color:#999;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Industry Insight</div>
-              <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">${content.insight?.headline || ''}</div>
-              <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${content.insight?.body || ''}</div>
+              <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">${mdBold(content.insight?.headline || '')}</div>
+              <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${mdBold(content.insight?.body || '')}</div>
             </td></tr>
 
             <!-- DIVIDER -->
@@ -279,8 +283,8 @@ function buildNewsletterHTML(content) {
             <!-- ACTIONABLE TIP -->
             <tr><td style="padding:28px 24px;">
               <div style="font-size:11px;font-weight:700;color:#999;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">This Week's Tip</div>
-              <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">${content.tip?.headline || ''}</div>
-              <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${content.tip?.body || ''}</div>
+              <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">${mdBold(content.tip?.headline || '')}</div>
+              <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${mdBold(content.tip?.body || '')}</div>
             </td></tr>
 
             <!-- DIVIDER -->
