@@ -354,7 +354,7 @@ export default function Factory() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold">Market Intel</h2>
-                <p className="text-sm text-[#6b7d8d] mt-1">Gaps in the Slack ecosystem scored by opportunity size</p>
+                <p className="text-sm text-[#6b7d8d] mt-1">Paid Slack apps to undercut — equal or better, for free</p>
               </div>
               <button
                 onClick={fetchIntel}
@@ -387,7 +387,7 @@ export default function Factory() {
                 {/* Catalog Gaps */}
                 {intel.catalog_gaps && intel.catalog_gaps.length > 0 && (
                   <div>
-                    <h3 className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-3">Your Catalog Gaps</h3>
+                    <h3 className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-3">Undercut Opportunities by Category</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {intel.catalog_gaps.map((gap: any, i: number) => (
                         <div key={i} className={`rounded-xl border p-4 ${
@@ -404,77 +404,109 @@ export default function Factory() {
                             }`}>{gap.priority}</span>
                           </div>
                           <p className="text-[11px] text-[#6b7d8d] leading-relaxed">{gap.gap}</p>
+                          {gap.top_paid_app && (
+                            <p className="text-[10px] text-red-400/80 mt-2">Top target: {gap.top_paid_app} — {gap.their_price}</p>
+                          )}
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Opportunities */}
+                {/* Competitive Opportunities */}
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-4">Top Opportunities</h3>
-                  <div className="space-y-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-4">Apps to Undercut</h3>
+                  <div className="space-y-6">
                     {intel.opportunities?.map((opp: any) => (
-                      <div key={opp.rank} className="rounded-2xl border border-white/10 bg-[#0c0e16] p-6 hover:border-amber-500/20 transition-all">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl">{opp.emoji}</span>
-                            <div>
-                              <h4 className="text-base font-bold text-[#f0f0f5]">{opp.name}</h4>
-                              <p className="text-xs text-[#6b7d8d]">{opp.desc}</p>
-                            </div>
+                      <div key={opp.rank} className="rounded-2xl border border-white/10 bg-[#0c0e16] overflow-hidden hover:border-amber-500/20 transition-all">
+                        {/* Header: Our app vs theirs */}
+                        <div className="flex items-stretch">
+                          {/* Their app (left) */}
+                          <div className="flex-1 p-5 border-r border-white/5 bg-red-500/[0.03]">
+                            <div className="text-[9px] font-semibold uppercase tracking-widest text-red-400 mb-2">Kill Target</div>
+                            <h4 className="text-sm font-bold text-[#f0f0f5]">{opp.target_app}</h4>
+                            <div className="text-lg font-bold text-red-400 mt-1">{opp.target_price}</div>
+                            <p className="text-[10px] text-[#6b7d8d] mt-1">{opp.target_installs}</p>
                           </div>
-                          <div className="text-right shrink-0 ml-4">
+                          {/* Our app (right) */}
+                          <div className="flex-1 p-5 bg-emerald-500/[0.03]">
+                            <div className="text-[9px] font-semibold uppercase tracking-widest text-emerald-400 mb-2">Our Alternative</div>
+                            <h4 className="text-sm font-bold text-[#f0f0f5] flex items-center gap-2">
+                              <span>{opp.our_emoji}</span> {opp.our_name}
+                            </h4>
+                            <div className="text-lg font-bold text-emerald-400 mt-1">{opp.our_pricing}</div>
+                            {opp.our_pricing_detail && <p className="text-[10px] text-[#6b7d8d] mt-1">{opp.our_pricing_detail}</p>}
+                          </div>
+                          {/* Score */}
+                          <div className="w-20 flex flex-col items-center justify-center p-3 border-l border-white/5">
                             <div className={`text-2xl font-bold ${
                               opp.score >= 80 ? "text-emerald-400" :
                               opp.score >= 60 ? "text-amber-400" :
                               "text-[#6b7d8d]"
                             }`}>{opp.score}</div>
-                            <div className="text-[9px] text-[#3a4550] uppercase tracking-wider">/100</div>
+                            <div className="text-[8px] text-[#3a4550] uppercase">score</div>
                           </div>
                         </div>
 
-                        {/* Score bar */}
-                        <div className="w-full h-1.5 rounded-full bg-white/5 mb-4">
-                          <div
-                            className={`h-full rounded-full transition-all ${
-                              opp.score >= 80 ? "bg-emerald-500" :
-                              opp.score >= 60 ? "bg-amber-500" :
-                              "bg-[#6b7d8d]"
-                            }`}
-                            style={{ width: `${opp.score}%` }}
-                          />
-                        </div>
+                        {/* Score breakdown bar */}
+                        {opp.score_breakdown && (
+                          <div className="flex h-1.5">
+                            <div className="bg-blue-500" style={{ width: `${opp.score_breakdown.market_size}%` }} title="Market Size" />
+                            <div className="bg-emerald-500" style={{ width: `${opp.score_breakdown.price_gap}%` }} title="Price Gap" />
+                            <div className="bg-amber-500" style={{ width: `${opp.score_breakdown.build_speed}%` }} title="Build Speed" />
+                            <div className="bg-purple-500" style={{ width: `${opp.score_breakdown.virality}%` }} title="Virality" />
+                          </div>
+                        )}
 
-                        <div className="grid grid-cols-2 gap-4 text-xs mb-4">
-                          <div>
-                            <span className="text-[#3a4550] uppercase tracking-wider text-[9px]">Target</span>
-                            <p className="text-[#a8c8d8] mt-0.5">{opp.target_audience}</p>
-                          </div>
-                          <div>
-                            <span className="text-[#3a4550] uppercase tracking-wider text-[9px]">Category</span>
-                            <p className="text-[#a8c8d8] mt-0.5">{opp.category}</p>
-                          </div>
-                          <div>
-                            <span className="text-[#3a4550] uppercase tracking-wider text-[9px]">Competitor</span>
-                            <p className="text-[#a8c8d8] mt-0.5">{opp.competitor} — {opp.competitor_price}</p>
-                          </div>
-                          <div>
-                            <span className="text-[#3a4550] uppercase tracking-wider text-[9px]">Why the gap</span>
-                            <p className="text-[#a8c8d8] mt-0.5">{opp.gap_reason}</p>
-                          </div>
-                        </div>
+                        <div className="p-5 space-y-4">
+                          {/* Description & Strategy */}
+                          <p className="text-xs text-[#a8c8d8]">{opp.our_desc}</p>
+                          <p className="text-xs text-amber-400/80 font-medium">{opp.undercut_strategy}</p>
 
-                        <div className="mb-4">
-                          <span className="text-[#3a4550] uppercase tracking-wider text-[9px]">Why now</span>
-                          <p className="text-[11px] text-[#6b7d8d] mt-0.5 leading-relaxed">{opp.why_now}</p>
-                        </div>
+                          {/* Feature comparison */}
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <div className="text-[9px] font-semibold uppercase tracking-widest text-red-400/60 mb-2">Their Features</div>
+                              <div className="space-y-1.5">
+                                {opp.target_features?.map((f: string) => (
+                                  <div key={f} className="flex items-start gap-1.5 text-[11px] text-[#6b7d8d]">
+                                    <span className="text-red-400/40 mt-0.5 shrink-0">—</span>
+                                    <span>{f}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-[9px] font-semibold uppercase tracking-widest text-emerald-400/60 mb-2">Our Features</div>
+                              <div className="space-y-1.5">
+                                {opp.our_features?.map((f: string) => (
+                                  <div key={f} className="flex items-start gap-1.5 text-[11px] text-[#a8c8d8]">
+                                    <span className="text-emerald-400 mt-0.5 shrink-0">✦</span>
+                                    <span>{f}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
 
-                        {/* Suggested features */}
-                        <div className="flex flex-wrap gap-1.5">
-                          {opp.suggested_features?.map((f: string) => (
-                            <span key={f} className="text-[10px] px-2 py-0.5 rounded-full border border-white/10 text-[#6b7d8d]">{f}</span>
-                          ))}
+                          {/* Their weakness */}
+                          <div className="rounded-lg border border-red-500/10 bg-red-500/[0.03] p-3">
+                            <div className="text-[9px] font-semibold uppercase tracking-widest text-red-400/60 mb-1">Their Weakness</div>
+                            <p className="text-[11px] text-[#6b7d8d] leading-relaxed">{opp.target_weakness}</p>
+                          </div>
+
+                          {/* Bottom row */}
+                          <div className="flex items-center justify-between pt-2">
+                            <span className="text-[10px] px-2 py-0.5 rounded-full border border-white/10 text-[#6b7d8d]">{opp.category}</span>
+                            {opp.score_breakdown && (
+                              <div className="flex gap-3 text-[9px] text-[#3a4550]">
+                                <span><span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 mr-1" />Market {opp.score_breakdown.market_size}</span>
+                                <span><span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1" />Price {opp.score_breakdown.price_gap}</span>
+                                <span><span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 mr-1" />Build {opp.score_breakdown.build_speed}</span>
+                                <span><span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-500 mr-1" />Viral {opp.score_breakdown.virality}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}

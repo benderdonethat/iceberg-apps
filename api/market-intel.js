@@ -1,6 +1,6 @@
 /**
- * Market Intel — analyzes gaps in the app catalog against real Slack ecosystem data.
- * Uses Claude to research and score opportunities.
+ * Market Intel — finds overpriced Slack apps to undercut with free/cheaper alternatives.
+ * Uses Claude to analyze the Slack App Directory competitively.
  *
  * POST /api/market-intel
  * Headers: x-admin-key
@@ -30,88 +30,89 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
+        max_tokens: 5000,
         messages: [{
           role: 'user',
-          content: `You are a Slack ecosystem market analyst. Analyze the current state of the Slack App Directory and identify gaps and opportunities for FREE Slack apps.
+          content: `You are a competitive intelligence analyst for Slack apps. Your job is to find REAL, EXISTING paid Slack apps that are overcharging and identify exactly how we can build a free or cheaper alternative that is EQUAL OR BETTER — not a watered-down version.
 
-CONTEXT:
-- Today's date is ${new Date().toISOString().split('T')[0]}. Only cite data from 2025 or 2026. Do NOT reference anything from 2024 or earlier.
-- Slack has 200M+ weekly active users across 750,000+ organizations (Salesforce FY2026 earnings)
-- The Slack App Directory has 2,600+ apps but most are enterprise-priced ($5-25/user/month)
-- Small teams (2-50 people) are massively underserved — they can't afford per-seat pricing
-- The fastest growing Slack segments: remote teams, agencies, freelancers, creators, small e-commerce, AI-native startups
-- 65%+ of Slack workspaces have fewer than 50 members
-- AI-powered Slack apps are the fastest growing category in 2025-2026
-- Top Slack app categories by install volume: productivity, project management, communication, developer tools, HR, sales, analytics, AI assistants
+TODAY'S DATE: ${new Date().toISOString().split('T')[0]}
 
-IMPORTANT: Only cite sources, reports, and data points from 2025 or 2026. Reference recent earnings reports, recent G2/Capterra reviews, recent industry surveys (Gartner, Forrester, McKinsey, etc.), recent competitor pricing pages, and recent Slack blog posts. If you cannot find a 2025-2026 source for a claim, state the claim without a date rather than citing old data.
+OUR STRATEGY:
+We build free Slack apps and give them away. Our business model is volume — we want installs, audience, and a data moat. We undercut every paid Slack app that charges per-seat pricing by offering the same or better functionality for FREE or at a fraction of the cost. We are not building lite versions. We are building full-featured apps that make paid competitors irrelevant for small teams.
 
-THE CATALOG WE ALREADY HAVE (do NOT suggest these):
+OUR EXISTING CATALOG (do NOT suggest these — we already have them):
 ${(currentApps || []).join('\n')}
 
-TASK: Identify the 10 biggest opportunities for free Slack apps that don't exist yet or where existing solutions are overpriced/underbuilt. For each opportunity:
+YOUR TASK:
+Go through the Slack App Directory mentally. Find 10 REAL paid apps that are actively listed, actively charging money, and have real users. For each one, design our free killer alternative.
 
-1. Name a specific app concept (not generic categories)
-2. Describe what it does in one sentence
-3. Score it 1-100 on OPPORTUNITY SIZE — based on:
-   - How many of Slack's 200M users could benefit (weight: 40%)
-   - How underserved the niche currently is (weight: 30%)
-   - How feasible it is to build as a simple Slack app (weight: 20%)
-   - How viral/visible it would be within a workspace (weight: 10%)
-4. List the TARGET AUDIENCE (be specific: "freelance designers", not "businesses")
-5. Cite a REAL data point or source that supports why this gap exists (Slack blog, G2 reviews, industry reports, competitor pricing pages). Only cite sources that actually exist.
-6. Name the closest COMPETITOR and what they charge
-7. Assign a CATEGORY from: Team, Ops, Sales, Productivity, Streaming
+For each opportunity you MUST provide:
 
-IMPORTANT RULES:
-- Only suggest apps that can realistically be built as Slack-native (slash commands, modals, App Home, messages)
-- NEVER suggest apps that compete with Slack's built-in features. These are OFF LIMITS:
+1. **THE TARGET** — Name the REAL paid Slack app we're undercutting. It must be a real app in the Slack App Directory.
+2. **WHAT THEY CHARGE** — Their actual current pricing (per user/month, flat rate, etc.). Must be real pricing from their actual pricing page.
+3. **WHAT THEY DO** — Their core features (list their top 4-6 features as they advertise them)
+4. **THEIR WEAKNESS** — What users complain about (cite real G2, Capterra, or Slack directory reviews if possible). Common complaints: too expensive for small teams, clunky UI, requires too much setup, missing key features, poor Slack integration despite being a "Slack app"
+5. **OUR APP** — Name, emoji, one-line description of our free alternative
+6. **HOW WE MATCH OR BEAT THEM** — List 4-6 features that match or exceed theirs. Be specific. Not "better UI" but "one-click setup from Slack command, no external dashboard needed"
+7. **OUR PRICING STRATEGY** — Free, Freemium (free core + paid power features), or Paid (but cheaper). If Freemium, specify what's free vs paid.
+8. **OPPORTUNITY SCORE** (1-100) — based on:
+   - Their install base / market size (how many users we can steal) — 35%
+   - Price differential (how much cheaper we are) — 25%
+   - Build feasibility (can we ship this in 1-2 days as a Slack-native app?) — 25%
+   - Virality (does usage spread within a workspace?) — 15%
+9. **CATEGORY**: Team, Ops, Sales, Productivity, or Streaming
+
+HARD RULES — FOLLOW THESE EXACTLY:
+- Every "target" app must be REAL and currently listed in the Slack App Directory or on the Slack marketplace
+- Every price must be their REAL current price, not made up
+- Do NOT suggest apps that compete with Slack's built-in features:
   * Video/audio calls (Slack has Huddles)
-  * Screen sharing (Slack has Huddles)
-  * Direct messaging (Slack has DMs)
-  * Channel creation/management (Slack does this natively)
-  * File sharing (Slack has built-in file uploads)
-  * Status updates (Slack has custom status)
-  * Emoji reactions (Slack has built-in reactions)
-  * Search (Slack has built-in search)
-  * Threads (Slack has built-in threads)
-  * Notifications (Slack has built-in notifications)
-  * User profiles (Slack has built-in profiles)
-  * Workflows/automations (Slack has Workflow Builder)
-- Focus on problems that are DAILY pain points, not occasional nice-to-haves
-- Prefer apps that are visible to the whole team (higher virality)
-- Do NOT suggest apps that require complex external integrations (calendar sync, email parsing, etc.)
-- Be specific. "Project tracker" is too generic. "Client deliverable tracker with deadline alerts" is specific.
-- Every data point you cite must be real, verifiable, and from 2025 or 2026. Do not fabricate sources or cite outdated reports.
-- Prioritize citing: Salesforce/Slack earnings calls, G2 2025-2026 reviews, Gartner/Forrester 2025-2026 reports, competitor pricing pages (as of today), recent tech news (TechCrunch, The Verge, etc.)
+  * Screen sharing (Huddles)
+  * DMs, channels, threads, reactions, search, status, profiles, file uploads — all native Slack
+  * Workflow Builder automations
+- Our alternative must be buildable as a pure Slack app (slash commands, modals, App Home, messages, buttons). No external web dashboards required.
+- Do NOT suggest generic categories. Name specific, buildable apps.
+- Features must be CONCRETE and SPECIFIC. Not "better experience" but "one-command expense logging with auto-categorization"
+- Only cite data, reviews, and prices from 2025-2026. If you can't verify a date, state the fact without a date.
+- Be brutally honest about scores. A 90+ means massive market, huge price gap, and easy to build. Most should score 60-85.
 
 FORMAT: Return as valid JSON:
 {
   "generated_at": "ISO date string",
-  "market_summary": "2-3 sentence overview of the current Slack app market state and where the biggest whitespace is",
+  "market_summary": "2-3 sentences on the state of paid Slack apps and where overpricing is worst",
   "opportunities": [
     {
       "rank": 1,
-      "name": "App Name",
-      "slug": "app-name",
-      "desc": "One sentence description",
+      "target_app": "Real Slack App Name",
+      "target_price": "$X/user/month",
+      "target_features": ["their feature 1", "their feature 2", "their feature 3", "their feature 4"],
+      "target_weakness": "What users complain about — cite real reviews",
+      "target_installs": "Estimated install base or 'Popular' / 'Widely used' / 'Niche'",
+      "our_name": "Our App Name",
+      "our_slug": "our-app-slug",
+      "our_emoji": "emoji",
+      "our_desc": "One sentence — what it does",
+      "our_features": ["our feature 1", "our feature 2", "our feature 3", "our feature 4"],
+      "our_pricing": "Free / Freemium / Paid ($X)",
+      "our_pricing_detail": "If Freemium: what's free vs what's paid",
       "score": 85,
+      "score_breakdown": {
+        "market_size": 30,
+        "price_gap": 22,
+        "build_speed": 20,
+        "virality": 13
+      },
       "category": "Ops",
-      "target_audience": "Who specifically needs this",
-      "why_now": "Why this gap exists right now — cite real data",
-      "competitor": "Closest competitor name",
-      "competitor_price": "$X/user/month or Free",
-      "gap_reason": "Why the competitor doesn't fill the need",
-      "suggested_features": ["feature 1", "feature 2", "feature 3", "feature 4"],
-      "emoji": "relevant emoji"
+      "undercut_strategy": "One sentence — exactly how we win"
     }
   ],
   "catalog_gaps": [
     {
       "category": "Category name",
-      "gap": "What's missing from our catalog in this category",
-      "priority": "high/medium/low"
+      "gap": "What paid apps exist here that we haven't built a free alternative for yet",
+      "priority": "high/medium/low",
+      "top_paid_app": "Name of the most overpriced app in this gap",
+      "their_price": "$X/user/month"
     }
   ]
 }`
