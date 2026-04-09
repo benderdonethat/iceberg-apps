@@ -60,7 +60,10 @@ Google Sheets/Excel (free but manual), QuickBooks ($30/month, too complex), Wave
 StreamElements, Streamlabs, Whatnot itself, Shopify, OBS, Twitch tools
 
 ## Core Features
-Log stream sessions with sales/costs/duration/platform. Auto platform fee calculations (Whatnot 19.9%, TikTok 8%, etc.). Real P&L per stream. Inventory with velocity and reorder alerts. Customer database with VIP detection. Revenue goals with progress tracking. AI business insights. Brand vault and AI content generator. CSV export. Multi-tenant teams. Tab navigation (Dashboard, Insights, Tools, Settings).
+Log stream sessions with sales/costs/duration/platform. Auto platform fee calculations (Whatnot 19.9%, TikTok 8%, etc.). Real P&L per stream. Inventory with velocity and reorder alerts. Smart CSV import (auto-detects Whatnot/TikTok/eBay format, maps columns, imports as stream log or inventory). Customer database with VIP detection. Revenue goals with progress tracking and automated notifications (DMs user when goal hit or at risk). AI business insights. Stream comparison view (side-by-side last 5 streams with trend analysis). Brand vault and AI content generator. CSV export. Multi-tenant teams. Tab navigation (Dashboard, Insights, Tools, Settings). Persistent Log Stream and Quick Sale buttons above tabs. How to Get the Most Out of Stream Line and Industry Workflows always visible.
+
+## UX Design
+Slack App Home with tab navigation. Primary actions (Log Stream, Quick Sale) always visible above tabs. Tips and Workflows buttons always visible. Dashboard tab shows Go Live, Track and Manage, Money. Insights tab shows AI, Customers, Brand. Tools tab shows calculators and utilities. Settings tab shows team and config (role-gated). Status bar at top shows today's metrics and goal progress. Every action opens a modal. Confirmation feedback after every action.
 
 ## Known Limitations
 Manual stream logging unless API connected. No direct Whatnot API yet. Mobile Slack not optimized.`,
