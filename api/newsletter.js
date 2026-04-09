@@ -1,8 +1,8 @@
 /**
- * @icebergsampson Weekly Newsletter Generator + Sender
+ * Weekly Newsletter Generator + Sender
  *
- * Generates 6 AI content pieces branded to @icebergsampson and blasts to all subscribers.
- * Protected by admin key.
+ * Professional newsletter modeled after Superhuman.ai structure.
+ * Clean, scannable, value-first. No emojis. No fluff.
  *
  * POST /api/newsletter
  * Headers: x-admin-key
@@ -21,6 +21,7 @@ export default async function handler(req, res) {
   const RESEND_KEY = process.env.RESEND_API_KEY;
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
   const AUDIENCE_ID = process.env.RESEND_AUDIENCE_ID;
+  const RESEND_FULL = process.env.RESEND_FULL_KEY || RESEND_KEY;
 
   if (!ANTHROPIC_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set' });
 
@@ -37,7 +38,7 @@ export default async function handler(req, res) {
     if (!AUDIENCE_ID) return res.status(500).json({ error: 'no audience configured' });
 
     const contactsRes = await fetch(`https://api.resend.com/audiences/${AUDIENCE_ID}/contacts`, {
-      headers: { 'Authorization': `Bearer ${RESEND_KEY}` },
+      headers: { 'Authorization': `Bearer ${RESEND_FULL}` },
     });
     const contactsData = await contactsRes.json();
     const contacts = (contactsData.data || []).filter(c => !c.unsubscribed);
@@ -76,60 +77,70 @@ async function generateNewsletter(apiKey, customTopic, appUpdates) {
   const today = new Date();
   const weekOf = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-  const prompt = `Generate a weekly newsletter for @icebergsampson — one person building AI-powered businesses, Slack apps, and automation systems. The brand is premium, dark, ice-blue aesthetic. The voice is direct, confident, no fluff — like a sharp friend who builds things and shares what works.
+  const prompt = `You are writing a professional weekly newsletter for freeslackapps.com. The company builds free Slack apps that compete with expensive paid alternatives. The founder is @icebergsampson.
 
-The creator (David / @icebergsampson) builds free Slack apps at freeslackapps.com. He just launched Stream Line — a free operations bot for live streamers. He documents the build process on YouTube (@manplusbrain) and Instagram (@icebergsampson).
+This newsletter goes to business professionals, team leads, founders, and operations people who use Slack daily. It must deliver real value in under 3 minutes of reading.
+
+REFERENCE: Study how Superhuman.ai structures their newsletter. That is the quality bar. Clean, scannable, professional, informative, no wasted words.
 
 Week of: ${weekOf}
+${customTopic ? `Focus topic: ${customTopic}` : ''}
+${appUpdates ? `What shipped this week: ${appUpdates.join(', ')}` : ''}
 
-${customTopic ? `This week's special focus: ${customTopic}` : ''}
-${appUpdates ? `What we shipped this week: ${appUpdates.join(', ')}` : 'This week we continued building Stream Line and planning the next Slack app in the catalog.'}
+STRUCTURE (follow this exactly):
 
-Generate exactly 6 sections. Each must be concise, valuable, and feel like it was written by someone who actually builds things — not a marketing team. No filler. Every sentence earns its place.
+1. OPENING (2-3 sentences)
+Set up the week. What's happening in the Slack/productivity/AI space that matters to our readers. Direct, confident, no greeting fluff. Start with a strong statement or observation.
 
-CRITICAL WRITING RULES — FOLLOW THESE EXACTLY:
-- Write like a real person texting a friend, not a blog post or corporate email
-- NEVER use em dashes (—). Use periods, commas, or just start a new sentence
-- NEVER use "dive into", "deep dive", "leverage", "unlock", "empower", "harness", "game-changer", "seamlessly", "robust", "cutting-edge", "revolutionize", "streamline" (ironic but no), "elevate", "supercharge"
-- NEVER use "Here's the thing:", "Let me be honest:", "I'll be real:", or any throat-clearing
-- NEVER use bullet points with dashes. If listing things, use plain sentences or numbered items
-- Keep sentences short. Mix up sentence length. Some long. Some not.
-- Use contractions (don't, can't, won't, it's). Nobody writes "do not" in a casual email
-- Use "I" not "we" — this is one person writing
-- Swear if it fits but don't force it
-- Sound like someone who's tired from building all day but excited about what they made
-- The reader should feel like they're reading a text from someone they respect, not a newsletter
+2. TODAY IN SLACK (3 items)
+Three newsworthy items about Slack, workplace tools, or the productivity space. Each item: bold headline + 2-3 sentence explanation. Focus on what changed, why it matters, and who it affects. Use real companies, real numbers, real developments.
 
-SECTIONS:
+3. THE BUILD (1 item)
+What we shipped or are building at freeslackapps.com this week. Specific details about a feature, a new app, or a technical decision. Written in first person. This is the behind-the-scenes section. 3-4 sentences.
 
-1. **WHAT I BUILT THIS WEEK** — First person. What @icebergsampson actually worked on. ${appUpdates ? `Include: ${appUpdates.join(', ')}` : 'Reference Stream Line development, a new feature, or progress on the next app.'} Make it specific and real. 3-4 sentences.
+4. TOOL OF THE WEEK (1 item)
+One specific tool (AI or productivity) worth knowing about. Name it, what it does, one concrete use case. Must be a real tool that exists. 2-3 sentences. No hype words.
 
-2. **AI TOOL WORTH KNOWING** — A real, specific AI tool that builders/creators should know about. Name it, what it does in 2 sentences, one specific use case. Must be a tool that actually exists.
+5. INDUSTRY INSIGHT (1 item)
+One trend, data point, or shift in the workplace tools market. Analytical tone. What it means for small teams who use Slack. Reference real data or reports when possible. One short paragraph.
 
-3. **PROMPT YOU CAN STEAL** — A copy-paste-ready prompt for ChatGPT, Claude, or Midjourney. Something actually useful for content creation, business operations, or productivity. Include the full prompt text ready to use.
+6. ACTIONABLE TIP (1 item)
+One specific thing the reader can do today to improve their Slack workflow, team productivity, or tool stack. Step-by-step if needed. Practical, not theoretical. 2-4 sentences.
 
-4. **HOW I SOLVED IT** — Take one technical or business problem and break down how it was solved. Teach something actionable. Written like you're explaining it to a friend who builds things. 3-4 sentences.
+WRITING RULES:
+- Professional tone. Not corporate, not casual. Think: smart colleague who respects your time.
+- No emojis anywhere. Zero. None.
+- No exclamation marks except in rare cases where emphasis is earned.
+- No "Hey there", "Happy Monday", or any greeting filler.
+- No em dashes. Use periods and commas.
+- Short paragraphs. One idea per paragraph.
+- Bold key terms and company names.
+- No buzzwords: leverage, unlock, empower, game-changer, cutting-edge, revolutionize, supercharge, deep dive.
+- Every sentence must earn its place. If removing it doesn't change the meaning, remove it.
+- Use "we" for company things, "I" for personal observations.
+- Numbers and specifics over vague claims.
 
-5. **AI PULSE** — One thing that happened in AI this week worth paying attention to. A new model, a company move, a trend. Short opinionated take — what it means for builders. One paragraph.
+SUBJECT LINE RULES:
+- Under 50 characters
+- Informative, not clickbait
+- Should tell the reader what they'll learn
 
-6. **ONE QUESTION** — End with a single thought-provoking question about AI, building, or the future. No answer. Just the question. Make it hit.
-
-Also generate:
-- A compelling email subject line (under 50 chars, not clickbait, genuinely interesting)
-- A one-sentence preview text for inbox preview
+Generate a subject line and preview text (one sentence for inbox preview).
 
 FORMAT: Return as valid JSON:
 {
-  "subject": "...",
-  "preview": "...",
-  "sections": [
-    { "type": "shipped", "title": "What I Built This Week", "heading": "headline", "body": "..." },
-    { "type": "tool", "title": "AI Tool Worth Knowing", "heading": "Tool Name", "body": "..." },
-    { "type": "prompt", "title": "Prompt You Can Steal", "heading": "What it does", "body": "...", "prompt_text": "the actual prompt" },
-    { "type": "build", "title": "How I Solved It", "heading": "headline", "body": "..." },
-    { "type": "pulse", "title": "AI Pulse", "heading": "headline", "body": "..." },
-    { "type": "question", "title": "One Question", "body": "the question" }
-  ]
+  "subject": "subject line under 50 chars",
+  "preview": "one sentence preview for inbox",
+  "opening": "2-3 sentence opening paragraph",
+  "news": [
+    { "headline": "Bold headline", "body": "2-3 sentence explanation" },
+    { "headline": "Bold headline", "body": "2-3 sentence explanation" },
+    { "headline": "Bold headline", "body": "2-3 sentence explanation" }
+  ],
+  "build": { "headline": "What we shipped", "body": "3-4 sentences" },
+  "tool": { "name": "Tool Name", "body": "2-3 sentences about it" },
+  "insight": { "headline": "Trend headline", "body": "One paragraph" },
+  "tip": { "headline": "Tip headline", "body": "2-4 sentences, actionable" }
 }`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -141,13 +152,15 @@ FORMAT: Return as valid JSON:
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 2000,
+      max_tokens: 3000,
+      tools: [{ type: 'web_search_20250305' }],
       messages: [{ role: 'user', content: prompt }],
     }),
   });
 
   const data = await response.json();
-  const text = data.content?.[0]?.text || '';
+  const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
+  const text = textBlocks.join('\n');
 
   try {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -160,88 +173,101 @@ FORMAT: Return as valid JSON:
 }
 
 function buildNewsletterHTML(content) {
-  const sections = content.sections || [];
-
-  const sectionIcons = {
-    shipped: '🚀',
-    tool: '🔧',
-    prompt: '💬',
-    build: '🏗️',
-    pulse: '⚡',
-    question: '🧊',
-  };
-
-  let sectionsHTML = '';
-
-  for (const section of sections) {
-    const icon = sectionIcons[section.type] || '📌';
-
-    if (section.type === 'prompt' && section.prompt_text) {
-      sectionsHTML += `
-        <tr><td style="padding:0 0 36px 0;">
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#4dd4e6;font-weight:700;margin-bottom:8px;">${icon} ${section.title}</div>
-          <div style="font-size:18px;font-weight:700;color:#f0f0f5;margin-bottom:10px;">${section.heading || ''}</div>
-          <div style="font-size:14px;color:#8b9caa;line-height:1.7;margin-bottom:14px;">${section.body}</div>
-          <div style="background:#0f1a28;border-left:3px solid #4dd4e6;border-radius:6px;padding:16px 18px;font-family:'Courier New',monospace;font-size:13px;color:#a8c8d8;line-height:1.6;white-space:pre-wrap;">${section.prompt_text}</div>
-        </td></tr>
-      `;
-    } else if (section.type === 'question') {
-      sectionsHTML += `
-        <tr><td style="padding:32px 0;text-align:center;">
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#4dd4e6;font-weight:700;margin-bottom:14px;">${icon} ${section.title}</div>
-          <div style="font-size:22px;font-weight:700;color:#f0f0f5;font-style:italic;line-height:1.4;padding:0 12px;">${section.body}</div>
-        </td></tr>
-      `;
-    } else {
-      sectionsHTML += `
-        <tr><td style="padding:0 0 36px 0;">
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.12em;color:#4dd4e6;font-weight:700;margin-bottom:8px;">${icon} ${section.title}</div>
-          <div style="font-size:18px;font-weight:700;color:#f0f0f5;margin-bottom:10px;">${section.heading || ''}</div>
-          <div style="font-size:14px;color:#8b9caa;line-height:1.7;">${section.body}</div>
-        </td></tr>
-      `;
-    }
+  let newsHTML = '';
+  for (const item of (content.news || [])) {
+    newsHTML += `
+      <tr><td style="padding:0 0 20px 0;">
+        <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">${item.headline}</div>
+        <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${item.body}</div>
+      </td></tr>
+    `;
   }
 
   return `
-    <div style="background:#080a10;padding:0;font-family:-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif;margin:0;">
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:#080a10;">
+    <div style="background:#ffffff;padding:0;font-family:-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif;margin:0;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
         <tr><td align="center">
-          <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+          <table width="580" cellpadding="0" cellspacing="0" style="max-width:580px;width:100%;">
 
             <!-- HEADER -->
-            <tr><td style="padding:40px 24px 32px;text-align:center;border-bottom:1px solid rgba(168,200,216,0.08);">
-              <div style="font-size:13px;font-weight:800;color:#4dd4e6;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:6px;">@icebergsampson</div>
-              <div style="font-size:24px;font-weight:800;color:#f0f0f5;letter-spacing:-0.02em;">Weekly Drop</div>
-              <div style="font-size:12px;color:#4d6070;margin-top:6px;">${content.preview || 'What I built, what I found, what matters.'}</div>
+            <tr><td style="padding:40px 24px 24px;">
+              <div style="font-size:11px;font-weight:700;color:#999;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">freeslackapps.com</div>
+              <div style="font-size:22px;font-weight:700;color:#1a1a1a;line-height:1.3;">${content.subject}</div>
             </td></tr>
 
-            <!-- CONTENT -->
-            <tr><td style="padding:36px 24px 0;">
+            <!-- OPENING -->
+            <tr><td style="padding:0 24px 28px;">
+              <div style="font-size:15px;color:#333;line-height:1.7;">${content.opening}</div>
+            </td></tr>
+
+            <!-- DIVIDER -->
+            <tr><td style="padding:0 24px;"><div style="border-top:1px solid #eee;"></div></td></tr>
+
+            <!-- TODAY IN SLACK -->
+            <tr><td style="padding:28px 24px 8px;">
+              <div style="font-size:11px;font-weight:700;color:#999;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;">Today in Slack</div>
               <table width="100%" cellpadding="0" cellspacing="0">
-                ${sectionsHTML}
+                ${newsHTML}
               </table>
             </td></tr>
 
-            <!-- CTA -->
-            <tr><td style="padding:12px 24px 36px;text-align:center;">
-              <div style="background:#0f1a28;border:1px solid rgba(77,212,230,0.15);border-radius:10px;padding:24px;">
-                <div style="font-size:15px;font-weight:700;color:#f0f0f5;margin-bottom:8px;">Free Slack apps that actually work</div>
-                <div style="font-size:13px;color:#6b7d8d;margin-bottom:16px;">Stream Line is live. More apps shipping every week.</div>
-                <a href="https://freeslackapps.com" style="display:inline-block;padding:10px 24px;background:#2ba8c3;color:white;text-decoration:none;border-radius:6px;font-weight:600;font-size:14px;">See all apps</a>
-              </div>
+            <!-- DIVIDER -->
+            <tr><td style="padding:0 24px;"><div style="border-top:1px solid #eee;"></div></td></tr>
+
+            <!-- THE BUILD -->
+            <tr><td style="padding:28px 24px;">
+              <div style="font-size:11px;font-weight:700;color:#999;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">The Build</div>
+              <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">${content.build?.headline || ''}</div>
+              <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${content.build?.body || ''}</div>
             </td></tr>
 
+            <!-- DIVIDER -->
+            <tr><td style="padding:0 24px;"><div style="border-top:1px solid #eee;"></div></td></tr>
+
+            <!-- TOOL OF THE WEEK -->
+            <tr><td style="padding:28px 24px;">
+              <div style="font-size:11px;font-weight:700;color:#999;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Tool of the Week</div>
+              <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">${content.tool?.name || ''}</div>
+              <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${content.tool?.body || ''}</div>
+            </td></tr>
+
+            <!-- DIVIDER -->
+            <tr><td style="padding:0 24px;"><div style="border-top:1px solid #eee;"></div></td></tr>
+
+            <!-- INDUSTRY INSIGHT -->
+            <tr><td style="padding:28px 24px;">
+              <div style="font-size:11px;font-weight:700;color:#999;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Industry Insight</div>
+              <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">${content.insight?.headline || ''}</div>
+              <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${content.insight?.body || ''}</div>
+            </td></tr>
+
+            <!-- DIVIDER -->
+            <tr><td style="padding:0 24px;"><div style="border-top:1px solid #eee;"></div></td></tr>
+
+            <!-- ACTIONABLE TIP -->
+            <tr><td style="padding:28px 24px;">
+              <div style="font-size:11px;font-weight:700;color:#999;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">This Week's Tip</div>
+              <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">${content.tip?.headline || ''}</div>
+              <div style="font-size:14px;color:#4a4a4a;line-height:1.65;">${content.tip?.body || ''}</div>
+            </td></tr>
+
+            <!-- DIVIDER -->
+            <tr><td style="padding:0 24px;"><div style="border-top:1px solid #eee;"></div></td></tr>
+
             <!-- FOOTER -->
-            <tr><td style="border-top:1px solid rgba(168,200,216,0.06);padding:28px 24px;text-align:center;">
-              <div style="margin-bottom:10px;">
-                <a href="https://instagram.com/icebergsampson" style="color:#4d6070;text-decoration:none;font-size:12px;margin:0 10px;">Instagram</a>
-                <a href="https://youtube.com/@manplusbrain" style="color:#4d6070;text-decoration:none;font-size:12px;margin:0 10px;">YouTube</a>
-                <a href="https://freeslackapps.com" style="color:#4d6070;text-decoration:none;font-size:12px;margin:0 10px;">Apps</a>
+            <tr><td style="padding:28px 24px;">
+              <div style="font-size:13px;color:#999;line-height:1.6;">
+                We build free Slack apps that compete with expensive alternatives.<br>
+                <a href="https://freeslackapps.com" style="color:#333;text-decoration:underline;">See all apps</a>
               </div>
-              <div style="font-size:11px;color:#2a3540;margin-top:14px;">
+              <div style="font-size:12px;color:#ccc;margin-top:16px;">
+                <a href="https://instagram.com/icebergsampson" style="color:#999;text-decoration:none;">Instagram</a> &nbsp;&middot;&nbsp;
+                <a href="https://youtube.com/@manplusbrain" style="color:#999;text-decoration:none;">YouTube</a> &nbsp;&middot;&nbsp;
+                <a href="https://freeslackapps.com" style="color:#999;text-decoration:none;">freeslackapps.com</a>
+              </div>
+              <div style="font-size:11px;color:#ccc;margin-top:12px;">
                 You signed up at freeslackapps.com<br>
-                <a href="https://freeslackapps.com" style="color:#2a3540;">Unsubscribe</a>
+                <a href="https://freeslackapps.com" style="color:#ccc;">Unsubscribe</a>
               </div>
             </td></tr>
 
