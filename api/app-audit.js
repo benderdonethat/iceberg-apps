@@ -60,7 +60,7 @@ Google Sheets/Excel (free but manual), QuickBooks ($30/month, too complex), Wave
 StreamElements, Streamlabs, Whatnot itself, Shopify, OBS, Twitch tools
 
 ## Core Features
-Log stream sessions with sales/costs/duration/platform. Auto platform fee calculations (Whatnot 19.9%, TikTok 8%, etc.). Real P&L per stream. Inventory with velocity and reorder alerts. Smart CSV import (auto-detects Whatnot/TikTok/eBay format, maps columns, imports as stream log or inventory). Customer database with VIP detection. Revenue goals with progress tracking and automated notifications (DMs user when goal hit or at risk). AI business insights. Stream comparison view (side-by-side last 5 streams with trend analysis). Brand vault and AI content generator. CSV export. Multi-tenant teams. Tab navigation (Dashboard, Insights, Tools, Settings). Persistent Log Stream and Quick Sale buttons above tabs. How to Get the Most Out of Stream Line and Industry Workflows always visible.
+Log stream sessions with sales/costs/duration/platform. Auto platform fee calculations (Whatnot 19.9%, TikTok 8%, etc.). Real P&L per stream. Inventory with velocity and reorder alerts. Smart CSV import (auto-detects Whatnot/TikTok/eBay format, maps columns, imports as stream log or inventory). Customer database with VIP detection. Revenue goals with progress tracking and automated notifications (DMs user when goal hit or at risk). AI business insights. Stream comparison view (side-by-side last 5 streams with trend analysis). Brand vault and AI content generator. CSV export. Multi-tenant teams with role-based access (owner/supervisor/employee). One-time invite codes for role assignment (owner generates supervisor or owner codes, employees redeem from Settings tab). Tab navigation (Dashboard, Insights, Tools, Settings). Persistent Log Stream and Quick Sale buttons above tabs. How to Get the Most Out of Stream Line and Industry Workflows always visible. Full audit trail on all edits. Database-level Row Level Security. AES-256-GCM encryption on API keys. Startup env var validation. Health check endpoint.
 
 ## UX Design
 Slack App Home with tab navigation. Primary actions (Log Stream, Quick Sale) always visible above tabs. Tips and Workflows buttons always visible. Dashboard tab shows Go Live, Track and Manage, Money. Insights tab shows AI, Customers, Brand. Tools tab shows calculators and utilities. Settings tab shows team and config (role-gated). Status bar at top shows today's metrics and goal progress. Every action opens a modal. Confirmation feedback after every action.
@@ -71,7 +71,7 @@ Manual stream logging unless API connected. No direct Whatnot API yet. Mobile Sl
   'sensei': `# Sensei
 
 ## What This App Is
-A free Slack-based team knowledge base. Teams write, search, and share articles entirely inside Slack. No external dashboard.
+A free Slack-based team knowledge base with role-based access and team collaboration. Teams write, search, and share articles entirely inside Slack. No external dashboard.
 
 ## What This App Is NOT
 NOT a project management tool. NOT a wiki with web interface. NOT a rich text document editor. NOT a CRM or customer-facing KB.
@@ -86,7 +86,10 @@ Guru ($7/user/month), Tettra ($5/user/month), Slite ($8/user/month), Notion ($8/
 Confluence, SharePoint, Jira, Asana, Monday.com
 
 ## Core Features
-Article creation with 5 templates. Full-text search via keyword index. Channel-specific knowledge bases. AI-powered answers from articles. AI thread-to-article conversion. Article tagging. Internal linking with [[Title]]. Stale article detection (30 day flag). Knowledge gap tracking. Usage analytics. AES-256-GCM encryption. Multi-tenant RLS.
+Article creation with 5 templates. Full-text search via keyword index. Channel-specific knowledge bases. AI-powered answers from articles (rate limited to 50 calls/workspace/day). AI thread-to-article conversion via message shortcut. Article tagging and categories. Internal linking with [[Title]] syntax. Stale article detection (30 day cron, DMs author with Update/Still Accurate/Archive). Knowledge gap tracking (unanswered searches with Write This buttons). Usage analytics on App Home (admin/owner only). AES-256-GCM encryption on article bodies and bot tokens. Multi-tenant with database-level Row Level Security (RLS on all tables). Parameterized SQL for tenant context (no injection). Role-based access control (owner/admin/member) with permission enforcement on both UI and server side. One-time invite codes for role assignment (owner generates, new user redeems on App Home). Manage Team modal for owners (view members, change roles, generate codes, see code history). Collaborative editing (any team member can edit any article, delete restricted to admin+ or own articles). Team Activity feed on App Home showing recent writes, edits, role changes, and new joins (visible to all roles). Team notifications (DMs all team members when a new article is published with a Read button). Health check endpoint (/health) with database connectivity test. Startup validation for all required environment variables. How to Get the Most Out of Sensei and Industry Workflows always visible on App Home.
+
+## UX Design
+Slack App Home with role-aware layout. Header shows role badge. Members see invite code entry prompt, write/search/browse, team activity, recent articles. Admins also see analytics (article count, views, searches, tags), most viewed articles, and knowledge gaps. Owners also see Manage Team button. Every action opens a modal. Confirmation DM after every write/edit/delete with contextual follow-up buttons. App Home refreshes after every write/edit/delete.
 
 ## Known Limitations
 Search works on titles and keyword index, not encrypted body. Sequential editing (no real-time co-edit). No images in articles (Slack modal limitation).`
