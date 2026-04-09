@@ -54,7 +54,13 @@ For each opportunity you MUST provide:
 4. **THEIR WEAKNESS** — What users complain about (cite real G2, Capterra, or Slack directory reviews if possible). Common complaints: too expensive for small teams, clunky UI, requires too much setup, missing key features, poor Slack integration despite being a "Slack app"
 5. **OUR APP** — Name, emoji, one-line description of our free alternative
 6. **HOW WE MATCH OR BEAT THEM** — List 4-6 features that match or exceed theirs. Be specific. Not "better UI" but "one-click setup from Slack command, no external dashboard needed"
-7. **OUR PRICING STRATEGY** — Free, Freemium (free core + paid power features), or Paid (but cheaper). If Freemium, specify what's free vs paid.
+7. **OUR PRICING STRATEGY** — Free, Freemium (free core + paid power features), or Paid (but cheaper). If Freemium, specify exactly which features are free and which are paid. If Paid, specify our price and how much cheaper it is than the competitor.
+
+PRICING MIX REQUIREMENT: Your 10 suggestions MUST include a mix of all 3 pricing tiers:
+- At least 4 FREE apps (completely free, no paid tier — these are our volume/install drivers)
+- At least 3 FREEMIUM apps (free core with paid power features — specify the split clearly)
+- At least 2 PAID apps (cheaper than competitor — these generate revenue, specify our price vs theirs)
+Order the list by score, not by pricing tier. Label each clearly.
 8. **OPPORTUNITY SCORE** (1-100) — based on:
    - Their install base / market size (how many users we can steal) — 35%
    - Price differential (how much cheaper we are) — 25%
