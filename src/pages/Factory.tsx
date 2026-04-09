@@ -372,11 +372,11 @@ export default function Factory() {
     const prevData = auditData ? { ...auditData } : null;
     setAuditPrev(prevData);
     try {
-      const storedProfile = localStorage.getItem(`audit_profile_${appName}`) || undefined;
+      // No profileOverride — always use server-side APP_PROFILES as source of truth
       const res = await fetch("/api/app-audit", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-admin-key": password || sessionStorage.getItem("factory_pw") || "" },
-        body: JSON.stringify({ app: { name: app.name, desc: app.desc, features: app.features, category: app.category, pricing: app.pricing, status: app.status }, profileOverride: storedProfile }),
+        body: JSON.stringify({ app: { name: app.name, desc: app.desc, features: app.features, category: app.category, pricing: app.pricing, status: app.status } }),
       });
       if (!res.ok) throw new Error("Failed to run audit");
       const json = await res.json();
@@ -845,19 +845,11 @@ export default function Factory() {
             {auditApp && !auditLoading && (
               <div className="flex items-center gap-3">
                 <button
-                  onClick={async () => {
-                    const app = apps.find((a: any) => a.name === auditApp);
-                    if (app) {
-                      const autoChanges = `Current features: ${app.features.join('. ')}. Status: ${app.status}. Pricing: ${app.pricing}. Category: ${app.category}.`;
-                      setUpdateChanges(autoChanges);
-                      await submitAuditUpdate();
-                      runNewAudit();
-                    }
-                  }}
-                  disabled={updateLoading || auditLoading}
+                  onClick={() => runNewAudit()}
+                  disabled={auditLoading}
                   className="px-4 py-2 rounded-lg text-xs font-medium border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 transition-all disabled:opacity-50"
                 >
-                  {updateLoading ? "Syncing profile..." : "Run Audit"}
+                  Run Audit
                 </button>
                 {auditData && (
                   <span className="text-[10px] text-[#3a4550]">
