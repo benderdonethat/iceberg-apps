@@ -194,9 +194,11 @@ export default function Factory() {
   const [copiedDm, setCopiedDm] = useState<string>("");
   const [competitorContext, setCompetitorContext] = useState<{ name: string; price: string; weakness: string; features: string[] } | null>(null);
   const [auditData, setAuditData] = useState<any>(null);
+  const [auditPrev, setAuditPrev] = useState<any>(null);
   const [auditLoading, setAuditLoading] = useState(false);
   const [auditError, setAuditError] = useState("");
   const [auditApp, setAuditApp] = useState<string>("");
+  const [auditCompare, setAuditCompare] = useState<any>(null);
 
   const fetchIntel = useCallback(async () => {
     setIntelLoading(true);
@@ -314,12 +316,32 @@ export default function Factory() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const fetchAudit = useCallback(async (appName: string) => {
-    const app = apps.find((a) => a.name === appName);
+  const selectAuditApp = (appName: string) => {
+    setAuditApp(appName);
+    setAuditError("");
+    setAuditCompare(null);
+    // Load cached audit from localStorage
+    const cached = localStorage.getItem(`audit_${appName}`);
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        setAuditData(parsed.data);
+        setAuditPrev(null);
+      } catch { setAuditData(null); }
+    } else {
+      setAuditData(null);
+    }
+  };
+
+  const runNewAudit = useCallback(async () => {
+    const app = apps.find((a) => a.name === auditApp);
     if (!app) return;
     setAuditLoading(true);
     setAuditError("");
-    setAuditApp(appName);
+    setAuditCompare(null);
+    // Save current as previous for comparison
+    const prevData = auditData ? { ...auditData } : null;
+    setAuditPrev(prevData);
     try {
       const res = await fetch("/api/app-audit", {
         method: "POST",
@@ -329,6 +351,20 @@ export default function Factory() {
       if (!res.ok) throw new Error("Failed to run audit");
       const json = await res.json();
       setAuditData(json.data);
+      // Cache the new result
+      localStorage.setItem(`audit_${auditApp}`, JSON.stringify({ data: json.data, timestamp: new Date().toISOString() }));
+      // Build comparison if we had a previous audit
+      if (prevData) {
+        const compare: any = { score_change: json.data.readiness_score - prevData.readiness_score, ux_change: (json.data.ux_score?.total || 0) - (prevData.ux_score?.total || 0), improved: [], regressed: [] };
+        for (const f of (json.data.feature_audit || [])) {
+          const prev = (prevData.feature_audit || []).find((p: any) => p.feature === f.feature);
+          if (!prev) { compare.improved.push(`${f.feature}: new (${f.status})`); continue; }
+          const rank: Record<string, number> = { behind: 0, match: 1, ahead: 2, unique: 3 };
+          if ((rank[f.status] || 0) > (rank[prev.status] || 0)) compare.improved.push(`${f.feature}: ${prev.status} → ${f.status}`);
+          if ((rank[f.status] || 0) < (rank[prev.status] || 0)) compare.regressed.push(`${f.feature}: ${prev.status} → ${f.status}`);
+        }
+        setAuditCompare(compare);
+      }
     } catch (e: any) {
       setAuditError(e.message || "Failed to load");
     } finally {
@@ -758,7 +794,7 @@ export default function Factory() {
                 {apps.map((a) => (
                   <button
                     key={a.slug}
-                    onClick={() => fetchAudit(a.name)}
+                    onClick={() => selectAuditApp(a.name)}
                     disabled={auditLoading}
                     className={`px-4 py-2 rounded-lg text-xs font-medium border transition-all flex items-center gap-2 ${
                       auditApp === a.name
@@ -777,15 +813,73 @@ export default function Factory() {
               </div>
             </div>
 
+            {/* Run New Audit button */}
+            {auditApp && !auditLoading && (
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => runNewAudit()}
+                  className="px-4 py-2 rounded-lg text-xs font-medium border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 transition-all"
+                >
+                  Run New Audit
+                </button>
+                {auditData && (
+                  <span className="text-[10px] text-[#3a4550]">
+                    Last audit: {localStorage.getItem(`audit_${auditApp}`) ? new Date(JSON.parse(localStorage.getItem(`audit_${auditApp}`) || '{}').timestamp).toLocaleString() : 'never'}
+                  </span>
+                )}
+                {!auditData && <span className="text-[10px] text-[#6b7d8d]">No previous audit. Run one to get started.</span>}
+              </div>
+            )}
+
             {auditLoading && (
               <div className="text-center py-20">
                 <div className="text-2xl mb-3 animate-pulse">🔬</div>
                 <p className="text-[#6b7d8d] text-sm">Running competitive audit...</p>
-                <p className="text-[#3a4550] text-xs mt-1">Analyzing features vs competitors — 20-30 seconds</p>
+                <p className="text-[#3a4550] text-xs mt-1">Analyzing features vs competitors. 20-30 seconds.</p>
               </div>
             )}
 
             {auditError && <p className="text-red-400 text-sm text-center py-10">{auditError}</p>}
+
+            {/* Comparison Banner */}
+            {auditCompare && !auditLoading && (
+              <div className="rounded-2xl border border-blue-500/20 bg-blue-500/[0.03] p-5">
+                <div className="text-[10px] font-semibold uppercase tracking-widest text-blue-400 mb-3">Changes Since Last Audit</div>
+                <div className="grid grid-cols-2 gap-4 mb-3">
+                  <div className="text-center">
+                    <div className={`text-xl font-bold ${auditCompare.score_change > 0 ? 'text-emerald-400' : auditCompare.score_change < 0 ? 'text-red-400' : 'text-[#6b7d8d]'}`}>
+                      {auditCompare.score_change > 0 ? '+' : ''}{auditCompare.score_change}
+                    </div>
+                    <div className="text-[9px] text-[#3a4550]">Readiness Score</div>
+                  </div>
+                  <div className="text-center">
+                    <div className={`text-xl font-bold ${auditCompare.ux_change > 0 ? 'text-emerald-400' : auditCompare.ux_change < 0 ? 'text-red-400' : 'text-[#6b7d8d]'}`}>
+                      {auditCompare.ux_change > 0 ? '+' : ''}{auditCompare.ux_change}
+                    </div>
+                    <div className="text-[9px] text-[#3a4550]">UX Score</div>
+                  </div>
+                </div>
+                {auditCompare.improved.length > 0 && (
+                  <div className="mb-2">
+                    <div className="text-[9px] text-emerald-400 font-semibold uppercase mb-1">Improved</div>
+                    {auditCompare.improved.map((item: string, i: number) => (
+                      <p key={i} className="text-[11px] text-emerald-400/80">{item}</p>
+                    ))}
+                  </div>
+                )}
+                {auditCompare.regressed.length > 0 && (
+                  <div>
+                    <div className="text-[9px] text-red-400 font-semibold uppercase mb-1">Regressed</div>
+                    {auditCompare.regressed.map((item: string, i: number) => (
+                      <p key={i} className="text-[11px] text-red-400/80">{item}</p>
+                    ))}
+                  </div>
+                )}
+                {auditCompare.improved.length === 0 && auditCompare.regressed.length === 0 && (
+                  <p className="text-[11px] text-[#6b7d8d]">No feature status changes detected.</p>
+                )}
+              </div>
+            )}
 
             {auditData && !auditLoading && (
               <>
@@ -807,7 +901,6 @@ export default function Factory() {
                   </div>
                   <div className="text-[10px] text-[#3a4550] mt-2">vs {auditData.primary_competitor} | {auditData.competitor_price}</div>
                   {auditData.competitor_validation && <div className="text-[10px] text-[#6b7d8d] mt-1">{auditData.competitor_validation}</div>}
-                  {auditData.competitor_gap_reason && <div className="text-[10px] text-amber-400/60 mt-1">{auditData.competitor_gap_reason}</div>}
                 </div>
 
                 {/* Verdict */}
