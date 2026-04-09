@@ -23,14 +23,15 @@ export default async function handler(req, res) {
   try {
     // Step 1: Search for real competitor data
     const searchQueries = [
-      'most popular paid Slack apps 2026 pricing reviews',
-      'Slack App Directory top rated paid apps per user pricing',
-      'G2 Slack integrations highest rated 2026 reviews complaints',
-      'overpriced Slack apps small teams alternatives 2026',
+      { query: 'most popular paid Slack apps 2026 pricing per user monthly', prompt: 'Find the top 10 most popular PAID Slack apps with their exact current pricing. Include app name, price per user, and what they do. Only include apps that charge money.' },
+      { query: 'site:g2.com Slack app reviews 1 star 2 star complaints "too expensive" OR "not worth" OR "overpriced"', prompt: 'Find negative G2 reviews (1-2 stars) for paid Slack apps. Extract the specific complaints: what app, what they hate about it, what they wish was different. Focus on pricing complaints and UX frustrations.' },
+      { query: 'site:capterra.com Slack integration reviews cons disadvantages "small team" OR "too complex"', prompt: 'Find Capterra reviews highlighting cons and disadvantages of paid Slack apps. Focus on complaints about complexity, pricing for small teams, poor UX, and missing features.' },
+      { query: 'Slack App Directory most installed apps 2026 user count reviews', prompt: 'Find Slack App Directory listings with install counts, ratings, and review counts. Focus on paid apps with high install numbers.' },
+      { query: '"switched from" OR "cancelled" OR "replaced" Slack app "too expensive" OR "free alternative" 2026', prompt: 'Find real user stories about switching away from paid Slack apps. What did they leave, why, and what did they switch to? Focus on price and UX as reasons.' },
     ];
 
     let searchContext = '';
-    for (const query of searchQueries) {
+    for (const { query, prompt } of searchQueries) {
       try {
         const searchRes = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
@@ -41,9 +42,9 @@ export default async function handler(req, res) {
           },
           body: JSON.stringify({
             model: 'claude-sonnet-4-20250514',
-            max_tokens: 1000,
+            max_tokens: 1500,
             tools: [{ type: 'web_search_20250305' }],
-            messages: [{ role: 'user', content: `Search for: ${query}. Return the key findings with specific app names, pricing, install counts, review scores, and user complaints. Only include verified, current data.` }],
+            messages: [{ role: 'user', content: `${prompt}\n\nSearch: ${query}` }],
           }),
         });
         const searchData = await searchRes.json();
@@ -88,7 +89,7 @@ For each opportunity you MUST provide:
 1. **THE TARGET** — Name the REAL paid Slack app we're undercutting. It must be a real app in the Slack App Directory.
 2. **WHAT THEY CHARGE** — Their actual current pricing (per user/month, flat rate, etc.). Must be real pricing from their actual pricing page.
 3. **WHAT THEY DO** — Their core features (list their top 4-6 features as they advertise them)
-4. **THEIR WEAKNESS** — What users complain about (cite real G2, Capterra, or Slack directory reviews if possible). Common complaints: too expensive for small teams, clunky UI, requires too much setup, missing key features, poor Slack integration despite being a "Slack app"
+4. **THEIR WEAKNESS** — MUST be sourced from real user reviews in the search data above. Quote or paraphrase actual G2/Capterra/Slack directory complaints. Include the source (e.g. "G2 reviewer, 2 stars"). If the search data contains a real complaint about this app, use it verbatim. Focus on: UX frustrations, pricing complaints, setup complexity, missing features, poor mobile experience, slow support. Do NOT make up generic weaknesses — every weakness must trace back to real user feedback.
 5. **OUR APP** — Name, emoji, one-line description of our free alternative
 6. **HOW WE MATCH OR BEAT THEM** — List 4-6 features that match or exceed theirs. Be specific. Not "better UI" but "one-click setup from Slack command, no external dashboard needed"
 7. **OUR PRICING STRATEGY** — Free, Freemium (free core + paid power features), or Paid (but cheaper). If Freemium, specify exactly which features are free and which are paid. If Paid, specify our price and how much cheaper it is than the competitor.
@@ -129,7 +130,7 @@ FORMAT: Return as valid JSON:
       "target_app": "Real Slack App Name",
       "target_price": "$X/user/month",
       "target_features": ["their feature 1", "their feature 2", "their feature 3", "their feature 4"],
-      "target_weakness": "What users complain about — cite real reviews",
+      "target_weakness": "Direct quote or paraphrase from real G2/Capterra review with source cited (e.g. 'G2 reviewer: too complex for a 5-person team')",
       "target_installs": "Actual install count or user count if available from search data, otherwise estimate range like '10K-50K installs'",
       "target_rating": "G2 or Capterra rating if found (e.g. '4.3/5 on G2, 245 reviews')",
       "target_review_count": "Number of reviews if found",
