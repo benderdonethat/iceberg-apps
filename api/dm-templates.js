@@ -78,10 +78,10 @@ RULES FOR WRITING DMs:
 - Lead with the pain point, not the product
 - Mention the specific paid competitor they're probably using and how much it costs
 - Make it clear this is FREE. Not freemium, not a trial, free forever
-- Include the app URL: https://freeslackapps.com
+- DO NOT include any URL or link in the first message. LinkedIn spam filters flag repeated URLs. The link goes in your profile bio, not the DM. If they reply interested, send the link in the follow-up.
 - No emojis in the DM body (LinkedIn culture)
-- One clear call to action
-- Don't be pushy. The pitch is: "you're probably paying for this, here's a free version that does the same thing"
+- One clear call to action (ask a question or offer to share the link, don't drop it unsolicited)
+- Don't be pushy. The pitch is: "you're probably paying for this, there's a free version. want the link?"
 
 CRITICAL: AI LANGUAGE FILTER. These messages will be sent on LinkedIn where AI-generated content is instantly recognized and ignored. Every DM must pass these checks:
 - No corporate buzzwords: "leverage", "streamline", "optimize", "synergy", "empower", "cutting-edge", "game-changer", "revolutionary"
@@ -119,7 +119,8 @@ FORMAT: Return as valid JSON:
       "competitor_price": "$X/user/month",
       "linkedin_search": "what to search on LinkedIn to find these people",
       "dm": "The DM text ready to send",
-      "followup": "Follow-up if no response in 3 days",
+      "followup": "Follow-up if no response in 3 days (still no link, just a nudge)",
+      "reply_with_link": "What to send when they say yes or ask for the link (this is when you drop the URL)",
       "why_this_role": "One sentence on why this role cares about this app"
     }
   ]
