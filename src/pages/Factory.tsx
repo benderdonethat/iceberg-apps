@@ -183,7 +183,7 @@ export default function Factory() {
   const [customFeature, setCustomFeature] = useState("");
   const [status, setStatus] = useState<string>("roadmap");
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<"build" | "intel">("build");
+  const [activeTab, setActiveTab] = useState<"build" | "intel" | "outreach" | "audit">("build");
   const [intel, setIntel] = useState<any>(null);
   const [intelLoading, setIntelLoading] = useState(false);
   const [intelError, setIntelError] = useState("");
@@ -192,6 +192,11 @@ export default function Factory() {
   const [dmError, setDmError] = useState("");
   const [dmApp, setDmApp] = useState<string>("");
   const [copiedDm, setCopiedDm] = useState<string>("");
+  const [competitorContext, setCompetitorContext] = useState<{ name: string; price: string; weakness: string; features: string[] } | null>(null);
+  const [auditData, setAuditData] = useState<any>(null);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditError, setAuditError] = useState("");
+  const [auditApp, setAuditApp] = useState<string>("");
 
   const fetchIntel = useCallback(async () => {
     setIntelLoading(true);
@@ -294,14 +299,42 @@ export default function Factory() {
     setEmoji(opp.our_emoji || "🤖");
     setDesc(opp.our_desc || "");
     setCategory(opp.category || "Other");
-    const p = (opp.our_pricing || "Free").split(" ")[0]; // "Free", "Freemium", or "Paid"
+    const p = (opp.our_pricing || "Free").split(" ")[0];
     setPricing(["Free", "Freemium", "Paid"].includes(p) ? p : "Free");
     setFeatures(opp.our_features || []);
     setSelectedTags([opp.category || "Other", p]);
     setStatus("roadmap");
+    setCompetitorContext({
+      name: opp.target_app || "",
+      price: opp.target_price || "",
+      weakness: opp.target_weakness || "",
+      features: opp.target_features || [],
+    });
     setActiveTab("build");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const fetchAudit = useCallback(async (appName: string) => {
+    const app = apps.find((a) => a.name === appName);
+    if (!app) return;
+    setAuditLoading(true);
+    setAuditError("");
+    setAuditApp(appName);
+    try {
+      const res = await fetch("/api/app-audit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-key": password || sessionStorage.getItem("factory_pw") || "" },
+        body: JSON.stringify({ app: { name: app.name, desc: app.desc, features: app.features, category: app.category, pricing: app.pricing, status: app.status } }),
+      });
+      if (!res.ok) throw new Error("Failed to run audit");
+      const json = await res.json();
+      setAuditData(json.data);
+    } catch (e: any) {
+      setAuditError(e.message || "Failed to load");
+    } finally {
+      setAuditLoading(false);
+    }
+  }, [password]);
 
   const availableFeatures = featureLibrary[category] || featureLibrary.Other;
   const availableTags = [...(tagLibrary[category] || tagLibrary.Other), ...sharedTags];
@@ -390,6 +423,14 @@ export default function Factory() {
               }`}
             >
               Outreach
+            </button>
+            <button
+              onClick={() => setActiveTab("audit")}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                activeTab === "audit" ? "border-blue-500/50 bg-blue-500/10 text-blue-400" : "border-white/10 text-[#6b7d8d] hover:border-white/20"
+              }`}
+            >
+              Audit
             </button>
             {activeTab === "build" && (
               <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${
@@ -702,8 +743,191 @@ export default function Factory() {
           </div>
         )}
 
+        {/* ── AUDIT TAB ─────────────────────────────── */}
+        {activeTab === "audit" && (
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-2xl font-bold">App Audit</h2>
+              <p className="text-sm text-[#6b7d8d] mt-1">Competitive edge check — where we win, where to improve, and when to stop</p>
+            </div>
+
+            {/* App Selector */}
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-3 block">Select an App to Audit</label>
+              <div className="flex flex-wrap gap-2">
+                {apps.map((a) => (
+                  <button
+                    key={a.slug}
+                    onClick={() => fetchAudit(a.name)}
+                    disabled={auditLoading}
+                    className={`px-4 py-2 rounded-lg text-xs font-medium border transition-all flex items-center gap-2 ${
+                      auditApp === a.name
+                        ? "border-blue-500/50 bg-blue-500/10 text-blue-400"
+                        : "border-white/10 text-[#6b7d8d] hover:border-white/20"
+                    }`}
+                  >
+                    <span>{a.emoji}</span> {a.name}
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full border ${
+                      a.status === "live" ? "border-emerald-500/40 text-emerald-400" :
+                      a.status === "featured" ? "border-cyan-500/40 text-cyan-400" :
+                      "border-white/10 text-[#3a4550]"
+                    }`}>{a.status}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {auditLoading && (
+              <div className="text-center py-20">
+                <div className="text-2xl mb-3 animate-pulse">🔬</div>
+                <p className="text-[#6b7d8d] text-sm">Running competitive audit...</p>
+                <p className="text-[#3a4550] text-xs mt-1">Analyzing features vs competitors — 20-30 seconds</p>
+              </div>
+            )}
+
+            {auditError && <p className="text-red-400 text-sm text-center py-10">{auditError}</p>}
+
+            {auditData && !auditLoading && (
+              <>
+                {/* Overall Score */}
+                <div className="rounded-2xl border border-blue-500/20 bg-blue-500/[0.03] p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-[10px] font-semibold uppercase tracking-widest text-blue-400 mb-1">Competitive Readiness</div>
+                      <p className="text-sm text-[#a8c8d8]">{auditData.summary}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className={`text-4xl font-bold ${
+                        auditData.readiness_score >= 80 ? "text-emerald-400" :
+                        auditData.readiness_score >= 60 ? "text-amber-400" :
+                        "text-red-400"
+                      }`}>{auditData.readiness_score}</div>
+                      <div className="text-[9px] text-[#3a4550] uppercase">/100</div>
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-[#3a4550] mt-2">vs {auditData.primary_competitor} — {auditData.competitor_price}</div>
+                </div>
+
+                {/* Verdict */}
+                <div className={`rounded-xl border p-4 ${
+                  auditData.verdict === "SHIP" ? "border-emerald-500/30 bg-emerald-500/5" :
+                  auditData.verdict === "IMPROVE" ? "border-amber-500/30 bg-amber-500/5" :
+                  "border-red-500/30 bg-red-500/5"
+                }`}>
+                  <span className={`text-sm font-bold ${
+                    auditData.verdict === "SHIP" ? "text-emerald-400" :
+                    auditData.verdict === "IMPROVE" ? "text-amber-400" :
+                    "text-red-400"
+                  }`}>{auditData.verdict}</span>
+                  <span className="text-xs text-[#6b7d8d] ml-2">{auditData.verdict_reason}</span>
+                </div>
+
+                {/* Feature-by-Feature Comparison */}
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-4">Feature-by-Feature</h3>
+                  <div className="space-y-2">
+                    {auditData.feature_audit?.map((f: any, i: number) => (
+                      <div key={i} className="rounded-xl border border-white/10 bg-[#0c0e16] p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-[#f0f0f5]">{f.feature}</span>
+                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                            f.status === "ahead" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" :
+                            f.status === "match" ? "border-blue-500/40 bg-blue-500/10 text-blue-400" :
+                            f.status === "behind" ? "border-red-500/40 bg-red-500/10 text-red-400" :
+                            "border-white/10 text-[#6b7d8d]"
+                          }`}>{f.status}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 text-[11px]">
+                          <div>
+                            <span className="text-[#3a4550] text-[9px] uppercase">Us</span>
+                            <p className="text-[#a8c8d8] mt-0.5">{f.our_implementation}</p>
+                          </div>
+                          <div>
+                            <span className="text-[#3a4550] text-[9px] uppercase">Them</span>
+                            <p className="text-[#6b7d8d] mt-0.5">{f.their_implementation}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Improvements — only high-impact */}
+                {auditData.improvements && auditData.improvements.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-3">High-Impact Improvements Only</h3>
+                    <p className="text-[10px] text-[#3a4550] mb-4">These are the moves that change the competitive outcome. Everything else is polish.</p>
+                    <div className="space-y-3">
+                      {auditData.improvements.map((imp: any, i: number) => (
+                        <div key={i} className="rounded-xl border border-amber-500/15 bg-amber-500/[0.03] p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-[#f0f0f5]">{imp.title}</span>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full border ${
+                                imp.impact === "critical" ? "border-red-500/40 text-red-400" :
+                                imp.impact === "high" ? "border-amber-500/40 text-amber-400" :
+                                "border-white/10 text-[#6b7d8d]"
+                              }`}>{imp.impact}</span>
+                              <span className="text-[9px] text-[#3a4550]">{imp.effort}</span>
+                            </div>
+                          </div>
+                          <p className="text-[11px] text-[#6b7d8d] leading-relaxed">{imp.description}</p>
+                          <p className="text-[10px] text-amber-400/60 mt-2">{imp.why_it_matters}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Stop List */}
+                {auditData.stop_improving && auditData.stop_improving.length > 0 && (
+                  <div>
+                    <h3 className="text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-3">Stop Improving These</h3>
+                    <p className="text-[10px] text-[#3a4550] mb-3">Already good enough. More work here = diminishing returns.</p>
+                    <div className="flex flex-wrap gap-2">
+                      {auditData.stop_improving.map((item: string, i: number) => (
+                        <span key={i} className="text-[11px] px-3 py-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/5 text-emerald-400">
+                          ✓ {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
         {/* ── BUILD TAB ────────────────────────────── */}
         {activeTab === "build" && (
+        <div>
+          {/* Competitor Context Banner */}
+          {competitorContext && (
+            <div className="rounded-2xl border border-red-500/20 bg-red-500/[0.03] p-5 mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-[10px] font-semibold uppercase tracking-widest text-red-400">Building Against: {competitorContext.name} — {competitorContext.price}</div>
+                <button onClick={() => setCompetitorContext(null)} className="text-[10px] text-[#3a4550] hover:text-red-400">Dismiss</button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <div className="text-[9px] font-semibold uppercase tracking-widest text-red-400/60 mb-1.5">Their Weakness (from reviews)</div>
+                  <p className="text-xs text-[#a8c8d8] leading-relaxed">{competitorContext.weakness}</p>
+                </div>
+                <div>
+                  <div className="text-[9px] font-semibold uppercase tracking-widest text-red-400/60 mb-1.5">Their Features to Beat</div>
+                  <div className="space-y-1">
+                    {competitorContext.features.map((f) => (
+                      <div key={f} className="flex items-start gap-1.5 text-[11px] text-[#6b7d8d]">
+                        <span className="text-red-400/40 mt-0.5 shrink-0">—</span>
+                        <span>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           {/* LEFT — Form */}
           <div className="space-y-6">
@@ -957,6 +1181,7 @@ export default function Factory() {
               </pre>
             </div>
           </div>
+        </div>
         </div>
         )}
       </div>
