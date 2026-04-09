@@ -1112,23 +1112,24 @@ export default function Factory() {
               </>
             )}
 
-            {/* Report Changes */}
+            {/* Sync Changes */}
             {auditApp && !auditLoading && (
               <div className="mt-8">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-3">Report Changes</h3>
-                <p className="text-[10px] text-[#3a4550] mb-3">Tell the audit system what you shipped. It verifies, updates scores, and tells you what to build next.</p>
-                <textarea
-                  value={updateChanges}
-                  onChange={(e) => setUpdateChanges(e.target.value)}
-                  placeholder="Added CSV import with auto-detect for Whatnot/TikTok/eBay. Added stream comparison view. Fixed UX by moving Log Stream button above tabs."
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-[#f0f0f5] placeholder:text-[#3a4550] focus:outline-none focus:border-blue-500/50 min-h-[80px] resize-none"
-                />
+                <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-3">Sync Changes</h3>
+                <p className="text-[10px] text-[#3a4550] mb-3">Pull the latest feature list from the catalog and update the audit profile automatically.</p>
                 <button
-                  onClick={submitAuditUpdate}
-                  disabled={updateLoading || !updateChanges.trim()}
-                  className="mt-2 px-4 py-2 rounded-lg text-xs font-medium border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 transition-all disabled:opacity-50"
+                  onClick={() => {
+                    const app = apps.find((a: any) => a.name === auditApp);
+                    if (app) {
+                      const autoChanges = `Current features: ${app.features.join('. ')}. Status: ${app.status}. Pricing: ${app.pricing}. Category: ${app.category}.`;
+                      setUpdateChanges(autoChanges);
+                      submitAuditUpdate();
+                    }
+                  }}
+                  disabled={updateLoading}
+                  className="px-4 py-2 rounded-lg text-xs font-medium border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 transition-all disabled:opacity-50"
                 >
-                  {updateLoading ? "Verifying..." : "Submit Changes"}
+                  {updateLoading ? "Syncing..." : "Sync from Catalog"}
                 </button>
               </div>
             )}
