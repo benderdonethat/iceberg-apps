@@ -192,6 +192,9 @@ export default function Factory() {
   const [dmError, setDmError] = useState("");
   const [dmApp, setDmApp] = useState<string>("");
   const [copiedDm, setCopiedDm] = useState<string>("");
+  const [prospects, setProspects] = useState<any>(null);
+  const [prospectLoading, setProspectLoading] = useState(false);
+  const [prospectVertical, setProspectVertical] = useState("");
   const [competitorContext, setCompetitorContext] = useState<{ name: string; price: string; weakness: string; features: string[] } | null>(null);
   const [auditData, setAuditData] = useState<any>(null);
   const [auditPrev, setAuditPrev] = useState<any>(null);
@@ -316,6 +319,26 @@ export default function Factory() {
       setDmError(e.message || "Failed to load");
     } finally {
       setDmLoading(false);
+    }
+  }, [password]);
+
+  const fetchProspects = useCallback(async (appName: string, vertical?: string) => {
+    const app = apps.find((a) => a.name === appName);
+    if (!app) return;
+    setProspectLoading(true);
+    try {
+      const res = await fetch("/api/prospect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-key": password || sessionStorage.getItem("factory_pw") || "" },
+        body: JSON.stringify({ app: { name: app.name, desc: app.desc, category: app.category }, vertical }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const json = await res.json();
+      setProspects(json.data);
+    } catch (e: any) {
+      setDmError(e.message);
+    } finally {
+      setProspectLoading(false);
     }
   }, [password]);
 
@@ -729,6 +752,106 @@ export default function Factory() {
             )}
 
             {dmError && <p className="text-red-400 text-sm text-center py-10">{dmError}</p>}
+
+            {/* Prospect Finder */}
+            {dmApp && !dmLoading && (
+              <div className="rounded-2xl border border-orange-500/20 bg-orange-500/[0.03] p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-sm font-bold text-orange-400">Find Companies to Contact</h3>
+                    <p className="text-[10px] text-[#6b7d8d] mt-0.5">Real companies that match your target audience. Verified via web search.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={prospectVertical}
+                      onChange={(e) => setProspectVertical(e.target.value)}
+                      placeholder="Vertical (optional, e.g. agencies)"
+                      className="px-3 py-1.5 rounded-lg text-xs bg-white/5 border border-white/10 text-[#a8c8d8] placeholder-[#3a4550] w-48"
+                    />
+                    <button
+                      onClick={() => fetchProspects(dmApp, prospectVertical || undefined)}
+                      disabled={prospectLoading}
+                      className="px-4 py-1.5 rounded-lg text-xs font-medium border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 transition-all disabled:opacity-50"
+                    >
+                      {prospectLoading ? "Searching..." : "Find Prospects"}
+                    </button>
+                  </div>
+                </div>
+
+                {prospectLoading && (
+                  <div className="text-center py-8">
+                    <p className="text-[#6b7d8d] text-xs animate-pulse">Searching the web for companies that need {dmApp}...</p>
+                  </div>
+                )}
+
+                {prospects && !prospectLoading && (
+                  <div className="space-y-3">
+                    {prospects.prospects?.map((p: any, i: number) => (
+                      <div key={i} className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-[#f0f0f5]">{p.company}</span>
+                              <span className={`text-[8px] px-1.5 py-0.5 rounded-full border ${
+                                p.confidence === 'high' ? 'border-emerald-500/40 text-emerald-400' :
+                                p.confidence === 'medium' ? 'border-yellow-500/40 text-yellow-400' :
+                                'border-white/10 text-[#6b7d8d]'
+                              }`}>{p.confidence}</span>
+                            </div>
+                            <p className="text-[10px] text-[#6b7d8d] mt-0.5">{p.description} · {p.size} · {p.location}</p>
+                            <p className="text-[10px] text-[#a8c8d8] mt-1">{p.why_they_need_it}</p>
+                            <p className="text-[10px] text-orange-400/70 mt-1">Contact: {p.target_role}</p>
+                          </div>
+                          <div className="flex flex-col gap-1 ml-3">
+                            <button
+                              onClick={() => copyDm(p.linkedin_company_search, `co-${i}`)}
+                              className={`text-[9px] px-2 py-0.5 rounded border transition-all whitespace-nowrap ${
+                                copiedDm === `co-${i}` ? "border-emerald-500/40 text-emerald-400" : "border-white/10 text-[#6b7d8d] hover:text-[#a8c8d8]"
+                              }`}
+                            >
+                              {copiedDm === `co-${i}` ? "Copied" : "Company"}
+                            </button>
+                            <button
+                              onClick={() => copyDm(p.linkedin_people_search, `pe-${i}`)}
+                              className={`text-[9px] px-2 py-0.5 rounded border transition-all whitespace-nowrap ${
+                                copiedDm === `pe-${i}` ? "border-emerald-500/40 text-emerald-400" : "border-white/10 text-[#6b7d8d] hover:text-[#a8c8d8]"
+                              }`}
+                            >
+                              {copiedDm === `pe-${i}` ? "Copied" : "People"}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {prospects.verticals_to_explore && (
+                      <div className="mt-4 pt-3 border-t border-white/5">
+                        <p className="text-[9px] font-semibold uppercase tracking-widest text-[#3a4550] mb-2">Verticals to explore next</p>
+                        <div className="flex flex-wrap gap-2">
+                          {prospects.verticals_to_explore.map((v: string, i: number) => (
+                            <button
+                              key={i}
+                              onClick={() => { setProspectVertical(v); fetchProspects(dmApp, v); }}
+                              className="text-[10px] px-3 py-1 rounded-full border border-orange-500/20 text-orange-400/70 hover:bg-orange-500/10 transition-all"
+                            >
+                              {v}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {prospects.search_tips && (
+                      <div className="mt-3">
+                        <p className="text-[9px] font-semibold uppercase tracking-widest text-[#3a4550] mb-1">LinkedIn tips</p>
+                        {prospects.search_tips.map((tip: string, i: number) => (
+                          <p key={i} className="text-[10px] text-[#6b7d8d]">· {tip}</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {dmTemplates && !dmLoading && (
               <div className="space-y-6">

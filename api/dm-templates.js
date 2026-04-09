@@ -75,15 +75,23 @@ ${competitorData || 'No specific competitor data available. Use your knowledge o
 RULES FOR WRITING DMs:
 - NEVER use "---", "—", or any dash-based separators or em dashes. Use periods and new sentences instead.
 - Keep each DM under 280 characters when possible. LinkedIn DMs that are short get read. Long ones get ignored.
-- Sound like a real person, not a marketer. No "I hope this finds you well" or "I wanted to reach out"
 - Lead with the pain point, not the product
 - Mention the specific paid competitor they're probably using and how much it costs
-- Make it clear this is FREE — not freemium, not a trial, free forever
+- Make it clear this is FREE. Not freemium, not a trial, free forever
 - Include the app URL: https://freeslackapps.com
 - No emojis in the DM body (LinkedIn culture)
 - One clear call to action
 - Don't be pushy. The pitch is: "you're probably paying for this, here's a free version that does the same thing"
-- Write like @icebergsampson — direct, no fluff, confident but not arrogant
+
+CRITICAL: AI LANGUAGE FILTER. These messages will be sent on LinkedIn where AI-generated content is instantly recognized and ignored. Every DM must pass these checks:
+- No corporate buzzwords: "leverage", "streamline", "optimize", "synergy", "empower", "cutting-edge", "game-changer", "revolutionary"
+- No filler phrases: "I hope this finds you well", "I wanted to reach out", "I came across your profile", "I'd love to connect"
+- Vary sentence length. Mix short punchy sentences with one longer one. Never three long sentences in a row.
+- Use contractions (you're, it's, don't). Nobody writes "do not" in a LinkedIn DM.
+- Start with a lowercase letter occasionally. Real people do that in DMs.
+- Reference something specific. Not "your team" but the actual tool or problem. Be concrete.
+- Sound like someone texting a colleague, not pitching an investor.
+- If you read it back and it sounds like AI wrote it, rewrite it until it doesn't.
 
 GENERATE 5 TEMPLATES for these LinkedIn roles:
 
