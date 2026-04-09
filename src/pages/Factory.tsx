@@ -345,13 +345,16 @@ export default function Factory() {
     }
   }, [password]);
 
-  const copyDm = (text: string, id: string, templateIndex?: number, template?: any) => {
+  const copyDm = (text: string, id: string, templateIndex?: number, template?: any, openLinkedIn?: boolean) => {
     navigator.clipboard.writeText(text);
     setCopiedDm(id);
     setTimeout(() => setCopiedDm(""), 2000);
     // Cache the DM when it's a first message copy
     if (templateIndex !== undefined && template && id.startsWith("dm-")) {
       setActiveDm(prev => ({ ...prev, [templateIndex]: { dm: text, role: template.role, competitor: template.competitor } }));
+    }
+    if (openLinkedIn) {
+      window.open("https://www.linkedin.com/messaging/", "_blank");
     }
   };
 
@@ -918,12 +921,12 @@ export default function Factory() {
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-[9px] font-semibold uppercase tracking-widest text-purple-400">First Message</span>
                           <button
-                            onClick={() => copyDm(t.dm, `dm-${i}`, i, t)}
+                            onClick={() => copyDm(t.dm, `dm-${i}`, i, t, true)}
                             className={`text-[10px] px-3 py-1 rounded-lg border font-medium transition-all ${
                               copiedDm === `dm-${i}` ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" : "border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
                             }`}
                           >
-                            {copiedDm === `dm-${i}` ? "Copied" : "Copy DM"}
+                            {copiedDm === `dm-${i}` ? "Copied + Opened" : "Send on LinkedIn"}
                           </button>
                         </div>
                         <div className="rounded-lg border border-purple-500/10 bg-purple-500/[0.03] p-4">
