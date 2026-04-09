@@ -104,6 +104,7 @@ AUDIT INSTRUCTIONS:
 6. STOP LIST — Features or areas that are ALREADY GOOD ENOUGH. More work here would be wasted effort. Be specific. This prevents infinite improvement loops.
 
 IMPORTANT RULES:
+- NEVER use "---", "—", or any dash-based separators or em dashes in any output. Use periods and new sentences instead.
 - Do NOT suggest improvements that are just "nice to have". Every improvement must directly help us steal users from the competitor.
 - Do NOT suggest more than 5 improvements. If we need more than 5 things, the verdict should be REBUILD.
 - Be specific about implementations. Not "improve UX" but "add one-click rerun button to the results modal".

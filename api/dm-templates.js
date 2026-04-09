@@ -73,6 +73,7 @@ COMPETITOR RESEARCH:
 ${competitorData || 'No specific competitor data available. Use your knowledge of paid Slack apps in this category.'}
 
 RULES FOR WRITING DMs:
+- NEVER use "---", "—", or any dash-based separators or em dashes. Use periods and new sentences instead.
 - Keep each DM under 280 characters when possible. LinkedIn DMs that are short get read. Long ones get ignored.
 - Sound like a real person, not a marketer. No "I hope this finds you well" or "I wanted to reach out"
 - Lead with the pain point, not the product

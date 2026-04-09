@@ -110,6 +110,7 @@ One specific thing the reader can do today to improve their Slack workflow, team
 WRITING RULES:
 - Professional tone. Not corporate, not casual. Think: smart colleague who respects your time.
 - No emojis anywhere. Zero. None.
+- NEVER use "---", "—", or any dash-based separators or em dashes in the content. Use periods and new sentences instead.
 - No exclamation marks except in rare cases where emphasis is earned.
 - No "Hey there", "Happy Monday", or any greeting filler.
 - No em dashes. Use periods and commas.

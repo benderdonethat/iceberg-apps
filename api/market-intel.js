@@ -106,7 +106,8 @@ Order the list by score, not by pricing tier. Label each clearly.
    - Virality (does usage spread within a workspace?) — 15%
 9. **CATEGORY**: Team, Ops, Sales, Productivity, or Streaming
 
-HARD RULES — FOLLOW THESE EXACTLY:
+HARD RULES. FOLLOW THESE EXACTLY:
+- NEVER use "---", "—", or any dash-based separators or em dashes in any output. Use periods and new sentences instead.
 - Every "target" app must be REAL and currently listed in the Slack App Directory or on the Slack marketplace
 - Every price must be their REAL current price, not made up
 - Do NOT suggest apps that compete with Slack's built-in features:
