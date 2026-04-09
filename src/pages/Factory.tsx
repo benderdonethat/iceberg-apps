@@ -370,7 +370,7 @@ export default function Factory() {
     } finally {
       setAuditLoading(false);
     }
-  }, [password]);
+  }, [password, auditApp, auditData]);
 
   const availableFeatures = featureLibrary[category] || featureLibrary.Other;
   const availableTags = [...(tagLibrary[category] || tagLibrary.Other), ...sharedTags];
