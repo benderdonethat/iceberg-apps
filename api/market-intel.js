@@ -66,6 +66,19 @@ TASK: Identify the 10 biggest opportunities for free Slack apps that don't exist
 
 IMPORTANT RULES:
 - Only suggest apps that can realistically be built as Slack-native (slash commands, modals, App Home, messages)
+- NEVER suggest apps that compete with Slack's built-in features. These are OFF LIMITS:
+  * Video/audio calls (Slack has Huddles)
+  * Screen sharing (Slack has Huddles)
+  * Direct messaging (Slack has DMs)
+  * Channel creation/management (Slack does this natively)
+  * File sharing (Slack has built-in file uploads)
+  * Status updates (Slack has custom status)
+  * Emoji reactions (Slack has built-in reactions)
+  * Search (Slack has built-in search)
+  * Threads (Slack has built-in threads)
+  * Notifications (Slack has built-in notifications)
+  * User profiles (Slack has built-in profiles)
+  * Workflows/automations (Slack has Workflow Builder)
 - Focus on problems that are DAILY pain points, not occasional nice-to-haves
 - Prefer apps that are visible to the whole team (higher virality)
 - Do NOT suggest apps that require complex external integrations (calendar sync, email parsing, etc.)
