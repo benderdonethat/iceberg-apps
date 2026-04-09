@@ -195,6 +195,9 @@ export default function Factory() {
   const [prospects, setProspects] = useState<any>(null);
   const [prospectLoading, setProspectLoading] = useState(false);
   const [prospectVertical, setProspectVertical] = useState("");
+  const [activeDm, setActiveDm] = useState<Record<number, { dm: string; role: string; competitor: string }>>({});
+  const [followUpData, setFollowUpData] = useState<Record<number, any>>({});
+  const [followUpLoading, setFollowUpLoading] = useState<Record<number, string>>({});
   const [competitorContext, setCompetitorContext] = useState<{ name: string; price: string; weakness: string; features: string[] } | null>(null);
   const [auditData, setAuditData] = useState<any>(null);
   const [auditPrev, setAuditPrev] = useState<any>(null);
@@ -342,10 +345,34 @@ export default function Factory() {
     }
   }, [password]);
 
-  const copyDm = (text: string, id: string) => {
+  const copyDm = (text: string, id: string, templateIndex?: number, template?: any) => {
     navigator.clipboard.writeText(text);
     setCopiedDm(id);
     setTimeout(() => setCopiedDm(""), 2000);
+    // Cache the DM when it's a first message copy
+    if (templateIndex !== undefined && template && id.startsWith("dm-")) {
+      setActiveDm(prev => ({ ...prev, [templateIndex]: { dm: text, role: template.role, competitor: template.competitor } }));
+    }
+  };
+
+  const fetchFollowUp = async (index: number, mode: "followup" | "rework") => {
+    const cached = activeDm[index];
+    if (!cached) return;
+    setFollowUpLoading(prev => ({ ...prev, [index]: mode }));
+    try {
+      const res = await fetch("/api/dm-followup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-key": password || sessionStorage.getItem("factory_pw") || "" },
+        body: JSON.stringify({ originalDm: cached.dm, role: cached.role, competitor: cached.competitor, mode, appName: dmApp }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const json = await res.json();
+      setFollowUpData(prev => ({ ...prev, [index]: { ...prev[index], [mode]: json.data } }));
+    } catch (e) {
+      // silent
+    } finally {
+      setFollowUpLoading(prev => ({ ...prev, [index]: "" }));
+    }
   };
 
   const buildFromIntel = (opp: any) => {
@@ -891,7 +918,7 @@ export default function Factory() {
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-[9px] font-semibold uppercase tracking-widest text-purple-400">First Message</span>
                           <button
-                            onClick={() => copyDm(t.dm, `dm-${i}`)}
+                            onClick={() => copyDm(t.dm, `dm-${i}`, i, t)}
                             className={`text-[10px] px-3 py-1 rounded-lg border font-medium transition-all ${
                               copiedDm === `dm-${i}` ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" : "border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
                             }`}
@@ -922,6 +949,88 @@ export default function Factory() {
                           <p className="text-sm text-[#6b7d8d] leading-relaxed whitespace-pre-wrap">{t.followup}</p>
                         </div>
                       </div>
+
+                      {/* Pipeline buttons — appear after copying the DM */}
+                      {activeDm[i] && (
+                        <div className="pt-3 border-t border-white/5">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-[9px] font-semibold uppercase tracking-widest text-cyan-400">Pipeline</span>
+                            <span className="text-[9px] text-[#3a4550]">DM copied. What next?</span>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => fetchFollowUp(i, "followup")}
+                              disabled={followUpLoading[i] === "followup"}
+                              className="px-3 py-1.5 rounded-lg text-[10px] font-medium border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10 transition-all disabled:opacity-50"
+                            >
+                              {followUpLoading[i] === "followup" ? "Generating..." : "Follow Up?"}
+                            </button>
+                            <button
+                              onClick={() => fetchFollowUp(i, "rework")}
+                              disabled={followUpLoading[i] === "rework"}
+                              className="px-3 py-1.5 rounded-lg text-[10px] font-medium border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 transition-all disabled:opacity-50"
+                            >
+                              {followUpLoading[i] === "rework" ? "Reworking..." : "Not Landing?"}
+                            </button>
+                          </div>
+
+                          {/* Follow-up result */}
+                          {followUpData[i]?.followup && (
+                            <div className="mt-3 rounded-lg border border-cyan-500/10 bg-cyan-500/[0.03] p-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-[9px] font-semibold uppercase tracking-widest text-cyan-400">Generated Follow-Up</span>
+                                <button
+                                  onClick={() => copyDm(followUpData[i].followup.followup, `genfu-${i}`)}
+                                  className={`text-[10px] px-3 py-1 rounded-lg border font-medium transition-all ${
+                                    copiedDm === `genfu-${i}` ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" : "border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+                                  }`}
+                                >
+                                  {copiedDm === `genfu-${i}` ? "Copied" : "Copy"}
+                                </button>
+                              </div>
+                              <p className="text-sm text-[#a8c8d8] leading-relaxed whitespace-pre-wrap">{followUpData[i].followup.followup}</p>
+                              {followUpData[i].followup.timing_note && (
+                                <p className="text-[10px] text-[#3a4550] mt-2">{followUpData[i].followup.timing_note}</p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Rework result */}
+                          {followUpData[i]?.rework && (
+                            <div className="mt-3 rounded-lg border border-amber-500/10 bg-amber-500/[0.03] p-4">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-[9px] font-semibold uppercase tracking-widest text-amber-400">Reworked DM</span>
+                                <button
+                                  onClick={() => { copyDm(followUpData[i].rework.reworked_dm, `rework-${i}`, i, t); }}
+                                  className={`text-[10px] px-3 py-1 rounded-lg border font-medium transition-all ${
+                                    copiedDm === `rework-${i}` ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" : "border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+                                  }`}
+                                >
+                                  {copiedDm === `rework-${i}` ? "Copied" : "Copy + Use This"}
+                                </button>
+                              </div>
+                              <p className="text-sm text-[#a8c8d8] leading-relaxed whitespace-pre-wrap">{followUpData[i].rework.reworked_dm}</p>
+                              <p className="text-[10px] text-amber-400/50 mt-2">{followUpData[i].rework.what_changed}</p>
+                              {followUpData[i].rework.followup && (
+                                <div className="mt-2 pt-2 border-t border-white/5">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-[9px] text-[#3a4550]">Follow-up for this version</span>
+                                    <button
+                                      onClick={() => copyDm(followUpData[i].rework.followup, `rwfu-${i}`)}
+                                      className={`text-[9px] px-2 py-0.5 rounded border transition-all ${
+                                        copiedDm === `rwfu-${i}` ? "border-emerald-500/40 text-emerald-400" : "border-white/10 text-[#6b7d8d]"
+                                      }`}
+                                    >
+                                      {copiedDm === `rwfu-${i}` ? "Copied" : "Copy"}
+                                    </button>
+                                  </div>
+                                  <p className="text-[10px] text-[#6b7d8d] mt-1">{followUpData[i].rework.followup}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
