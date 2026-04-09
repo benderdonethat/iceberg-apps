@@ -208,15 +208,20 @@ export default function Factory() {
     setUpdateLoading(true);
     setUpdateResult(null);
     try {
+      const currentProfile = localStorage.getItem(`audit_profile_${auditApp}`) || "";
       const res = await fetch("/api/audit-update", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-admin-key": password || sessionStorage.getItem("factory_pw") || "" },
-        body: JSON.stringify({ appName: auditApp, changes: updateChanges }),
+        body: JSON.stringify({ appName: auditApp, changes: updateChanges, currentProfile }),
       });
       if (!res.ok) throw new Error("Failed");
       const json = await res.json();
       setUpdateResult(json.data);
       setUpdateChanges("");
+      // Save the updated profile for future audits
+      if (json.data?.updated_profile) {
+        localStorage.setItem(`audit_profile_${auditApp}`, json.data.updated_profile);
+      }
     } catch (e: any) {
       setAuditError(e.message);
     } finally {
@@ -367,10 +372,11 @@ export default function Factory() {
     const prevData = auditData ? { ...auditData } : null;
     setAuditPrev(prevData);
     try {
+      const storedProfile = localStorage.getItem(`audit_profile_${appName}`) || undefined;
       const res = await fetch("/api/app-audit", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-admin-key": password || sessionStorage.getItem("factory_pw") || "" },
-        body: JSON.stringify({ app: { name: app.name, desc: app.desc, features: app.features, category: app.category, pricing: app.pricing, status: app.status } }),
+        body: JSON.stringify({ app: { name: app.name, desc: app.desc, features: app.features, category: app.category, pricing: app.pricing, status: app.status }, profileOverride: storedProfile }),
       });
       if (!res.ok) throw new Error("Failed to run audit");
       const json = await res.json();

@@ -1,11 +1,17 @@
 /**
- * Audit Update — feed feature changes to the audit system.
- * Verifies claims, updates the profile, re-runs the audit, returns comparison.
+ * Audit Update — feed feature changes, get verified, update profile.
+ * Returns updated profile that the frontend stores and sends to future audits.
  *
  * POST /api/audit-update
  * Headers: x-admin-key
- * Body: { appName: "Stream Line", changes: "Added CSV import with auto-detect for Whatnot/TikTok/eBay. Added stream comparison view. Added goal progress notifications." }
+ * Body: { appName, changes, currentProfile? }
  */
+
+// Same profiles as app-audit.js — kept in sync
+const BASE_PROFILES = {
+  'stream-line': `Stream Line: Free Slack-based business operations tool for live streamers who sell products. Tracks sales, calculates P&L with platform fees, manages inventory, tracks customers, AI insights. NOT a streaming overlay or chat bot. Competitors: Google Sheets, QuickBooks. NOT StreamElements/Streamlabs.`,
+  'sensei': `Sensei: Free Slack-based team knowledge base. Articles, search, templates, AI answers, thread-to-article, tagging, linking, stale detection, knowledge gaps. NOT project management or web wiki. Competitors: Guru ($7), Tettra ($5), Slite ($8).`,
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
@@ -18,18 +24,13 @@ export default async function handler(req, res) {
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
   if (!ANTHROPIC_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set' });
 
-  const { appName, changes } = req.body || {};
+  const { appName, changes, currentProfile } = req.body || {};
   if (!appName || !changes) return res.status(400).json({ error: 'appName and changes required' });
 
-  try {
-    // Step 1: Get the current audit profile from app-audit.js
-    const auditRes = await fetch(`https://${req.headers.host}/api/app-audit`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
-      body: JSON.stringify({ app: { name: appName, desc: '', features: [], category: '', pricing: '', status: '' } }),
-    });
+  const slug = appName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const existingProfile = currentProfile || BASE_PROFILES[slug] || `${appName}: No profile available.`;
 
-    // Step 2: Ask Claude to verify the changes and generate updated profile + new audit
+  try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -39,45 +40,52 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 3000,
+        max_tokens: 4000,
         temperature: 0,
         messages: [{
           role: 'user',
-          content: `You are an audit system receiving a feature update report for a Slack app called "${appName}".
+          content: `You are an audit system. You receive feature updates and produce an updated app profile.
 
-CHANGES REPORTED BY THE DEVELOPER:
+CURRENT PROFILE:
+${existingProfile}
+
+CHANGES REPORTED BY DEVELOPER:
 ${changes}
 
-YOUR TASKS:
+TASKS:
 
-1. VERIFY each claimed change. For each one, mark it as:
-   - "verified" if it sounds like a real, buildable feature that makes sense for this type of app
-   - "questionable" if it sounds vague, unrealistic, or outside the app's scope
-   - "rejected" if it contradicts what the app does or is impossible
+1. VERIFY each change:
+   - "verified": real, buildable, makes sense for this app
+   - "questionable": vague or unclear
+   - "rejected": impossible or out of scope
 
-2. For each verified change, write a one-line addition to the app's feature list in the same style as existing features (concise, specific, no buzzwords).
+2. GENERATE UPDATED PROFILE: Take the current profile and add the verified features to it. Keep the same format. Add new features to the Core Features section. Update the UX Design section if UX changes were made. Update Known Limitations if any were resolved. The updated profile must be a complete replacement of the current one.
 
-3. Score the IMPACT of these changes on the audit:
-   - How many points should the readiness score increase? (0-15 max per update)
-   - How many points should the UX score increase? (0-10 max per update)
-   - Which previous improvements from the audit are now resolved?
+3. SCORE IMPACT:
+   - Readiness delta (0-15 max). Base it on: does this fix a gap users would notice? Does it add differentiation?
+   - UX delta (0-10 max). Base it on: does this reduce clicks, improve feedback, or improve first impression?
+   - Show math for both.
 
-4. Identify what the NEXT priorities should be now that these changes are shipped. Max 3 items.
+4. RESOLVED: Which items from a typical audit improvement list would these changes resolve?
 
-Return as valid JSON:
+5. NEXT PRIORITIES: What 3 things should be built next? Be specific.
+
+Return valid JSON:
 {
   "verification": [
     { "change": "What was claimed", "status": "verified/questionable/rejected", "reason": "Why" }
   ],
-  "new_features": ["One-line feature description for each verified change"],
+  "updated_profile": "The full updated profile text with verified changes incorporated. This replaces the old profile entirely.",
+  "new_features": ["One-line description per verified change"],
   "score_impact": {
     "readiness_delta": 5,
     "ux_delta": 3,
-    "reasoning": "Why scores changed by this amount"
+    "readiness_math": "Explain: CSV import adds onboarding ease (+3), comparison adds retention (+2) = +5",
+    "ux_math": "Explain: persistent buttons reduce clicks (+2), confirmation feedback (+1) = +3"
   },
-  "resolved_improvements": ["Which previous audit improvements are now fixed"],
+  "resolved_improvements": ["What previous improvements are now resolved"],
   "next_priorities": [
-    { "title": "Next thing to build", "why": "Why this matters now" }
+    { "title": "Specific next build", "why": "Why this matters now" }
   ]
 }`
         }],

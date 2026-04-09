@@ -4,7 +4,7 @@
  *
  * POST /api/app-audit
  * Headers: x-admin-key
- * Body: { app: { name, desc, features, category, pricing, status } }
+ * Body: { app: { name, desc, features, category, pricing, status }, profileOverride?: string }
  */
 
 const METHODOLOGY = `# Audit Methodology
@@ -103,11 +103,11 @@ export default async function handler(req, res) {
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
   if (!ANTHROPIC_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set' });
 
-  const { app } = req.body || {};
+  const { app, profileOverride } = req.body || {};
   if (!app || !app.name) return res.status(400).json({ error: 'app data required' });
 
   const slug = app.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const appProfile = APP_PROFILES[slug] || '';
+  const appProfile = profileOverride || APP_PROFILES[slug] || '';
 
   try {
     // Step 1: Competitor research (only if no profile)
