@@ -187,6 +187,11 @@ export default function Factory() {
   const [intel, setIntel] = useState<any>(null);
   const [intelLoading, setIntelLoading] = useState(false);
   const [intelError, setIntelError] = useState("");
+  const [dmTemplates, setDmTemplates] = useState<any>(null);
+  const [dmLoading, setDmLoading] = useState(false);
+  const [dmError, setDmError] = useState("");
+  const [dmApp, setDmApp] = useState<string>("");
+  const [copiedDm, setCopiedDm] = useState<string>("");
 
   const fetchIntel = useCallback(async () => {
     setIntelLoading(true);
@@ -252,6 +257,36 @@ export default function Factory() {
 
   const toggleTag = (t: string) => {
     setSelectedTags((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
+  };
+
+  const freeApps = apps.filter((a) => a.pricing === "Free");
+
+  const fetchDmTemplates = useCallback(async (appName: string) => {
+    const app = apps.find((a) => a.name === appName);
+    if (!app) return;
+    setDmLoading(true);
+    setDmError("");
+    setDmApp(appName);
+    try {
+      const res = await fetch("/api/dm-templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-admin-key": password || sessionStorage.getItem("factory_pw") || "" },
+        body: JSON.stringify({ app: { name: app.name, desc: app.desc, features: app.features, category: app.category, pricing: app.pricing } }),
+      });
+      if (!res.ok) throw new Error("Failed to generate templates");
+      const json = await res.json();
+      setDmTemplates(json.data);
+    } catch (e: any) {
+      setDmError(e.message || "Failed to load");
+    } finally {
+      setDmLoading(false);
+    }
+  }, [password]);
+
+  const copyDm = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedDm(id);
+    setTimeout(() => setCopiedDm(""), 2000);
   };
 
   const buildFromIntel = (opp: any) => {
@@ -347,6 +382,14 @@ export default function Factory() {
               }`}
             >
               Market Intel
+            </button>
+            <button
+              onClick={() => setActiveTab("outreach")}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                activeTab === "outreach" ? "border-purple-500/50 bg-purple-500/10 text-purple-400" : "border-white/10 text-[#6b7d8d] hover:border-white/20"
+              }`}
+            >
+              Outreach
             </button>
             {activeTab === "build" && (
               <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${
@@ -536,6 +579,125 @@ export default function Factory() {
                   </div>
                 </div>
               </>
+            )}
+          </div>
+        )}
+
+        {/* ── OUTREACH TAB ──────────────────────────── */}
+        {activeTab === "outreach" && (
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-2xl font-bold">LinkedIn Outreach</h2>
+              <p className="text-sm text-[#6b7d8d] mt-1">Copy-ready DMs for free apps — competitor-aware, role-targeted</p>
+            </div>
+
+            {/* App Selector */}
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-widest text-purple-400 mb-3 block">Select a Free App</label>
+              <div className="flex flex-wrap gap-2">
+                {freeApps.map((a) => (
+                  <button
+                    key={a.slug}
+                    onClick={() => fetchDmTemplates(a.name)}
+                    disabled={dmLoading}
+                    className={`px-4 py-2 rounded-lg text-xs font-medium border transition-all flex items-center gap-2 ${
+                      dmApp === a.name
+                        ? "border-purple-500/50 bg-purple-500/10 text-purple-400"
+                        : "border-white/10 text-[#6b7d8d] hover:border-white/20"
+                    }`}
+                  >
+                    <span>{a.emoji}</span> {a.name}
+                  </button>
+                ))}
+              </div>
+              {freeApps.length === 0 && (
+                <p className="text-sm text-[#3a4550] mt-2">No free apps in catalog yet. Add one on the Build tab first.</p>
+              )}
+            </div>
+
+            {dmLoading && (
+              <div className="text-center py-20">
+                <div className="text-2xl mb-3 animate-pulse">💬</div>
+                <p className="text-[#6b7d8d] text-sm">Researching competitors and writing DMs...</p>
+                <p className="text-[#3a4550] text-xs mt-1">Finding who to target and what to say — 15-20 seconds</p>
+              </div>
+            )}
+
+            {dmError && <p className="text-red-400 text-sm text-center py-10">{dmError}</p>}
+
+            {dmTemplates && !dmLoading && (
+              <div className="space-y-6">
+                {dmTemplates.templates?.map((t: any, i: number) => (
+                  <div key={i} className="rounded-2xl border border-white/10 bg-[#0c0e16] overflow-hidden">
+                    {/* Role header */}
+                    <div className="flex items-center justify-between p-4 border-b border-white/5 bg-purple-500/[0.03]">
+                      <div>
+                        <h4 className="text-sm font-bold text-[#f0f0f5]">{t.role}</h4>
+                        <p className="text-[10px] text-[#6b7d8d] mt-0.5">{t.why_this_role}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] text-red-400">vs {t.competitor}</p>
+                        <p className="text-[10px] text-red-400/60">{t.competitor_price}</p>
+                      </div>
+                    </div>
+
+                    <div className="p-5 space-y-4">
+                      {/* LinkedIn search query */}
+                      <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[9px] font-semibold uppercase tracking-widest text-[#3a4550]">LinkedIn Search</span>
+                          <button
+                            onClick={() => copyDm(t.linkedin_search, `search-${i}`)}
+                            className={`text-[9px] px-2 py-0.5 rounded border transition-all ${
+                              copiedDm === `search-${i}` ? "border-emerald-500/40 text-emerald-400" : "border-white/10 text-[#6b7d8d] hover:text-[#a8c8d8]"
+                            }`}
+                          >
+                            {copiedDm === `search-${i}` ? "Copied" : "Copy"}
+                          </button>
+                        </div>
+                        <p className="text-xs text-[#a8c8d8] font-mono">{t.linkedin_search}</p>
+                      </div>
+
+                      {/* DM */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[9px] font-semibold uppercase tracking-widest text-purple-400">First Message</span>
+                          <button
+                            onClick={() => copyDm(t.dm, `dm-${i}`)}
+                            className={`text-[10px] px-3 py-1 rounded-lg border font-medium transition-all ${
+                              copiedDm === `dm-${i}` ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" : "border-purple-500/30 text-purple-400 hover:bg-purple-500/10"
+                            }`}
+                          >
+                            {copiedDm === `dm-${i}` ? "Copied" : "Copy DM"}
+                          </button>
+                        </div>
+                        <div className="rounded-lg border border-purple-500/10 bg-purple-500/[0.03] p-4">
+                          <p className="text-sm text-[#a8c8d8] leading-relaxed whitespace-pre-wrap">{t.dm}</p>
+                        </div>
+                        <p className="text-[10px] text-[#3a4550] mt-1">{t.dm?.length || 0} chars</p>
+                      </div>
+
+                      {/* Follow-up */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[9px] font-semibold uppercase tracking-widest text-[#3a4550]">Follow-up (3 days later)</span>
+                          <button
+                            onClick={() => copyDm(t.followup, `fu-${i}`)}
+                            className={`text-[10px] px-3 py-1 rounded-lg border font-medium transition-all ${
+                              copiedDm === `fu-${i}` ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" : "border-white/10 text-[#6b7d8d] hover:text-[#a8c8d8]"
+                            }`}
+                          >
+                            {copiedDm === `fu-${i}` ? "Copied" : "Copy"}
+                          </button>
+                        </div>
+                        <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+                          <p className="text-sm text-[#6b7d8d] leading-relaxed whitespace-pre-wrap">{t.followup}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
