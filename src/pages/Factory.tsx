@@ -183,7 +183,7 @@ export default function Factory() {
   const [customFeature, setCustomFeature] = useState("");
   const [status, setStatus] = useState<string>("roadmap");
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<"build" | "intel" | "outreach" | "audit">("build");
+  const [activeTab, setActiveTab] = useState<"build" | "intel" | "outreach" | "audit">("intel");
   const [intel, setIntel] = useState<any>(null);
   const [intelLoading, setIntelLoading] = useState(false);
   const [intelError, setIntelError] = useState("");
@@ -401,14 +401,6 @@ export default function Factory() {
           </div>
           <div className="ml-auto flex items-center gap-3">
             <button
-              onClick={() => setActiveTab("build")}
-              className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                activeTab === "build" ? "border-[#4dd4e6]/50 bg-[#4dd4e6]/10 text-[#4dd4e6]" : "border-white/10 text-[#6b7d8d] hover:border-white/20"
-              }`}
-            >
-              Build
-            </button>
-            <button
               onClick={() => { setActiveTab("intel"); if (!intel && !intelLoading) fetchIntel(); }}
               className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                 activeTab === "intel" ? "border-amber-500/50 bg-amber-500/10 text-amber-400" : "border-white/10 text-[#6b7d8d] hover:border-white/20"
@@ -417,12 +409,12 @@ export default function Factory() {
               Market Intel
             </button>
             <button
-              onClick={() => setActiveTab("outreach")}
+              onClick={() => setActiveTab("build")}
               className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition-all ${
-                activeTab === "outreach" ? "border-purple-500/50 bg-purple-500/10 text-purple-400" : "border-white/10 text-[#6b7d8d] hover:border-white/20"
+                activeTab === "build" ? "border-[#4dd4e6]/50 bg-[#4dd4e6]/10 text-[#4dd4e6]" : "border-white/10 text-[#6b7d8d] hover:border-white/20"
               }`}
             >
-              Outreach
+              Build
             </button>
             <button
               onClick={() => setActiveTab("audit")}
@@ -431,6 +423,14 @@ export default function Factory() {
               }`}
             >
               Audit
+            </button>
+            <button
+              onClick={() => setActiveTab("outreach")}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                activeTab === "outreach" ? "border-purple-500/50 bg-purple-500/10 text-purple-400" : "border-white/10 text-[#6b7d8d] hover:border-white/20"
+              }`}
+            >
+              Outreach
             </button>
             {activeTab === "build" && (
               <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${
