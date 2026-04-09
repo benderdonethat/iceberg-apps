@@ -21,6 +21,40 @@ export default async function handler(req, res) {
   const { currentApps } = req.body || {};
 
   try {
+    // Step 1: Search for real competitor data
+    const searchQueries = [
+      'most popular paid Slack apps 2026 pricing reviews',
+      'Slack App Directory top rated paid apps per user pricing',
+      'G2 Slack integrations highest rated 2026 reviews complaints',
+      'overpriced Slack apps small teams alternatives 2026',
+    ];
+
+    let searchContext = '';
+    for (const query of searchQueries) {
+      try {
+        const searchRes = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': ANTHROPIC_KEY,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            tools: [{ type: 'web_search_20250305' }],
+            messages: [{ role: 'user', content: `Search for: ${query}. Return the key findings with specific app names, pricing, install counts, review scores, and user complaints. Only include verified, current data.` }],
+          }),
+        });
+        const searchData = await searchRes.json();
+        const textBlocks = (searchData.content || []).filter(b => b.type === 'text').map(b => b.text);
+        if (textBlocks.length > 0) searchContext += textBlocks.join('\n') + '\n\n';
+      } catch (e) {
+        // Search failed, continue without this query
+      }
+    }
+
+    // Step 2: Generate intel with real search data
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -36,6 +70,9 @@ export default async function handler(req, res) {
           content: `You are a competitive intelligence analyst for Slack apps. Your job is to find REAL, EXISTING paid Slack apps that are overcharging and identify exactly how we can build a free or cheaper alternative that is EQUAL OR BETTER — not a watered-down version.
 
 TODAY'S DATE: ${new Date().toISOString().split('T')[0]}
+
+LIVE RESEARCH DATA (from web search — use this as your primary source for app names, pricing, install counts, and reviews):
+${searchContext || 'No search data available — use your knowledge of the Slack App Directory instead.'}
 
 OUR STRATEGY:
 We build free Slack apps and give them away. Our business model is volume — we want installs, audience, and a data moat. We undercut every paid Slack app that charges per-seat pricing by offering the same or better functionality for FREE or at a fraction of the cost. We are not building lite versions. We are building full-featured apps that make paid competitors irrelevant for small teams.
@@ -93,7 +130,9 @@ FORMAT: Return as valid JSON:
       "target_price": "$X/user/month",
       "target_features": ["their feature 1", "their feature 2", "their feature 3", "their feature 4"],
       "target_weakness": "What users complain about — cite real reviews",
-      "target_installs": "Estimated install base or 'Popular' / 'Widely used' / 'Niche'",
+      "target_installs": "Actual install count or user count if available from search data, otherwise estimate range like '10K-50K installs'",
+      "target_rating": "G2 or Capterra rating if found (e.g. '4.3/5 on G2, 245 reviews')",
+      "target_review_count": "Number of reviews if found",
       "our_name": "Our App Name",
       "our_slug": "our-app-slug",
       "our_emoji": "emoji",

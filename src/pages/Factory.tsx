@@ -254,6 +254,20 @@ export default function Factory() {
     setSelectedTags((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]);
   };
 
+  const buildFromIntel = (opp: any) => {
+    setName(opp.our_name || "");
+    setEmoji(opp.our_emoji || "🤖");
+    setDesc(opp.our_desc || "");
+    setCategory(opp.category || "Other");
+    const p = (opp.our_pricing || "Free").split(" ")[0]; // "Free", "Freemium", or "Paid"
+    setPricing(["Free", "Freemium", "Paid"].includes(p) ? p : "Free");
+    setFeatures(opp.our_features || []);
+    setSelectedTags([opp.category || "Other", p]);
+    setStatus("roadmap");
+    setActiveTab("build");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const availableFeatures = featureLibrary[category] || featureLibrary.Other;
   const availableTags = [...(tagLibrary[category] || tagLibrary.Other), ...sharedTags];
   // Dedupe tags
@@ -368,8 +382,8 @@ export default function Factory() {
             {intelLoading && (
               <div className="text-center py-20">
                 <div className="text-2xl mb-3 animate-pulse">🔍</div>
-                <p className="text-[#6b7d8d] text-sm">Analyzing Slack ecosystem data...</p>
-                <p className="text-[#3a4550] text-xs mt-1">This takes 10-15 seconds</p>
+                <p className="text-[#6b7d8d] text-sm">Searching competitor data and analyzing market...</p>
+                <p className="text-[#3a4550] text-xs mt-1">Pulling real pricing, reviews, and install data — 20-30 seconds</p>
               </div>
             )}
 
@@ -427,6 +441,7 @@ export default function Factory() {
                             <h4 className="text-sm font-bold text-[#f0f0f5]">{opp.target_app}</h4>
                             <div className="text-lg font-bold text-red-400 mt-1">{opp.target_price}</div>
                             <p className="text-[10px] text-[#6b7d8d] mt-1">{opp.target_installs}</p>
+                            {opp.target_rating && <p className="text-[10px] text-amber-400/60 mt-0.5">{opp.target_rating}</p>}
                           </div>
                           {/* Our app (right) */}
                           <div className="flex-1 p-5 bg-emerald-500/[0.03]">
@@ -497,7 +512,15 @@ export default function Factory() {
 
                           {/* Bottom row */}
                           <div className="flex items-center justify-between pt-2">
-                            <span className="text-[10px] px-2 py-0.5 rounded-full border border-white/10 text-[#6b7d8d]">{opp.category}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] px-2 py-0.5 rounded-full border border-white/10 text-[#6b7d8d]">{opp.category}</span>
+                              <button
+                                onClick={() => buildFromIntel(opp)}
+                                className="text-[10px] px-3 py-1 rounded-lg border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 transition-all font-medium"
+                              >
+                                Build This
+                              </button>
+                            </div>
                             {opp.score_breakdown && (
                               <div className="flex gap-3 text-[9px] text-[#3a4550]">
                                 <span><span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 mr-1" />Market {opp.score_breakdown.market_size}</span>
