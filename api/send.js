@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'icebergsampson <iceberg@igotminimoney.com>',
+        from: 'icebergsampson <iceberg@freeslackapps.com>',
         to: email,
         reply_to: 'justforaistorage@gmail.com',
         subject: newsletter ? "You're in" : "You're on the list",
