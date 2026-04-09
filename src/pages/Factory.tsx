@@ -333,13 +333,13 @@ export default function Factory() {
     }
   };
 
-  const runNewAudit = useCallback(async () => {
-    const app = apps.find((a) => a.name === auditApp);
-    if (!app) return;
+  const runNewAudit = async () => {
+    const appName = auditApp;
+    const app = apps.find((a) => a.name === appName);
+    if (!app || !appName) return;
     setAuditLoading(true);
     setAuditError("");
     setAuditCompare(null);
-    // Save current as previous for comparison
     const prevData = auditData ? { ...auditData } : null;
     setAuditPrev(prevData);
     try {
@@ -351,9 +351,7 @@ export default function Factory() {
       if (!res.ok) throw new Error("Failed to run audit");
       const json = await res.json();
       setAuditData(json.data);
-      // Cache the new result
-      localStorage.setItem(`audit_${auditApp}`, JSON.stringify({ data: json.data, timestamp: new Date().toISOString() }));
-      // Build comparison if we had a previous audit
+      localStorage.setItem(`audit_${appName}`, JSON.stringify({ data: json.data, timestamp: new Date().toISOString() }));
       if (prevData) {
         const compare: any = { score_change: json.data.readiness_score - prevData.readiness_score, ux_change: (json.data.ux_score?.total || 0) - (prevData.ux_score?.total || 0), improved: [], regressed: [] };
         for (const f of (json.data.feature_audit || [])) {
@@ -370,7 +368,7 @@ export default function Factory() {
     } finally {
       setAuditLoading(false);
     }
-  }, [password, auditApp, auditData]);
+  };
 
   const availableFeatures = featureLibrary[category] || featureLibrary.Other;
   const availableTags = [...(tagLibrary[category] || tagLibrary.Other), ...sharedTags];
