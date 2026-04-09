@@ -880,6 +880,99 @@ export default function Factory() {
                   </div>
                 )}
 
+                {/* Functionality Check */}
+                {auditData.functionality && (
+                  <div>
+                    <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-3">Functionality</h3>
+                    <span className={`text-[11px] px-3 py-1 rounded-full border font-medium ${
+                      auditData.functionality.rating === 'solid' ? 'border-emerald-500/40 text-emerald-400' :
+                      auditData.functionality.rating === 'mostly works' ? 'border-amber-500/40 text-amber-400' :
+                      'border-red-500/40 text-red-400'
+                    }`}>{auditData.functionality.rating}</span>
+                    {auditData.functionality.issues?.length > 0 && (
+                      <div className="mt-3 space-y-1">
+                        {auditData.functionality.issues.map((issue: string, i: number) => (
+                          <p key={i} className="text-[11px] text-[#6b7d8d]">{issue}</p>
+                        ))}
+                      </div>
+                    )}
+                    {auditData.functionality.dead_ends?.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {auditData.functionality.dead_ends.map((de: string, i: number) => (
+                          <p key={i} className="text-[11px] text-red-400/80">{de}</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* UX/UI Score */}
+                {auditData.ux_score && (
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-400">UX / UI Score</h3>
+                      <div className={`text-2xl font-bold ${
+                        auditData.ux_score.total >= 80 ? 'text-emerald-400' :
+                        auditData.ux_score.total >= 60 ? 'text-amber-400' :
+                        'text-red-400'
+                      }`}>{auditData.ux_score.total}<span className="text-[9px] text-[#3a4550]">/100</span></div>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                      {[
+                        { label: 'First Impression', val: auditData.ux_score.first_impression },
+                        { label: 'Clicks to Task', val: auditData.ux_score.clicks_to_task },
+                        { label: 'Visual Clarity', val: auditData.ux_score.visual_clarity },
+                        { label: 'Feedback Loops', val: auditData.ux_score.feedback_loops },
+                      ].map((item) => (
+                        <div key={item.label} className="rounded-lg border border-white/10 bg-white/[0.02] p-3 text-center">
+                          <div className={`text-lg font-bold ${item.val >= 80 ? 'text-emerald-400' : item.val >= 60 ? 'text-amber-400' : 'text-red-400'}`}>{item.val}</div>
+                          <div className="text-[9px] text-[#3a4550] mt-1">{item.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {auditData.ux_score.improvements?.length > 0 && (
+                      <div className="space-y-2">
+                        {auditData.ux_score.improvements.map((imp: any, i: number) => (
+                          <div key={i} className="rounded-lg border border-blue-500/15 bg-blue-500/[0.03] p-3">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs font-medium text-[#f0f0f5]">{imp.area}</span>
+                              <span className="text-[10px] text-red-400">{imp.score}/100</span>
+                            </div>
+                            <p className="text-[11px] text-[#6b7d8d]">{imp.fix}</p>
+                            <p className="text-[10px] text-blue-400/60 mt-1">Slack elements: {imp.slack_elements}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* 30-Day User Projection */}
+                {auditData.user_projection && (
+                  <div>
+                    <h3 className="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-3">30-Day Projection (Minimal Marketing)</h3>
+                    <div className="grid grid-cols-3 gap-3 mb-4">
+                      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 text-center">
+                        <div className="text-lg font-bold text-[#6b7d8d]">{auditData.user_projection.installs_30d_low}</div>
+                        <div className="text-[9px] text-[#3a4550]">Low</div>
+                      </div>
+                      <div className="rounded-lg border border-blue-500/20 bg-blue-500/[0.03] p-3 text-center">
+                        <div className="text-lg font-bold text-blue-400">{auditData.user_projection.installs_30d_mid}</div>
+                        <div className="text-[9px] text-[#3a4550]">Mid</div>
+                      </div>
+                      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 text-center">
+                        <div className="text-lg font-bold text-[#6b7d8d]">{auditData.user_projection.installs_30d_high}</div>
+                        <div className="text-[9px] text-[#3a4550]">High</div>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-[11px]">
+                      <p className="text-[#a8c8d8]">Activation rate: {auditData.user_projection.activation_rate}</p>
+                      <p className="text-emerald-400/80">Driver: {auditData.user_projection.adoption_driver}</p>
+                      <p className="text-red-400/80">Barrier: {auditData.user_projection.adoption_barrier}</p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Stop List */}
                 {auditData.stop_improving && auditData.stop_improving.length > 0 && (
                   <div>

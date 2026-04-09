@@ -137,7 +137,45 @@ Each improvement must:
 
 Rate: "critical" (users can't adopt without this), "high" (users will adopt but churn without this), "medium" (nice for retention)
 
-STEP 6: STOP LIST
+STEP 6: FUNCTIONALITY CHECK
+
+Test every feature listed in our app against these questions:
+- Can a new user figure out how to use this feature without instructions?
+- Does the feature complete its job in 3 clicks or fewer?
+- Is there a dead end anywhere (user takes an action and nothing happens, no feedback, no confirmation)?
+- Does the feature loop back to where the user started or guide them to the next logical action?
+
+Rate overall functionality: "solid" (everything works as expected), "mostly works" (minor gaps), "broken flows" (users will get stuck)
+
+STEP 7: UX/UI SCORE (1-100)
+
+Score the user experience specifically within what Slack allows. Consider:
+- First impression when opening the App Home (25%)
+- Number of clicks to complete the most common task (25%)
+- Visual clarity of the interface: is it scannable, organized, not cluttered? (25%)
+- Feedback loops: does every action give confirmation, does the user always know what happened? (25%)
+
+For each area scoring below 70, provide a SPECIFIC improvement that is possible within Slack's UI constraints (blocks, modals, buttons, context elements, App Home). Do not suggest things Slack does not support.
+
+Available Slack UI elements to work with: buttons, static selects, multi selects, date pickers, time pickers, checkboxes, radio buttons, plain text inputs, modals (single or stacked), App Home blocks, ephemeral messages, threaded replies, context blocks, header blocks, divider blocks, image blocks, section blocks with accessories.
+
+STEP 8: 30-DAY USER PROJECTION
+
+Estimate how many Slack teams would realistically install this app within 30 days with MINIMAL marketing (just the website listing, LinkedIn DMs from our Outreach tab, and organic Slack directory discovery). Be conservative and specific.
+
+Consider:
+- How many Slack workspaces exist that have this exact problem?
+- What percentage would discover a free alternative through organic search or directory browsing?
+- What percentage of those would actually install?
+- What is the expected activation rate (install to actually using it)?
+
+Provide:
+- Estimated installs in 30 days (low / mid / high range)
+- Expected activation rate (percentage who use it after installing)
+- One sentence on the biggest driver of adoption
+- One sentence on the biggest barrier to adoption
+
+STEP 9: STOP LIST
 
 What is already good enough. Be specific. This prevents wasting time on diminishing returns.
 
@@ -174,6 +212,34 @@ FORMAT: Return as valid JSON:
       "why_it_matters": "How this directly helps adoption or retention"
     }
   ],
+  "functionality": {
+    "rating": "solid / mostly works / broken flows",
+    "issues": ["Specific issue if any"],
+    "dead_ends": ["Any place where user gets stuck with no feedback"]
+  },
+  "ux_score": {
+    "total": 75,
+    "first_impression": 80,
+    "clicks_to_task": 70,
+    "visual_clarity": 75,
+    "feedback_loops": 70,
+    "improvements": [
+      {
+        "area": "Which UX area",
+        "score": 60,
+        "fix": "Specific fix using available Slack UI elements",
+        "slack_elements": "Which Slack blocks or features to use"
+      }
+    ]
+  },
+  "user_projection": {
+    "installs_30d_low": 10,
+    "installs_30d_mid": 30,
+    "installs_30d_high": 75,
+    "activation_rate": "60%",
+    "adoption_driver": "One sentence on biggest driver",
+    "adoption_barrier": "One sentence on biggest barrier"
+  },
   "stop_improving": [
     "Feature or area that is already good enough"
   ]
