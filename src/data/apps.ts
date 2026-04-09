@@ -143,7 +143,7 @@ const apps: App[] = [
   { name: "Pitch Deck", slug: "pitch-deck", emoji: "🎤", desc: "Pitch feedback collection", features: ["Share deck link in Slack", "Slide-by-slide feedback", "Score and rank pitches", "Export feedback summary"], pricing: "Free", category: "Productivity", tags: ["Productivity", "Free"], status: "roadmap" },
 
   // ── NEW ───────────────────────────────────────────
-  { name: "Sensei", slug: "sensei", emoji: "🧠", desc: "Team knowledge base with instant search and collaborative editing, all inside Slack", features: ["Slash command article creation", "Full-text search across all content", "Channel-specific knowledge bases", "Auto-suggest relevant articles", "Collaborative editing via modals", "Markdown formatting with preview", "Article tagging and categories", "Pre-built article templates", "Internal article linking", "Usage analytics in App Home"], pricing: "Free", category: "Productivity", tags: ["Productivity", "Free"], status: "featured" },
+  { name: "Sensei", slug: "sensei", emoji: "🧠", desc: "Team knowledge base with instant search and collaborative editing, all inside Slack", features: ["Slash command article creation", "Full-text search across all content", "Channel-specific knowledge bases", "AI-powered answers from your articles", "AI thread-to-article conversion", "Collaborative editing via modals", "Markdown formatting with preview", "Article tagging and categories", "Pre-built article templates", "Internal article linking", "Stale article detection", "Knowledge gap tracking", "Usage analytics in App Home"], pricing: "Free", category: "Productivity", tags: ["Productivity", "Free"], status: "live", installUrl: "https://sensei-production-1334.up.railway.app/slack/install" },
 ];
 
 export default apps;
