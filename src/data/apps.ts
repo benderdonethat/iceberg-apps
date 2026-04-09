@@ -141,6 +141,9 @@ const apps: App[] = [
   { name: "Vault", slug: "vault", emoji: "🔐", desc: "Secure credential sharing", features: ["Encrypted secret storage", "Share with expiration", "Access audit log", "Rotate credentials"], pricing: "Paid", category: "Productivity", tags: ["Productivity", "Paid"], status: "roadmap" },
   { name: "Data Pipe", slug: "data-pipe", emoji: "🔌", desc: "Simple data integrations", features: ["Connect data sources", "Scheduled syncs", "Transform with templates", "Error alerts in Slack"], pricing: "Paid", category: "Productivity", tags: ["Productivity", "Paid"], status: "roadmap" },
   { name: "Pitch Deck", slug: "pitch-deck", emoji: "🎤", desc: "Pitch feedback collection", features: ["Share deck link in Slack", "Slide-by-slide feedback", "Score and rank pitches", "Export feedback summary"], pricing: "Free", category: "Productivity", tags: ["Productivity", "Free"], status: "roadmap" },
+
+  // ── NEW ───────────────────────────────────────────
+  { name: "Sensei", slug: "sensei", emoji: "🧠", desc: "Team knowledge base with instant search and collaborative editing, all inside Slack", features: ["Slash command article creation", "Full-text search across all content", "Channel-specific knowledge bases", "Auto-suggest relevant articles", "Collaborative editing via modals", "Markdown formatting with preview", "Article tagging and categories", "Pre-built article templates", "Internal article linking", "Usage analytics in App Home"], pricing: "Free", category: "Productivity", tags: ["Productivity", "Free"], status: "featured" },
 ];
 
 export default apps;
