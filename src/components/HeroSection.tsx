@@ -50,7 +50,21 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/70 to-background" />
       <div className="relative z-10 max-w-3xl mx-auto px-6 text-center pt-32 pb-16">
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] animate-fade-up">
-          Free Slack apps<br className="hidden sm:block" /> that <span className="text-primary">actually work</span>
+          Free Slack apps<br className="hidden sm:block" /> that{" "}
+          <span
+            className="italic animate-iceberg-flow"
+            style={{
+              backgroundImage: `url(${heroImg})`,
+              backgroundSize: "400% 400%",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              color: "transparent",
+              filter: "brightness(1.8) saturate(1.4)",
+            }}
+          >
+            actually work
+          </span>
         </h1>
         <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-fade-up-delay-1">
           The Slack apps your business needs. All free.
