@@ -23,16 +23,20 @@ export default async function handler(req, res) {
   if (!app || !app.name) return res.status(400).json({ error: 'app data required' });
 
   try {
-    // Step 1: Find the RIGHT competitor with precise search
+    // Step 1: Find the RIGHT competitor with thorough search
     let competitorData = '';
     const searchQueries = [
       {
         query: `"${app.desc}" Slack app paid alternative pricing 2026`,
-        prompt: `Find paid Slack apps that do EXACTLY this: "${app.desc}". Not apps in the same general category. Apps that solve the SAME specific problem for the SAME specific audience. Return their name, what they do, their exact pricing, and their core features.`
+        prompt: `Find paid Slack apps or tools that do EXACTLY this: "${app.desc}". Not apps in the same general category. Apps that solve the SAME specific problem for the SAME specific audience. For each one found, return: name, what they do in one sentence, exact pricing, top 5 features, and what platform they run on (Slack app, web app, etc).`
       },
       {
         query: `site:g2.com "${app.category}" Slack app reviews complaints`,
-        prompt: `Find G2 reviews for paid Slack apps that handle "${app.desc}". What do users complain about? What do they wish was different?`
+        prompt: `Find G2 reviews for paid Slack apps that handle "${app.desc}". What do users complain about? What do they wish was different? Include star ratings and specific quotes.`
+      },
+      {
+        query: `how do teams currently handle "${app.desc}" without a dedicated tool`,
+        prompt: `How do small teams (5-50 people) currently solve this problem: "${app.desc}"? What tools do they cobble together? What's the manual process? What are the pain points of doing it without a dedicated solution? Be specific about the workarounds people use.`
       },
     ];
 
@@ -101,7 +105,11 @@ WRONG competitor examples to AVOID:
 - Picking a massive platform when our app does one specific thing (e.g. Salesforce for a simple lead tracker)
 - Picking a free tool as the competitor (we need to compare against what people PAY for)
 
-If no paid competitor exists that passes all tests, the competitor is "spreadsheets" or "manual tracking" and the audit should reflect that our app has no direct paid competitor, which is actually a strength.
+If no paid competitor exists that passes all tests, you MUST still provide:
+- What users currently do instead (spreadsheets, Google Docs, pinned Slack messages, nothing, etc.)
+- WHY no paid competitor exists (is the market too small? Is the problem not painful enough to pay for? Is it a new category? Are existing tools too broad to count as direct competitors?)
+- Whether this is a strength (untapped market) or a risk (maybe nobody needs this)
+- Set primary_competitor to a descriptive label like "Spreadsheets and manual tracking" or "Google Docs and tribal knowledge" instead of just "N/A"
 
 STEP 2: FEATURE COMPARISON
 
@@ -190,7 +198,8 @@ FORMAT: Return as valid JSON:
 {
   "primary_competitor": "Name (or 'No direct paid competitor' if none passes the tests)",
   "competitor_price": "$X/user/month or 'N/A'",
-  "competitor_validation": "One sentence explaining WHY this is the right competitor. What specific problem do both apps solve for the same audience?",
+  "competitor_validation": "One sentence explaining WHY this is the right competitor OR why no direct competitor exists and what users do instead",
+  "competitor_gap_reason": "If no direct paid competitor: WHY does no paid tool exist for this? Is this an untapped market or a sign the problem isn't big enough?",
   "readiness_score": 75,
   "summary": "One sentence assessment",
   "verdict": "SHIP / IMPROVE / REBUILD",

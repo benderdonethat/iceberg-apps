@@ -807,6 +807,7 @@ export default function Factory() {
                   </div>
                   <div className="text-[10px] text-[#3a4550] mt-2">vs {auditData.primary_competitor} | {auditData.competitor_price}</div>
                   {auditData.competitor_validation && <div className="text-[10px] text-[#6b7d8d] mt-1">{auditData.competitor_validation}</div>}
+                  {auditData.competitor_gap_reason && <div className="text-[10px] text-amber-400/60 mt-1">{auditData.competitor_gap_reason}</div>}
                 </div>
 
                 {/* Verdict */}
