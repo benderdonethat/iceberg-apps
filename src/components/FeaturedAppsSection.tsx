@@ -3,9 +3,18 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { featuredApps, type App } from "@/data/apps";
 import RemindModal from "./RemindModal";
 
+const pricingFilterColors: Record<string, string> = {
+  All: "border-primary/50 bg-primary/10 text-primary",
+  Free: "border-emerald-500/50 bg-emerald-500/10 text-emerald-400",
+  Freemium: "border-cyan-500/50 bg-cyan-500/10 text-cyan-400",
+  Paid: "border-amber-500/50 bg-amber-500/10 text-amber-400",
+};
+
 export default function FeaturedAppsSection() {
   const { ref, isVisible } = useScrollReveal();
-  const apps = featuredApps();
+  const allApps = featuredApps();
+  const [filter, setFilter] = useState<string>("All");
+  const apps = filter === "All" ? allApps : allApps.filter((a) => a.pricing === filter);
   const [modalApp, setModalApp] = useState<App | null>(null);
   const [remindedSlugs, setRemindedSlugs] = useState<Set<string>>(new Set());
   const [savedEmail, setSavedEmail] = useState("");
@@ -28,7 +37,23 @@ export default function FeaturedAppsSection() {
           Every app fills a real gap. Tap "Remind Me" to get notified the moment it drops.
         </p>
 
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="flex gap-2 mt-8">
+          {["All", "Free", "Freemium", "Paid"].map((p) => (
+            <button
+              key={p}
+              onClick={() => setFilter(p)}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                filter === p
+                  ? pricingFilterColors[p]
+                  : "border-border text-muted-foreground hover:border-primary/30"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {apps.map((app, i) => {
             const reminded = remindedSlugs.has(app.slug);
             return (

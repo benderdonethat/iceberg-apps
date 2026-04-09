@@ -9,9 +9,18 @@ const pricingStyles: Record<string, string> = {
   Paid: "bg-amber-500/10 text-amber-400 border-amber-500/20",
 };
 
+const filterColors: Record<string, string> = {
+  All: "border-primary/50 bg-primary/10 text-primary",
+  Free: "border-emerald-500/50 bg-emerald-500/10 text-emerald-400",
+  Freemium: "border-cyan-500/50 bg-cyan-500/10 text-cyan-400",
+  Paid: "border-amber-500/50 bg-amber-500/10 text-amber-400",
+};
+
 export default function RoadmapSection() {
   const { ref, isVisible } = useScrollReveal();
-  const apps = roadmapApps();
+  const allApps = roadmapApps();
+  const [filter, setFilter] = useState<string>("All");
+  const apps = filter === "All" ? allApps : allApps.filter((a) => a.pricing === filter);
   const [modalApp, setModalApp] = useState<App | null>(null);
   const [remindedSlugs, setRemindedSlugs] = useState<Set<string>>(new Set());
   const [savedEmail, setSavedEmail] = useState("");
@@ -37,7 +46,23 @@ export default function RoadmapSection() {
 
       <div className={`max-w-5xl mx-auto transition-all duration-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
         <span className="text-xs font-semibold tracking-widest uppercase text-primary">Roadmap</span>
-        <h3 className="mt-4 text-2xl sm:text-3xl font-bold text-foreground mb-10">Everything we're building</h3>
+        <h3 className="mt-4 text-2xl sm:text-3xl font-bold text-foreground mb-6">Everything we're building</h3>
+
+        <div className="flex gap-2 mb-8">
+          {["All", "Free", "Freemium", "Paid"].map((p) => (
+            <button
+              key={p}
+              onClick={() => setFilter(p)}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                filter === p
+                  ? filterColors[p]
+                  : "border-border text-muted-foreground hover:border-primary/30"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
 
         <div className="space-y-8">
           {visibleCategories.map((cat) => {
