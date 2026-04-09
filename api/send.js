@@ -5,14 +5,15 @@ export default async function handler(req, res) {
   if (!email || !email.includes('@')) return res.status(400).json({ error: 'valid email required' });
 
   const RESEND_KEY = process.env.RESEND_API_KEY;
+  const RESEND_FULL = process.env.RESEND_FULL_KEY || RESEND_KEY;
   const AUDIENCE_ID = process.env.RESEND_AUDIENCE_ID;
 
   try {
-    // 1. Add to audience
+    // 1. Add to audience (needs full-access key)
     if (AUDIENCE_ID) {
       await fetch(`https://api.resend.com/audiences/${AUDIENCE_ID}/contacts`, {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+        headers: { 'Authorization': `Bearer ${RESEND_FULL}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, unsubscribed: false }),
       });
     }
