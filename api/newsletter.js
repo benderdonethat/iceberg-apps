@@ -159,6 +159,38 @@ FORMAT: Return as valid JSON:
   });
 
   const data = await response.json();
+
+  if (data.error) {
+    console.error('Claude API error:', JSON.stringify(data.error));
+    // Retry without web search
+    const retryRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 3000,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+    const retryData = await retryRes.json();
+    if (retryData.error) {
+      console.error('Claude retry error:', JSON.stringify(retryData.error));
+      return null;
+    }
+    const retryText = (retryData.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n');
+    try {
+      const match = retryText.match(/\{[\s\S]*\}/);
+      if (match) return JSON.parse(match[0]);
+    } catch (e) {
+      console.error('Retry parse error:', e.message);
+    }
+    return null;
+  }
+
   const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
   const text = textBlocks.join('\n');
 
