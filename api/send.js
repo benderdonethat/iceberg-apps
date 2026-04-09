@@ -1,15 +1,21 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
-  const { email, newsletter } = req.body;
+  const { email, preferences } = req.body;
   if (!email || !email.includes('@')) return res.status(400).json({ error: 'valid email required' });
+
+  // Handle both old format { newsletter: true } and new format { preferences: { releases, newsletter, prompts } }
+  const prefs = preferences || {};
+  const wantsReleases = prefs.releases !== false;
+  const wantsNewsletter = prefs.newsletter === true;
+  const wantsPrompts = prefs.prompts === true;
 
   const RESEND_KEY = process.env.RESEND_API_KEY;
   const RESEND_FULL = process.env.RESEND_FULL_KEY || RESEND_KEY;
   const AUDIENCE_ID = process.env.RESEND_AUDIENCE_ID;
 
   try {
-    // 1. Add to audience (needs full-access key)
+    // 1. Add to audience with preference tags
     if (AUDIENCE_ID) {
       await fetch(`https://api.resend.com/audiences/${AUDIENCE_ID}/contacts`, {
         method: 'POST',
@@ -18,7 +24,24 @@ export default async function handler(req, res) {
       });
     }
 
-    // 2. Send welcome email — full branded, not empty
+    // 2. Log preferences to tracking email
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'icebergsampson <iceberg@freeslackapps.com>',
+        to: 'justforaistorage@gmail.com',
+        subject: `[SIGNUP] ${email}`,
+        text: `Email: ${email}\nReleases: ${wantsReleases}\nNewsletter: ${wantsNewsletter}\nPrompts: ${wantsPrompts}\nTime: ${new Date().toISOString()}`,
+      }),
+    });
+
+    // 3. Send confirmation — short, human, professional
+    const selectedList = [];
+    if (wantsReleases) selectedList.push('new app releases');
+    if (wantsNewsletter) selectedList.push('the weekly newsletter');
+    if (wantsPrompts) selectedList.push('prompts and resources');
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
@@ -26,10 +49,8 @@ export default async function handler(req, res) {
         from: 'icebergsampson <iceberg@freeslackapps.com>',
         to: email,
         reply_to: 'justforaistorage@gmail.com',
-        subject: newsletter ? "You're in" : "You're on the list",
-        text: newsletter
-          ? "Hey — welcome to the list.\n\nEvery week I send one email: what I built, what AI tools are worth using, a prompt you can steal, and one question to think about. No filler.\n\nI also build free Slack apps and give them away. Stream Line is live now — it's a free operations bot for live streamers. More apps shipping every week.\n\nfreeslackapps.com\n\n— @icebergsampson"
-          : "Hey — you're on the list.\n\nWhen we ship a new app, you'll get an email with a direct link to install it. That's it. No spam.\n\nfreeslackapps.com\n\n— @icebergsampson",
+        subject: 'Confirmed',
+        text: `You're signed up for ${selectedList.join(', ')}.\n\nWe build free Slack apps that replace expensive ones. No trials, no per-seat pricing. Just tools that work.\n\nfreeslackapps.com`,
       }),
     });
 
@@ -45,4 +66,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'failed' });
   }
 }
-
