@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   const AUDIENCE_ID = process.env.RESEND_AUDIENCE_ID;
 
   try {
-    // 1. Add to audience (needs full-access key)
+    // 1. Add to audience so they get the launch blast
     if (AUDIENCE_ID) {
       await fetch(`https://api.resend.com/audiences/${AUDIENCE_ID}/contacts`, {
         method: 'POST',
@@ -19,8 +19,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // 2. Store the app-specific reminder in our tracking system
-    // We use a simple approach: send a tagged email to ourselves to track who wants what
+    // 2. Track which app they want (internal only)
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
@@ -28,25 +27,12 @@ export default async function handler(req, res) {
         from: 'icebergsampson <iceberg@freeslackapps.com>',
         to: 'justforaistorage@gmail.com',
         subject: `[REMIND] ${email} wants ${appName}`,
-        html: `<p>Email: ${email}<br>App: ${appName}<br>Slug: ${appSlug}<br>Time: ${new Date().toISOString()}</p>`,
+        text: `Email: ${email}\nApp: ${appName}\nSlug: ${appSlug}\nTime: ${new Date().toISOString()}`,
       }),
     });
 
-    // 3. Send confirmation to the user
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'icebergsampson <iceberg@freeslackapps.com>',
-        to: email,
-        reply_to: 'justforaistorage@gmail.com',
-        subject: `You're on the list — ${appName} is coming`,
-        text: `Hey — ${appName} is being built right now.\n\nWhen it drops, you'll get an email with a direct link to install it on Slack. No spam, just the launch notification.\n\nfreeslackapps.com\n\n— @icebergsampson`,
-      }),
-    });
-
-    const data = await response.json();
-    if (!response.ok) return res.status(500).json({ error: 'failed to send' });
+    // 3. No confirmation email to the user — they'll get ONE email when the app launches.
+    // The UI already shows "You'll be notified" which is enough confirmation.
 
     return res.status(200).json({ success: true });
   } catch (err) {
