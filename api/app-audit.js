@@ -1,15 +1,93 @@
-import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
-
 /**
  * App Audit v3 — Profile-driven competitive analysis.
- * Loads app-specific profile + audit methodology before running.
- * Two-step: competitor research, then focused audit.
+ * App profiles and methodology are embedded, not read from disk.
  *
  * POST /api/app-audit
  * Headers: x-admin-key
  * Body: { app: { name, desc, features, category, pricing, status } }
  */
+
+const METHODOLOGY = `# Audit Methodology
+
+## Rule 1: Use the App Profile
+Every app has a profile that defines what it is, what it is NOT, who it targets, its correct competitors, and its incorrect competitors. The profile overrides any AI judgment about competitors.
+
+## Rule 2: Competitor Selection
+Use ONLY the correct competitors from the profile. If web search returns a competitor on the incorrect list, ignore it.
+
+## Rule 3: Feature Scoring Must Be Specific
+When scoring a feature, explain specifically WHY. Not "we do this better" but "we calculate platform fees automatically for 6 platforms while they require manual entry."
+
+## Rule 4: UX Scoring Must Reference Slack Constraints
+Slack App Home max 100 blocks, no custom CSS, no collapsible sections, no real tabs (faked with buttons), modals max 100 blocks, modal titles max 24 chars. Score within these constraints.
+
+## Rule 5: Don't Flag Known Limitations
+The profile lists known limitations. Don't report these as issues.
+
+## Rule 6: Conservative Projections
+Brand new free Slack app with no audience: 5-20 installs in 30 days. With active LinkedIn outreach: 15-50. Do NOT project hundreds.
+
+## Rule 7: Improvements Within Scope Only
+Read "What This App Is NOT." Any improvement in that category is invalid.
+
+## Rule 8: Honest Stop List
+If a feature works and users aren't complaining, stop list it.
+
+## Rule 9: No Emojis, No Dashes
+Never use emojis, ---, or em dashes.
+
+## Rule 10: Show Scoring Math
+Readiness: Core problem (40%) + UX (25%) + Price advantage (20%) + Differentiation (15%)
+UX: First impression (25%) + Clicks to task (25%) + Visual clarity (25%) + Feedback loops (25%)
+Apply weights mathematically.`;
+
+const APP_PROFILES = {
+  'stream-line': `# Stream Line
+
+## What This App Is
+A free Slack-based business operations tool for live streamers who sell products during streams. Tracks sales, calculates profit/loss with real platform fees, manages inventory, tracks customers, provides AI insights.
+
+## What This App Is NOT
+NOT a streaming overlay tool (StreamElements/Streamlabs). NOT a chat bot for viewer engagement. NOT a broadcasting tool. NOT a content creation platform. Does NOT handle live stream production, alerts, or viewer interaction.
+
+## Target Audience
+Live sellers on Whatnot, TikTok Shop, eBay Live. Trading card breakers. Resellers and flippers. Small teams (1-5 people) running live sales. Content creators selling merch during streams.
+
+## Correct Competitors
+Google Sheets/Excel (free but manual), QuickBooks ($30/month, too complex), Wave Accounting (free but not per-stream), No direct Slack competitor exists.
+
+## Incorrect Competitors (NEVER compare against)
+StreamElements, Streamlabs, Whatnot itself, Shopify, OBS, Twitch tools
+
+## Core Features
+Log stream sessions with sales/costs/duration/platform. Auto platform fee calculations (Whatnot 19.9%, TikTok 8%, etc.). Real P&L per stream. Inventory with velocity and reorder alerts. Customer database with VIP detection. Revenue goals with progress tracking. AI business insights. Brand vault and AI content generator. CSV export. Multi-tenant teams. Tab navigation (Dashboard, Insights, Tools, Settings).
+
+## Known Limitations
+Manual stream logging unless API connected. No direct Whatnot API yet. Mobile Slack not optimized.`,
+
+  'sensei': `# Sensei
+
+## What This App Is
+A free Slack-based team knowledge base. Teams write, search, and share articles entirely inside Slack. No external dashboard.
+
+## What This App Is NOT
+NOT a project management tool. NOT a wiki with web interface. NOT a rich text document editor. NOT a CRM or customer-facing KB.
+
+## Target Audience
+Small teams (2-30 people) using Slack daily. Teams using pinned messages or Google Docs for docs. Engineering, agencies, ops, support, remote teams.
+
+## Correct Competitors
+Guru ($7/user/month), Tettra ($5/user/month), Slite ($8/user/month), Notion ($8/user for teams), Google Docs (free but scattered).
+
+## Incorrect Competitors (NEVER compare against)
+Confluence, SharePoint, Jira, Asana, Monday.com
+
+## Core Features
+Article creation with 5 templates. Full-text search via keyword index. Channel-specific knowledge bases. AI-powered answers from articles. AI thread-to-article conversion. Article tagging. Internal linking with [[Title]]. Stale article detection (30 day flag). Knowledge gap tracking. Usage analytics. AES-256-GCM encryption. Multi-tenant RLS.
+
+## Known Limitations
+Search works on titles and keyword index, not encrypted body. Sequential editing (no real-time co-edit). No images in articles (Slack modal limitation).`
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
@@ -25,21 +103,13 @@ export default async function handler(req, res) {
   const { app } = req.body || {};
   if (!app || !app.name) return res.status(400).json({ error: 'app data required' });
 
-  // Load app profile and methodology
   const slug = app.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  const profilePath = join(process.cwd(), 'audit-profiles', `${slug}.md`);
-  const methodPath = join(process.cwd(), 'audit-profiles', 'audit-methodology.md');
-
-  let appProfile = '';
-  let methodology = '';
-
-  try { if (existsSync(profilePath)) appProfile = readFileSync(profilePath, 'utf8'); } catch (e) {}
-  try { if (existsSync(methodPath)) methodology = readFileSync(methodPath, 'utf8'); } catch (e) {}
+  const appProfile = APP_PROFILES[slug] || '';
 
   try {
-    // Step 1: Competitor research (only if no profile or profile says to search)
+    // Step 1: Competitor research (only if no profile)
     let competitorData = '';
-    if (!appProfile || appProfile.includes('No direct Slack-based competitor')) {
+    if (!appProfile) {
       try {
         const searchRes = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
@@ -53,7 +123,7 @@ export default async function handler(req, res) {
             max_tokens: 1500,
             temperature: 0,
             tools: [{ type: 'web_search_20250305' }],
-            messages: [{ role: 'user', content: `Find the top 3 paid tools that solve this problem: "${app.desc}". They must target the same audience. Return name, pricing, and core features for each. Only include tools people actually pay for.` }],
+            messages: [{ role: 'user', content: `Find the top 3 paid tools that solve this problem: "${app.desc}". Must target the same audience. Return name, pricing, core features.` }],
           }),
         });
         const searchData = await searchRes.json();
@@ -62,7 +132,7 @@ export default async function handler(req, res) {
       } catch (e) {}
     }
 
-    // Step 2: Run the audit with profile context
+    // Step 2: Audit
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -76,43 +146,31 @@ export default async function handler(req, res) {
         temperature: 0,
         messages: [{
           role: 'user',
-          content: `${methodology ? '# AUDIT METHODOLOGY (follow this exactly)\n' + methodology + '\n\n' : ''}${appProfile ? '# APP PROFILE (this overrides any AI assumptions)\n' + appProfile + '\n\n' : ''}# COMPETITOR RESEARCH FROM WEB
-${competitorData || 'No web research performed. Use the competitors listed in the app profile.'}
+          content: `${METHODOLOGY}
 
-# YOUR TASK
+${appProfile ? '# APP PROFILE (this overrides all AI assumptions)\n' + appProfile : '# APP INFO\nName: ' + app.name + '\nDesc: ' + app.desc + '\nFeatures: ' + (app.features || []).join(', ') + '\nCategory: ' + app.category}
 
-Audit this app following the methodology above. The app profile defines what competitors are correct and incorrect. Do not deviate.
+${competitorData ? '# WEB RESEARCH\n' + competitorData : ''}
 
-Return as valid JSON:
+Audit this app following the methodology. Use ONLY correct competitors from the profile. Return valid JSON:
 {
-  "primary_competitor": "Name from the correct competitors list in the profile",
-  "competitor_price": "$X/user/month or N/A",
-  "competitor_validation": "One sentence explaining why this competitor was chosen from the profile's correct list",
+  "primary_competitor": "From correct competitors list",
+  "competitor_price": "$X/month or N/A",
+  "competitor_validation": "Why this competitor from the profile's correct list",
   "readiness_score": 75,
-  "summary": "One sentence assessment",
+  "summary": "One sentence",
   "verdict": "SHIP / IMPROVE / REBUILD",
-  "verdict_reason": "One sentence explaining the verdict",
+  "verdict_reason": "One sentence",
   "feature_audit": [
-    {
-      "feature": "Feature name",
-      "status": "ahead / match / behind / unique",
-      "our_implementation": "Specific description of how we do it",
-      "their_implementation": "Specific description of how they do it (or N/A)"
-    }
+    { "feature": "Name", "status": "ahead/match/behind/unique", "our_implementation": "How we do it specifically", "their_implementation": "How they do it or N/A" }
   ],
   "improvements": [
-    {
-      "title": "Specific improvement",
-      "description": "What to build and how",
-      "impact": "critical / high / medium",
-      "effort": "quick / moderate / significant",
-      "why_it_matters": "How this directly helps adoption or retention"
-    }
+    { "title": "Specific fix", "description": "What and how", "impact": "critical/high/medium", "effort": "quick/moderate/significant", "why_it_matters": "Adoption or retention impact" }
   ],
   "functionality": {
-    "rating": "solid / mostly works / broken flows",
-    "issues": ["Specific issue not already in known limitations"],
-    "dead_ends": ["Any place where user gets stuck with no feedback"]
+    "rating": "solid/mostly works/broken flows",
+    "issues": ["Issues NOT in known limitations"],
+    "dead_ends": ["Where users get stuck"]
   },
   "ux_score": {
     "total": 75,
@@ -120,14 +178,9 @@ Return as valid JSON:
     "clicks_to_task": 70,
     "visual_clarity": 75,
     "feedback_loops": 70,
-    "reasoning": "Show math: (first_impression * 0.25) + (clicks_to_task * 0.25) + (visual_clarity * 0.25) + (feedback_loops * 0.25) = total",
+    "reasoning": "Math: (FI*0.25)+(CTT*0.25)+(VC*0.25)+(FL*0.25)=total",
     "improvements": [
-      {
-        "area": "Which UX area",
-        "score": 60,
-        "fix": "Specific fix using available Slack UI elements",
-        "slack_elements": "Which Slack blocks or features to use"
-      }
+      { "area": "Which area", "score": 60, "fix": "Specific Slack UI fix", "slack_elements": "Which blocks to use" }
     ]
   },
   "user_projection": {
@@ -135,12 +188,10 @@ Return as valid JSON:
     "installs_30d_mid": 15,
     "installs_30d_high": 40,
     "activation_rate": "50%",
-    "adoption_driver": "One sentence on biggest driver",
-    "adoption_barrier": "One sentence on biggest barrier"
+    "adoption_driver": "One sentence",
+    "adoption_barrier": "One sentence"
   },
-  "stop_improving": [
-    "Feature or area that is already good enough"
-  ]
+  "stop_improving": ["Features that are good enough"]
 }`
         }],
       }),
@@ -158,12 +209,11 @@ Return as valid JSON:
     try {
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        const result = JSON.parse(jsonMatch[0]);
-        return res.status(200).json({ success: true, data: result });
+        return res.status(200).json({ success: true, data: JSON.parse(jsonMatch[0]) });
       }
     } catch (e) {
       console.error('Failed to parse audit JSON:', e.message);
-      return res.status(500).json({ error: 'failed to parse response', raw: text.substring(0, 500) });
+      return res.status(500).json({ error: 'failed to parse', raw: text.substring(0, 500) });
     }
 
     return res.status(500).json({ error: 'no valid response' });
