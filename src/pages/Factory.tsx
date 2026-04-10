@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import icebergLogo from "@/assets/hero-iceberg.png";
 import apps from "@/data/apps";
 
@@ -173,6 +173,35 @@ export default function Factory() {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
+  const activityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
+  const logout = useCallback(() => {
+    setAuthed(false);
+    setPassword("");
+    sessionStorage.removeItem("factory_auth");
+    sessionStorage.removeItem("factory_pw");
+    sessionStorage.removeItem("factory_ts");
+  }, []);
+
+  const resetActivityTimer = useCallback(() => {
+    if (activityTimer.current) clearTimeout(activityTimer.current);
+    activityTimer.current = setTimeout(logout, SESSION_TIMEOUT);
+    sessionStorage.setItem("factory_ts", String(Date.now()));
+  }, [logout]);
+
+  // Auto-logout on inactivity
+  useEffect(() => {
+    if (!authed) return;
+    const events = ["mousedown", "keydown", "scroll", "touchstart"];
+    events.forEach((e) => window.addEventListener(e, resetActivityTimer));
+    resetActivityTimer();
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, resetActivityTimer));
+      if (activityTimer.current) clearTimeout(activityTimer.current);
+    };
+  }, [authed, resetActivityTimer]);
   const [name, setName] = useState("");
   const [emoji, setEmoji] = useState("🤖");
   const [desc, setDesc] = useState("");
@@ -269,6 +298,7 @@ export default function Factory() {
         setAuthed(true);
         sessionStorage.setItem("factory_auth", "1");
         sessionStorage.setItem("factory_pw", password);
+        sessionStorage.setItem("factory_ts", String(Date.now()));
       } else {
         setAuthError(true);
       }
@@ -279,10 +309,21 @@ export default function Factory() {
     }
   };
 
-  // Check session on mount
-  useState(() => {
-    if (sessionStorage.getItem("factory_auth") === "1") setAuthed(true);
-  });
+  // Check session on mount (with timeout validation)
+  useEffect(() => {
+    const auth = sessionStorage.getItem("factory_auth");
+    const ts = sessionStorage.getItem("factory_ts");
+    const pw = sessionStorage.getItem("factory_pw");
+    if (auth === "1" && ts && pw) {
+      const elapsed = Date.now() - Number(ts);
+      if (elapsed < SESSION_TIMEOUT) {
+        setAuthed(true);
+        setPassword(pw);
+      } else {
+        logout();
+      }
+    }
+  }, []);
 
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -558,6 +599,12 @@ export default function Factory() {
                 {status.toUpperCase()}
               </span>
             )}
+            <button
+              onClick={logout}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium border border-red-500/20 text-red-400/60 hover:border-red-500/40 hover:text-red-400 transition-all ml-2"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </div>
