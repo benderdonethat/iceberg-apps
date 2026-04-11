@@ -25,6 +25,7 @@ export default async function handler(req, res) {
     'Stream Line': 'Competes with: Google Sheets for stream tracking, QuickBooks for P&L. Covers: live stream sales tracking, inventory, customer DB, AI insights.',
     'Sensei': 'Competes with: Guru ($7/user), Tettra ($5/user), Slite ($8/user), Notion. Covers: team knowledge base, article management, AI search, documentation.',
     'Pulse': 'Competes with: Polly ($3/user), Simple Poll, SurveyMonkey ($25/mo), Doodle ($6.95/user). Covers: polls (5 types), surveys, anonymous feedback, recurring polls, rating scales, rankings, open text.',
+    'Sync': 'Competes with: Fellow ($7/user), Hypercontext, SoapBox ($4/user), Lattice ($11/user), 15Five ($4/user). Covers: 1:1 meetings, talking points, action items, goal tracking, meeting notes.',
     'Quick Poll': 'MERGED INTO PULSE. Do not suggest polling apps.',
     'Tally': 'COVERED BY PULSE. Do not suggest voting/polling apps.',
   };

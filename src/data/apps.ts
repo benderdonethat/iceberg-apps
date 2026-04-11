@@ -111,6 +111,7 @@ const apps: App[] = [
 
   // ── ROADMAP ──────────────────────────────────────────
   // Team
+  { name: "Sync", slug: "sync", emoji: "👥", desc: "Free 1:1 meeting management, goal tracking, and action items built natively in Slack", features: ["Recurring 1:1 scheduling (weekly, biweekly, monthly)", "Talking points prep from both sides", "Action items with assignment and due dates", "Goal setting with progress tracking", "Pre-meeting reminders and session summaries", "Meeting history and notes", "Overdue action item follow-ups", "Tips and Industry Workflows"], pricing: "Free", category: "Team", tags: ["Team", "Free"], status: "roadmap" },
   { name: "Roll Call", slug: "roll-call", emoji: "🧍", desc: "Async daily standups in Slack", features: ["Schedule recurring standups", "Threaded responses per person", "Weekly summary digest", "Skip weekends/holidays"], pricing: "Free", category: "Team", tags: ["Team", "Free"], status: "roadmap" },
   { name: "First Day", slug: "first-day", emoji: "🚀", desc: "New hire onboarding checklists", features: ["Custom checklist templates", "Auto-assign on hire date", "Progress tracking per hire", "Manager notifications"], pricing: "Free", category: "Team", tags: ["Team", "Free"], status: "roadmap" },
   { name: "Props", slug: "props", emoji: "🏆", desc: "Peer recognition and shoutouts", features: ["Public shoutouts in channel", "Recognition leaderboard", "Custom emoji reactions", "Monthly recognition recap"], pricing: "Free", category: "Team", tags: ["Team", "Free"], status: "roadmap" },

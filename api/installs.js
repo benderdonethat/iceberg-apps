@@ -10,6 +10,7 @@ const APPS = [
   { name: 'Stream Line', slug: 'stream-line', url: 'https://app-production-ef06.up.railway.app/stats' },
   { name: 'Sensei', slug: 'sensei', url: 'https://sensei-production-1334.up.railway.app/stats' },
   { name: 'Pulse', slug: 'pulse', url: 'https://app-production-831c.up.railway.app/stats' },
+  { name: 'Sync', slug: 'sync', url: 'https://app-production-2df7.up.railway.app/stats' },
 ];
 
 export default async function handler(req, res) {

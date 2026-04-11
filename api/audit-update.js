@@ -11,6 +11,7 @@
 const BASE_PROFILES = {
   'stream-line': `Stream Line: Free Slack-based business operations tool for live streamers who sell products. Tracks sales, calculates P&L with platform fees, manages inventory, tracks customers, AI insights. NOT a streaming overlay or chat bot. Competitors: Google Sheets, QuickBooks. NOT StreamElements/Streamlabs.`,
   'sensei': `Sensei: Free Slack-based team knowledge base. Articles, search, templates, AI answers, thread-to-article, tagging, linking, stale detection, knowledge gaps. NOT project management or web wiki. Competitors: Guru ($7), Tettra ($5), Slite ($8).`,
+  'sync': `Sync: Free Slack-based 1:1 meeting management. Recurring pairs, talking points, action items, goal tracking, meeting notes, session summaries. NOT a calendar or HR tool. Competitors: Fellow ($7/user), Hypercontext, SoapBox ($4/user), Lattice ($11/user), 15Five ($4/user).`,
   'pulse': `Pulse: Free Slack-based polling, survey, and anonymous feedback tool. 5 poll types (single, multiple, rating, ranking, open text). Smart DM distribution (channel members, specific people, all users). Step-by-step survey builder. One-question-at-a-time modal flow with progress bar. Recurring scheduled polls. Anonymous mode. Auto-close. CSV export. Templates. NOT a form builder or engagement platform. Competitors: Polly ($3/user), Simple Poll, SurveyMonkey ($25/mo).`,
 };
 

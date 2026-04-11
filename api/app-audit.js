@@ -127,7 +127,33 @@ Five poll types: single choice, multiple choice, rating scale (1-5 or 1-10), ran
 App Home with stats bar (total polls, open, voters, total votes). Create Poll and Create Survey buttons always visible. Recent polls and surveys with View links to jump to message. Polls DM'd to each recipient individually (Messages tab). Survey builder is step-by-step via DM with Add Question button. Survey taking uses modal chain with progress bar, one question per screen, no page breaks. All voting via buttons in DMs or channel messages. Confirmation DMs after poll/survey creation with recipient count. Templates and Recurring Polls accessible from App Home. My Polls and My Surveys show channel, type, response count, and completion rate.
 
 ## Known Limitations
-Ranking polls require a modal flow (cannot rank inline). Surveys have practical limit of ~20 questions. CSV export uses URL with workspace token (not file upload). No conditional/branching logic in surveys yet. No image or file attachment in poll options.`
+Ranking polls require a modal flow (cannot rank inline). Surveys have practical limit of ~20 questions. CSV export uses URL with workspace token (not file upload). No conditional/branching logic in surveys yet. No image or file attachment in poll options.`,
+
+  'sync': `# Sync
+
+## What This App Is
+A free Slack-based 1:1 meeting management tool. Managers and reports set up recurring syncs, prep talking points before each meeting, track action items, set goals with progress bars, and review meeting history. Everything happens inside Slack via DMs and modals.
+
+## What This App Is NOT
+NOT a calendar or scheduling tool (no Google Calendar integration). NOT a performance review platform. NOT a project management tool. NOT an HR system.
+
+## Target Audience
+Managers with direct reports (2-15 people). Engineering leads, team leads, founders. Any manager/report pair that meets regularly. Small to mid-size teams (2-100 people) using Slack daily.
+
+## Correct Competitors
+Fellow ($7/user/month, 1:1 meeting tool), Hypercontext (free tier + $7/user paid), SoapBox ($4/user/month), Lattice ($11/user/month, broader people management), 15Five ($4/user/month, performance + 1:1s).
+
+## Incorrect Competitors (NEVER compare against)
+Google Calendar, Zoom, Calendly, Asana, Monday.com, Notion
+
+## Core Features
+Recurring 1:1 pair setup (weekly, biweekly, monthly with day and time selection). Both sides add talking points before the meeting. Pre-meeting reminder DMs 24 hours before. Session start notification with talking points and open action items. Action items with assignment, due dates, and status tracking. Goal setting with progress bars and categories (career, project, skill, performance). Meeting notes. Session completion with auto-summary. Overdue action item follow-up alerts. Meeting history per pair. App Home dashboard with stats, active 1:1s, open action items, and goals. How to Get the Most Out of Sync tips. Industry Workflows for 7 team types. AES-256-GCM encryption on bot tokens. Multi-tenant with row-level security.
+
+## UX Design
+App Home with stats bar (pairs, sessions, actions, goals). New 1:1, Action Items, and Goals buttons always visible. Active 1:1 pairs listed with View button and next date. Open action items shown with inline Done button. Goals with progress bars and Update button. Tips and Industry Workflows accessible from App Home. All creation and editing via modals. Confirmation DMs after every action.
+
+## Known Limitations
+No Google Calendar integration (scheduling is in-app only). No video call link generation. No multi-party meetings (1:1 only). No file attachments in notes or talking points.`
 };
 
 export default async function handler(req, res) {
