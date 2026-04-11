@@ -59,26 +59,16 @@ export default async function handler(req, res) {
       }
     } catch {}
 
-    // Step 1: Search for real competitor data
+    // Step 1: Search for real competitor data (3 consolidated searches to minimize API cost)
     const searchQueries = [
-      // Tier 1: Core pricing and market data
-      { query: 'most popular paid Slack apps 2026 pricing per user monthly', prompt: 'Find the top 15 most popular PAID Slack apps with their exact current pricing. Include app name, exact price per user, total install count if available, and primary function. Only include apps that charge money.' },
-      { query: 'Slack App Directory most installed apps 2026 reviews ratings', prompt: 'Find Slack App Directory listings. For each paid app found, report: app name, install count, star rating, number of reviews, pricing, and the most recent negative review. Focus on apps with 1000+ installs.' },
+      // Search 1: Market landscape — pricing, installs, ratings
+      { query: 'most popular paid Slack apps 2026 pricing per user monthly reviews Slack App Directory', prompt: 'Find the top 15 most popular PAID Slack apps with: app name, exact price per user/month, install count if available, star rating, and what they do. Only include apps that charge money. Prioritize apps with real install data.' },
 
-      // Tier 2: Active pain signals (where users are angry RIGHT NOW)
-      { query: 'site:reddit.com r/Slack OR r/SaaS "too expensive" OR "looking for alternative" OR "free alternative" OR "switched from" 2026', prompt: 'Find Reddit posts from 2025-2026 where people complain about paid Slack apps or ask for free alternatives. Extract: which app they are complaining about, the specific complaint, whether they found an alternative. These are ACTIVE switchers. Prioritize posts with many upvotes or comments.' },
-      { query: 'site:reddit.com Slack app "price increase" OR "raised prices" OR "new pricing" OR "billing change" 2026', prompt: 'Find any Slack apps that recently changed their pricing. Users posting about price increases are the most likely to switch. Extract: app name, old price vs new price, user reaction.' },
+      // Search 2: Pain signals — complaints, price increases, churn
+      { query: 'Slack app "too expensive" OR "overpriced" OR "switched from" OR "free alternative" OR "price increase" site:reddit.com OR site:g2.com OR site:capterra.com 2026', prompt: 'Find complaints about paid Slack apps from Reddit, G2, and Capterra (2025-2026). For each complaint extract: app name, specific complaint (quote it), source (Reddit/G2/Capterra), and whether the user found an alternative. Also look for any apps that recently raised prices. Prioritize active pain and recent posts.' },
 
-      // Tier 3: Review site deep complaints
-      { query: 'site:g2.com Slack app reviews 1 star 2 star "too expensive" OR "not worth" OR "overpriced" OR "cancelling" 2026', prompt: 'Find negative G2 reviews (1-2 stars) for paid Slack apps from 2025-2026. For each review extract: app name, exact complaint, what the reviewer wishes existed instead. Focus on pricing and UX complaints.' },
-      { query: 'site:capterra.com Slack integration reviews cons "small team" OR "too complex" OR "not intuitive" OR "overpriced" 2026', prompt: 'Find Capterra reviews with specific cons for paid Slack apps. Focus on: pricing complaints for small teams, setup complexity, poor UX, missing features, bad support. Quote the reviewer.' },
-
-      // Tier 4: Churn and switching signals
-      { query: '"cancelled" OR "switched from" OR "replaced" OR "migrated from" Slack app 2026 alternative', prompt: 'Find stories of teams actively switching away from paid Slack apps. What did they leave? Why? What did they move to? Focus on 2025-2026 switches. These represent validated demand for alternatives.' },
-      { query: 'site:producthunt.com Slack app alternative free 2026', prompt: 'Find ProductHunt launches for Slack app alternatives. What existing paid tools are people trying to replace? Check the comments for which competitors users mention wanting to leave.' },
-
-      // Tier 5: Competitive vulnerability signals
-      { query: 'Slack app "acquired by" OR "shutting down" OR "sunset" OR layoffs 2026', prompt: 'Find Slack apps that were recently acquired, are shutting down, or had layoffs. These create user uncertainty and migration opportunities. Extract: app name, what happened, estimated user base affected.' },
+      // Search 3: Vulnerability signals — acquisitions, shutdowns, alternatives launching
+      { query: 'Slack app acquired OR "shutting down" OR alternative launched OR "switched to" 2026 site:producthunt.com OR site:reddit.com', prompt: 'Find Slack apps that were recently acquired, shut down, had layoffs, or are losing users to alternatives. Also find new free alternatives launching on ProductHunt. Extract: app name, what happened, user reaction, and any migration patterns.' },
     ];
 
     // Run all searches in parallel for speed
@@ -149,7 +139,7 @@ CRITICAL: If a paid Slack app competes with ANY of our existing apps OR stashed 
 ${ourInstallData}
 
 YOUR TASK:
-Go through the Slack App Directory mentally. Find 10 REAL paid apps that are actively listed, actively charging money, and have real users. For each one, design our free killer alternative.
+Go through the Slack App Directory mentally. Find 5 REAL paid apps that are actively listed, actively charging money, and have real users. For each one, design our free killer alternative. Quality over quantity. Only suggest opportunities you are confident about.
 
 For each opportunity you MUST provide:
 
@@ -167,10 +157,10 @@ For each opportunity you MUST provide:
 8. **HOW WE MATCH OR BEAT THEM** — List 4-6 features that match or exceed theirs. Be specific. Not "better UI" but "one-click setup from Slack command, no external dashboard needed"
 9. **OUR PRICING STRATEGY** — Free, Freemium (free core + paid power features), or Paid (but cheaper). If Freemium, specify exactly which features are free and which are paid. If Paid, specify our price and how much cheaper it is than the competitor.
 
-PRICING MIX REQUIREMENT: Your 10 suggestions MUST include a mix of all 3 pricing tiers:
-- At least 4 FREE apps (completely free, no paid tier — these are our volume/install drivers)
-- At least 3 FREEMIUM apps (free core with paid power features — specify the split clearly)
-- At least 2 PAID apps (cheaper than competitor — these generate revenue, specify our price vs theirs)
+PRICING MIX REQUIREMENT: Your 5 suggestions MUST include a mix:
+- At least 2 FREE apps (completely free — volume drivers)
+- At least 1 FREEMIUM app (free core + paid power features — specify the split)
+- At least 1 PAID app (cheaper than competitor — specify our price vs theirs)
 Order the list by score, not by pricing tier. Label each clearly.
 10. **OPPORTUNITY SCORE** (1-100) — based on:
    - Their install base / market size (how many users we can steal) — 25%
