@@ -252,7 +252,18 @@ FORMAT: Return as valid JSON:
     });
 
     const data = await response.json();
+
+    // Debug: check for API errors
+    if (data.error) {
+      console.error('Anthropic API error:', JSON.stringify(data.error));
+      return res.status(500).json({ error: 'anthropic_api_error', detail: data.error, searchContextLength: searchContext.length });
+    }
+
     const text = data.content?.[0]?.text || '';
+
+    if (!text) {
+      return res.status(500).json({ error: 'empty_response', stop_reason: data.stop_reason, usage: data.usage, model: data.model, searchContextLength: searchContext.length });
+    }
 
     try {
       const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -262,10 +273,10 @@ FORMAT: Return as valid JSON:
       }
     } catch (e) {
       console.error('Failed to parse market intel JSON:', e.message);
-      return res.status(500).json({ error: 'failed to parse response', raw: text });
+      return res.status(500).json({ error: 'failed to parse response', raw: text.slice(0, 2000) });
     }
 
-    return res.status(500).json({ error: 'no valid response', raw: text.slice(0, 1000) });
+    return res.status(500).json({ error: 'no json in response', raw: text.slice(0, 2000) });
   } catch (err) {
     console.error('Market intel error:', err);
     return res.status(500).json({ error: err.message });
