@@ -211,6 +211,10 @@ export default function Factory() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customFeature, setCustomFeature] = useState("");
   const [status, setStatus] = useState<string>("roadmap");
+  const [brandColor, setBrandColor] = useState("#7C3AED");
+  const [competitors, setCompetitors] = useState("");
+  const [audience, setAudience] = useState("");
+  const [entities, setEntities] = useState("");
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<"build" | "intel" | "outreach" | "audit" | "installs">("intel");
   const [intel, setIntel] = useState<any>(null);
@@ -444,6 +448,10 @@ export default function Factory() {
     setFeatures(opp.our_features || []);
     setSelectedTags([opp.category || "Other", p]);
     setStatus("roadmap");
+    setCompetitors(`${opp.target_app || ""} ${opp.target_price || ""}`);
+    setAudience("");
+    setEntities("");
+    setBrandColor("#7C3AED");
     setCompetitorContext({
       name: opp.target_app || "",
       price: opp.target_price || "",
@@ -524,6 +532,10 @@ export default function Factory() {
     category: "${category}",
     tags: [${selectedTags.map((t) => `"${t}"`).join(", ")}],
     status: "${status}",
+    color: "${brandColor}",
+    competitors: [${competitors.split(",").filter(c => c.trim()).map((c) => `"${c.trim()}"`).join(", ")}],
+    audience: "${audience}",
+    entities: [${entities.split(",").filter(e => e.trim()).map((e) => `"${e.trim()}"`).join(", ")}],
   },`;
 
   const copyOutput = () => {
@@ -1660,6 +1672,59 @@ export default function Factory() {
                 placeholder="One-liner that explains what it does"
                 className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-[#f0f0f5] placeholder:text-[#3a4550] focus:outline-none focus:border-[#4dd4e6]/50 text-sm"
               />
+            </div>
+
+            {/* Build Accelerators */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-2 block">Brand Color</label>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="color"
+                    value={brandColor}
+                    onChange={(e) => setBrandColor(e.target.value)}
+                    className="w-10 h-10 rounded-lg border border-white/10 bg-transparent cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={brandColor}
+                    onChange={(e) => setBrandColor(e.target.value)}
+                    className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[#f0f0f5] text-sm font-mono focus:outline-none focus:border-emerald-500/50"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-2 block">Audience</label>
+                <input
+                  type="text"
+                  value={audience}
+                  onChange={(e) => setAudience(e.target.value)}
+                  placeholder="Managers with direct reports"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-[#f0f0f5] placeholder:text-[#3a4550] focus:outline-none focus:border-emerald-500/50 text-sm"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-2 block">Competitors (comma separated)</label>
+                <input
+                  type="text"
+                  value={competitors}
+                  onChange={(e) => setCompetitors(e.target.value)}
+                  placeholder="Fellow $7/user, Lattice $11/user"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-[#f0f0f5] placeholder:text-[#3a4550] focus:outline-none focus:border-emerald-500/50 text-sm"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-widest text-emerald-400 mb-2 block">Entities (comma separated)</label>
+                <input
+                  type="text"
+                  value={entities}
+                  onChange={(e) => setEntities(e.target.value)}
+                  placeholder="pairs, sessions, talking points, goals"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-[#f0f0f5] placeholder:text-[#3a4550] focus:outline-none focus:border-emerald-500/50 text-sm"
+                />
+              </div>
             </div>
 
             {/* Category + Pricing */}
