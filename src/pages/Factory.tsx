@@ -212,10 +212,12 @@ export default function Factory() {
   const [customFeature, setCustomFeature] = useState("");
   const [status, setStatus] = useState<string>("roadmap");
   const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<"build" | "intel" | "outreach" | "audit">("intel");
+  const [activeTab, setActiveTab] = useState<"build" | "intel" | "outreach" | "audit" | "installs">("intel");
   const [intel, setIntel] = useState<any>(null);
   const [intelLoading, setIntelLoading] = useState(false);
   const [intelError, setIntelError] = useState("");
+  const [installData, setInstallData] = useState<any>(null);
+  const [installLoading, setInstallLoading] = useState(false);
   const [dmTemplates, setDmTemplates] = useState<any>(null);
   const [dmLoading, setDmLoading] = useState(false);
   const [dmError, setDmError] = useState("");
@@ -263,6 +265,19 @@ export default function Factory() {
       setUpdateLoading(false);
     }
   };
+
+  const fetchInstalls = useCallback(async () => {
+    setInstallLoading(true);
+    try {
+      const res = await fetch("/api/installs", {
+        headers: { "x-admin-key": password || sessionStorage.getItem("factory_pw") || "" },
+      });
+      if (!res.ok) throw new Error("Failed to fetch installs");
+      const json = await res.json();
+      setInstallData(json);
+    } catch {}
+    setInstallLoading(false);
+  }, [password]);
 
   const fetchIntel = useCallback(async () => {
     setIntelLoading(true);
@@ -590,6 +605,14 @@ export default function Factory() {
             >
               Outreach
             </button>
+            <button
+              onClick={() => { setActiveTab("installs"); if (!installData && !installLoading) fetchInstalls(); }}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                activeTab === "installs" ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-400" : "border-white/10 text-[#6b7d8d] hover:border-white/20"
+              }`}
+            >
+              Installs
+            </button>
             {activeTab === "build" && (
               <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full border ${
                 status === "live" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400" :
@@ -789,6 +812,105 @@ export default function Factory() {
         )}
 
         {/* ── OUTREACH TAB ──────────────────────────── */}
+        {activeTab === "installs" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">Install Tracker</h2>
+                <p className="text-sm text-[#6b7d8d] mt-1">Live install counts from all deployed apps</p>
+              </div>
+              <button
+                onClick={fetchInstalls}
+                disabled={installLoading}
+                className="px-4 py-2 rounded-lg text-xs font-medium border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 disabled:opacity-50"
+              >
+                {installLoading ? "Loading..." : "Refresh"}
+              </button>
+            </div>
+
+            {installData && (
+              <>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="border border-white/10 rounded-xl p-4 text-center">
+                    <div className="text-3xl font-bold text-emerald-400">{installData.totals?.installs || 0}</div>
+                    <div className="text-[10px] text-[#6b7d8d] mt-1">Total Installs</div>
+                  </div>
+                  <div className="border border-white/10 rounded-xl p-4 text-center">
+                    <div className="text-3xl font-bold text-blue-400">{installData.totals?.active || 0}</div>
+                    <div className="text-[10px] text-[#6b7d8d] mt-1">Active Workspaces</div>
+                  </div>
+                  <div className="border border-white/10 rounded-xl p-4 text-center">
+                    <div className="text-3xl font-bold text-purple-400">{installData.totals?.users || 0}</div>
+                    <div className="text-[10px] text-[#6b7d8d] mt-1">Total Users</div>
+                  </div>
+                  <div className="border border-white/10 rounded-xl p-4 text-center">
+                    <div className="text-3xl font-bold text-amber-400">{installData.totals?.apps_online || 0}/{installData.apps?.length || 0}</div>
+                    <div className="text-[10px] text-[#6b7d8d] mt-1">Apps Online</div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {installData.apps?.map((app: any, i: number) => (
+                    <div key={i} className="border border-white/10 rounded-xl p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-2 h-2 rounded-full ${app.status === 'online' ? 'bg-emerald-400' : app.status === 'error' ? 'bg-red-400' : 'bg-[#3a4550]'}`} />
+                        <div>
+                          <div className="font-semibold text-sm">{app.name}</div>
+                          <div className="text-[10px] text-[#6b7d8d]">{app.status}</div>
+                        </div>
+                      </div>
+                      <div className="flex gap-6 text-right">
+                        <div>
+                          <div className="text-lg font-bold">{app.installs}</div>
+                          <div className="text-[10px] text-[#6b7d8d]">installs</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-blue-400">{app.active}</div>
+                          <div className="text-[10px] text-[#6b7d8d]">active</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-bold text-purple-400">{app.users}</div>
+                          <div className="text-[10px] text-[#6b7d8d]">users</div>
+                        </div>
+                        {app.details?.polls !== undefined && (
+                          <div>
+                            <div className="text-lg font-bold text-amber-400">{app.details.polls}</div>
+                            <div className="text-[10px] text-[#6b7d8d]">polls</div>
+                          </div>
+                        )}
+                        {app.details?.surveys !== undefined && (
+                          <div>
+                            <div className="text-lg font-bold text-cyan-400">{app.details.surveys}</div>
+                            <div className="text-[10px] text-[#6b7d8d]">surveys</div>
+                          </div>
+                        )}
+                        {app.details?.streams !== undefined && (
+                          <div>
+                            <div className="text-lg font-bold text-amber-400">{app.details.streams}</div>
+                            <div className="text-[10px] text-[#6b7d8d]">streams</div>
+                          </div>
+                        )}
+                        {app.details?.articles !== undefined && (
+                          <div>
+                            <div className="text-lg font-bold text-cyan-400">{app.details.articles}</div>
+                            <div className="text-[10px] text-[#6b7d8d]">articles</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="text-[10px] text-[#3a4550]">Last updated: {installData.timestamp ? new Date(installData.timestamp).toLocaleString() : 'N/A'}</div>
+              </>
+            )}
+
+            {!installData && !installLoading && (
+              <div className="text-center text-[#6b7d8d] py-12">Click Refresh to load install data.</div>
+            )}
+          </div>
+        )}
+
         {activeTab === "outreach" && (
           <div className="space-y-8">
             <div>
