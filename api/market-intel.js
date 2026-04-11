@@ -149,6 +149,7 @@ Order the list by score, not by pricing tier. Label each clearly.
 9. **CATEGORY**: Team, Ops, Sales, Productivity, or Streaming
 
 HARD RULES. FOLLOW THESE EXACTLY:
+- ONE APP PER COMPETITOR. Each of the 10 suggestions MUST target a DIFFERENT paid competitor. If two suggestions would both compete with the same paid app, merge them into one stronger suggestion or replace one with a different opportunity entirely. No two suggestions should overlap in the problem they solve. Before finalizing your list, review all 10 and verify there are no overlaps. If Suggestion 3 and Suggestion 7 both target the same space (e.g. both are standup/checkin tools), remove one and replace it.
 - NEVER use "---", "—", or any dash-based separators or em dashes in any output. Use periods and new sentences instead.
 - Every "target" app must be REAL and currently listed in the Slack App Directory or on the Slack marketplace
 - Every price must be their REAL current price, not made up
