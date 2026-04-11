@@ -20,6 +20,15 @@ export default async function handler(req, res) {
 
   const { currentApps } = req.body || {};
 
+  // Map our apps to the competitors they already cover
+  const COMPETITOR_MAP = {
+    'Stream Line': 'Competes with: Google Sheets for stream tracking, QuickBooks for P&L. Covers: live stream sales tracking, inventory, customer DB, AI insights.',
+    'Sensei': 'Competes with: Guru ($7/user), Tettra ($5/user), Slite ($8/user), Notion. Covers: team knowledge base, article management, AI search, documentation.',
+    'Pulse': 'Competes with: Polly ($3/user), Simple Poll, SurveyMonkey ($25/mo), Doodle ($6.95/user). Covers: polls (5 types), surveys, anonymous feedback, recurring polls, rating scales, rankings, open text.',
+    'Quick Poll': 'MERGED INTO PULSE. Do not suggest polling apps.',
+    'Tally': 'COVERED BY PULSE. Do not suggest voting/polling apps.',
+  };
+
   try {
     // Step 1: Search for real competitor data
     const searchQueries = [
@@ -78,8 +87,13 @@ ${searchContext || 'No search data available — use your knowledge of the Slack
 OUR STRATEGY:
 We build free Slack apps and give them away. Our business model is volume — we want installs, audience, and a data moat. We undercut every paid Slack app that charges per-seat pricing by offering the same or better functionality for FREE or at a fraction of the cost. We are not building lite versions. We are building full-featured apps that make paid competitors irrelevant for small teams.
 
-OUR EXISTING CATALOG (do NOT suggest these — we already have them):
-${(currentApps || []).join('\n')}
+OUR EXISTING CATALOG (do NOT suggest apps that compete in these spaces — we already cover them):
+${(currentApps || []).map(name => {
+  const coverage = COMPETITOR_MAP[name];
+  return coverage ? `- ${name}: ${coverage}` : `- ${name}`;
+}).join('\n')}
+
+CRITICAL: If a paid Slack app competes with ANY of our existing apps listed above, DO NOT suggest it. We already have a free alternative. For example, do NOT suggest Polly, Simple Poll, or any polling/survey/feedback app because Pulse already covers that. Do NOT suggest Guru, Tettra, or knowledge base apps because Sensei covers that. Only suggest opportunities in spaces we have NOT built for yet.
 
 YOUR TASK:
 Go through the Slack App Directory mentally. Find 10 REAL paid apps that are actively listed, actively charging money, and have real users. For each one, design our free killer alternative.
