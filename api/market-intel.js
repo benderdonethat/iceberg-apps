@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
   if (!ANTHROPIC_KEY) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set' });
 
-  const { currentApps } = req.body || {};
+  const { currentApps, stashedApps } = req.body || {};
 
   // Map our apps to the competitors they already cover
   const COMPETITOR_MAP = {
@@ -133,7 +133,10 @@ ${(currentApps || []).map(name => {
   return coverage ? `- ${name}: ${coverage}` : `- ${name}`;
 }).join('\n')}
 
-CRITICAL: If a paid Slack app competes with ANY of our existing apps listed above, DO NOT suggest it. We already have a free alternative. For example, do NOT suggest Polly, Simple Poll, or any polling/survey/feedback app because Pulse already covers that. Do NOT suggest Guru, Tettra, or knowledge base apps because Sensei covers that. Only suggest opportunities in spaces we have NOT built for yet.
+ALREADY PICKED FOR BUILD (do NOT suggest these or anything that competes in the same space):
+${(stashedApps || []).length > 0 ? (stashedApps || []).map((s: string) => `- ${s}`).join('\n') : 'None'}
+
+CRITICAL: If a paid Slack app competes with ANY of our existing apps OR stashed apps listed above, DO NOT suggest it. We already have a free alternative. For example, do NOT suggest Polly, Simple Poll, or any polling/survey/feedback app because Pulse already covers that. Do NOT suggest Guru, Tettra, or knowledge base apps because Sensei covers that. Only suggest opportunities in spaces we have NOT built for yet.
 ${ourInstallData}
 
 YOUR TASK:

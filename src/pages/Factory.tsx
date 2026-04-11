@@ -224,6 +224,7 @@ export default function Factory() {
   const [installLoading, setInstallLoading] = useState(false);
   const [selectedIntel, setSelectedIntel] = useState<Set<number>>(new Set());
   const [batchCopied, setBatchCopied] = useState(false);
+  const [stashedApps, setStashedApps] = useState<Array<{name: string, target: string, desc: string}>>([]); // picked from intel, excluded on refresh
   const [dmTemplates, setDmTemplates] = useState<any>(null);
   const [dmLoading, setDmLoading] = useState(false);
   const [dmError, setDmError] = useState("");
@@ -290,10 +291,11 @@ export default function Factory() {
     setIntelError("");
     try {
       const currentAppNames = apps.map((a) => `${a.name} (${a.category}, ${a.status})`);
+      const stashedNames = stashedApps.map(s => `${s.name} (competes with ${s.target}): ${s.desc}`);
       const res = await fetch("/api/market-intel", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-admin-key": password || sessionStorage.getItem("factory_pw") || "" },
-        body: JSON.stringify({ currentApps: currentAppNames }),
+        body: JSON.stringify({ currentApps: currentAppNames, stashedApps: stashedNames }),
       });
       if (!res.ok) throw new Error("Failed to fetch intel");
       const json = await res.json();
@@ -664,6 +666,44 @@ export default function Factory() {
               </button>
             </div>
 
+            {stashedApps.length > 0 && (
+              <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/[0.03] p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-cyan-400">Stashed for Build ({stashedApps.length})</div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        const batch = stashedApps.map(s => `${s.name} (vs ${s.target}): ${s.desc}`).join('\n');
+                        navigator.clipboard.writeText(batch);
+                      }}
+                      className="text-[10px] px-3 py-1 rounded-lg border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+                    >
+                      Copy Stash
+                    </button>
+                    <button
+                      onClick={() => setStashedApps([])}
+                      className="text-[10px] px-3 py-1 rounded-lg border border-white/10 text-[#6b7d8d] hover:text-white"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {stashedApps.map((s, i) => (
+                    <div key={i} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+                      <span className="text-[11px] text-cyan-300 font-medium">{s.name}</span>
+                      <span className="text-[9px] text-[#6b7d8d]">vs {s.target}</span>
+                      <button
+                        onClick={() => setStashedApps(prev => prev.filter((_, j) => j !== i))}
+                        className="text-[10px] text-[#6b7d8d] hover:text-red-400 ml-1"
+                      >x</button>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] text-[#3a4550] mt-2">Stashed apps are excluded when you refresh intel. Hit Refresh to get new suggestions that don't overlap with your picks.</p>
+              </div>
+            )}
+
             {intelLoading && (
               <div className="text-center py-20">
                 <div className="text-2xl mb-3 animate-pulse">🔍</div>
@@ -920,6 +960,20 @@ export default function Factory() {
                                 className="text-[10px] px-3 py-1 rounded-lg border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 transition-all font-medium"
                               >
                                 Build This
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (!stashedApps.find(s => s.name === opp.our_name)) {
+                                    setStashedApps(prev => [...prev, { name: opp.our_name, target: opp.target_app, desc: opp.our_desc }]);
+                                  }
+                                }}
+                                className={`text-[10px] px-3 py-1 rounded-lg border transition-all font-medium ${
+                                  stashedApps.find(s => s.name === opp.our_name)
+                                    ? "border-cyan-500/50 bg-cyan-500/10 text-cyan-400"
+                                    : "border-white/10 text-[#6b7d8d] hover:border-cyan-500/30 hover:text-cyan-400"
+                                }`}
+                              >
+                                {stashedApps.find(s => s.name === opp.our_name) ? "Stashed" : "Stash"}
                               </button>
                             </div>
                             {opp.score_breakdown && (
