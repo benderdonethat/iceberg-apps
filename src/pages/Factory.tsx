@@ -222,6 +222,8 @@ export default function Factory() {
   const [intelError, setIntelError] = useState("");
   const [installData, setInstallData] = useState<any>(null);
   const [installLoading, setInstallLoading] = useState(false);
+  const [selectedIntel, setSelectedIntel] = useState<Set<number>>(new Set());
+  const [batchCopied, setBatchCopied] = useState(false);
   const [dmTemplates, setDmTemplates] = useState<any>(null);
   const [dmLoading, setDmLoading] = useState(false);
   const [dmError, setDmError] = useState("");
@@ -713,11 +715,90 @@ export default function Factory() {
                 {/* Competitive Opportunities */}
                 <div>
                   <h3 className="text-xs font-semibold uppercase tracking-widest text-amber-400 mb-4">Apps to Undercut</h3>
+                  {/* Batch action bar */}
+                  {selectedIntel.size > 0 && (
+                    <div className="sticky top-0 z-10 flex items-center justify-between bg-[#0c0e16] border border-emerald-500/30 rounded-xl p-3 mb-4">
+                      <span className="text-sm text-emerald-400 font-medium">{selectedIntel.size} app{selectedIntel.size !== 1 ? 's' : ''} selected</span>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            const selected = intel.opportunities.filter((_: any, i: number) => selectedIntel.has(i));
+                            const batch = selected.map((opp: any) => `  {
+    name: "${opp.our_name}",
+    slug: "${(opp.our_slug || opp.our_name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-')}",
+    emoji: "${opp.our_emoji}",
+    desc: "${opp.our_desc}",
+    features: [${(opp.our_features || []).map((f: string) => `"${f}"`).join(', ')}],
+    pricing: "${opp.our_pricing}",
+    category: "${opp.category}",
+    tags: ["${opp.category}", "${(opp.our_pricing || 'Free').split(' ')[0]}"],
+    status: "roadmap",
+    color: "#7C3AED",
+    competitors: ["${opp.target_app} ${opp.target_price}"],
+    audience: "",
+    entities: [],
+  }`).join(',\n');
+                            navigator.clipboard.writeText(`// BATCH BUILD: ${selected.length} apps\n[\n${batch}\n]`);
+                            setBatchCopied(true);
+                            setTimeout(() => setBatchCopied(false), 3000);
+                          }}
+                          className={`px-4 py-2 rounded-lg text-xs font-semibold border transition-all ${
+                            batchCopied ? "border-emerald-500 bg-emerald-500/20 text-emerald-400" : "border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10"
+                          }`}
+                        >
+                          {batchCopied ? "Copied Batch Config" : `Copy ${selectedIntel.size} Configs`}
+                        </button>
+                        <button
+                          onClick={() => setSelectedIntel(new Set())}
+                          className="px-3 py-2 rounded-lg text-xs border border-white/10 text-[#6b7d8d] hover:text-white"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Select all / none */}
+                  <div className="flex gap-2 mb-4">
+                    <button
+                      onClick={() => {
+                        const all = new Set(intel.opportunities.map((_: any, i: number) => i));
+                        setSelectedIntel(all);
+                      }}
+                      className="text-[10px] px-3 py-1 rounded-lg border border-white/10 text-[#6b7d8d] hover:text-white"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={() => setSelectedIntel(new Set())}
+                      className="text-[10px] px-3 py-1 rounded-lg border border-white/10 text-[#6b7d8d] hover:text-white"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+
                   <div className="space-y-6">
-                    {intel.opportunities?.map((opp: any) => (
-                      <div key={opp.rank} className="rounded-2xl border border-white/10 bg-[#0c0e16] overflow-hidden hover:border-amber-500/20 transition-all">
+                    {intel.opportunities?.map((opp: any, oppIdx: number) => (
+                      <div key={opp.rank} className={`rounded-2xl border overflow-hidden transition-all cursor-pointer ${
+                        selectedIntel.has(oppIdx) ? "border-emerald-500/50 bg-emerald-500/[0.02]" : "border-white/10 bg-[#0c0e16] hover:border-amber-500/20"
+                      }`}>
                         {/* Header: Our app vs theirs */}
                         <div className="flex items-stretch">
+                          {/* Select checkbox */}
+                          <div
+                            className="flex items-center justify-center w-10 border-r border-white/5 cursor-pointer hover:bg-white/5"
+                            onClick={() => {
+                              const next = new Set(selectedIntel);
+                              if (next.has(oppIdx)) next.delete(oppIdx); else next.add(oppIdx);
+                              setSelectedIntel(next);
+                            }}
+                          >
+                            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all ${
+                              selectedIntel.has(oppIdx) ? "border-emerald-500 bg-emerald-500" : "border-white/20"
+                            }`}>
+                              {selectedIntel.has(oppIdx) && <span className="text-[10px] text-white font-bold">✓</span>}
+                            </div>
+                          </div>
                           {/* Their app (left) */}
                           <div className="flex-1 p-5 border-r border-white/5 bg-red-500/[0.03]">
                             <div className="text-[9px] font-semibold uppercase tracking-widest text-red-400 mb-2">Kill Target</div>
