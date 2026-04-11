@@ -263,7 +263,7 @@ FORMAT: Return as valid JSON:
       return res.status(500).json({ error: 'failed to parse response', raw: text });
     }
 
-    return res.status(500).json({ error: 'no valid response' });
+    return res.status(500).json({ error: 'no valid response', raw: text.slice(0, 1000) });
   } catch (err) {
     console.error('Market intel error:', err);
     return res.status(500).json({ error: err.message });
