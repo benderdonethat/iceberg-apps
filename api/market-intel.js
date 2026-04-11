@@ -141,7 +141,7 @@ ${(currentApps || []).map(name => {
 }).join('\n')}
 
 ALREADY PICKED FOR BUILD (do NOT suggest these or anything that competes in the same space):
-${(stashedApps || []).length > 0 ? (stashedApps || []).map((s: string) => `- ${s}`).join('\n') : 'None'}
+${(stashedApps || []).length > 0 ? (stashedApps || []).map(s => `- ${s}`).join('\n') : 'None'}
 
 CRITICAL: If a paid Slack app competes with ANY of our existing apps OR stashed apps listed above, DO NOT suggest it. We already have a free alternative. For example, do NOT suggest Polly, Simple Poll, or any polling/survey/feedback app because Pulse already covers that. Do NOT suggest Guru, Tettra, or knowledge base apps because Sensei covers that. Only suggest opportunities in spaces we have NOT built for yet.
 ${ourInstallData}
