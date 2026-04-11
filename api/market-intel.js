@@ -59,11 +59,24 @@ export default async function handler(req, res) {
 
     // Step 1: Search for real competitor data
     const searchQueries = [
-      { query: 'most popular paid Slack apps 2026 pricing per user monthly', prompt: 'Find the top 10 most popular PAID Slack apps with their exact current pricing. Include app name, price per user, and what they do. Only include apps that charge money.' },
-      { query: 'site:g2.com Slack app reviews 1 star 2 star complaints "too expensive" OR "not worth" OR "overpriced"', prompt: 'Find negative G2 reviews (1-2 stars) for paid Slack apps. Extract the specific complaints: what app, what they hate about it, what they wish was different. Focus on pricing complaints and UX frustrations.' },
-      { query: 'site:capterra.com Slack integration reviews cons disadvantages "small team" OR "too complex"', prompt: 'Find Capterra reviews highlighting cons and disadvantages of paid Slack apps. Focus on complaints about complexity, pricing for small teams, poor UX, and missing features.' },
-      { query: 'Slack App Directory most installed apps 2026 user count reviews', prompt: 'Find Slack App Directory listings with install counts, ratings, and review counts. Focus on paid apps with high install numbers.' },
-      { query: '"switched from" OR "cancelled" OR "replaced" Slack app "too expensive" OR "free alternative" 2026', prompt: 'Find real user stories about switching away from paid Slack apps. What did they leave, why, and what did they switch to? Focus on price and UX as reasons.' },
+      // Tier 1: Core pricing and market data
+      { query: 'most popular paid Slack apps 2026 pricing per user monthly', prompt: 'Find the top 15 most popular PAID Slack apps with their exact current pricing. Include app name, exact price per user, total install count if available, and primary function. Only include apps that charge money.' },
+      { query: 'Slack App Directory most installed apps 2026 reviews ratings', prompt: 'Find Slack App Directory listings. For each paid app found, report: app name, install count, star rating, number of reviews, pricing, and the most recent negative review. Focus on apps with 1000+ installs.' },
+
+      // Tier 2: Active pain signals (where users are angry RIGHT NOW)
+      { query: 'site:reddit.com r/Slack OR r/SaaS "too expensive" OR "looking for alternative" OR "free alternative" OR "switched from" 2026', prompt: 'Find Reddit posts from 2025-2026 where people complain about paid Slack apps or ask for free alternatives. Extract: which app they are complaining about, the specific complaint, whether they found an alternative. These are ACTIVE switchers. Prioritize posts with many upvotes or comments.' },
+      { query: 'site:reddit.com Slack app "price increase" OR "raised prices" OR "new pricing" OR "billing change" 2026', prompt: 'Find any Slack apps that recently changed their pricing. Users posting about price increases are the most likely to switch. Extract: app name, old price vs new price, user reaction.' },
+
+      // Tier 3: Review site deep complaints
+      { query: 'site:g2.com Slack app reviews 1 star 2 star "too expensive" OR "not worth" OR "overpriced" OR "cancelling" 2026', prompt: 'Find negative G2 reviews (1-2 stars) for paid Slack apps from 2025-2026. For each review extract: app name, exact complaint, what the reviewer wishes existed instead. Focus on pricing and UX complaints.' },
+      { query: 'site:capterra.com Slack integration reviews cons "small team" OR "too complex" OR "not intuitive" OR "overpriced" 2026', prompt: 'Find Capterra reviews with specific cons for paid Slack apps. Focus on: pricing complaints for small teams, setup complexity, poor UX, missing features, bad support. Quote the reviewer.' },
+
+      // Tier 4: Churn and switching signals
+      { query: '"cancelled" OR "switched from" OR "replaced" OR "migrated from" Slack app 2026 alternative', prompt: 'Find stories of teams actively switching away from paid Slack apps. What did they leave? Why? What did they move to? Focus on 2025-2026 switches. These represent validated demand for alternatives.' },
+      { query: 'site:producthunt.com Slack app alternative free 2026', prompt: 'Find ProductHunt launches for Slack app alternatives. What existing paid tools are people trying to replace? Check the comments for which competitors users mention wanting to leave.' },
+
+      // Tier 5: Competitive vulnerability signals
+      { query: 'Slack app "acquired by" OR "shutting down" OR "sunset" OR layoffs 2026', prompt: 'Find Slack apps that were recently acquired, are shutting down, or had layoffs. These create user uncertainty and migration opportunities. Extract: app name, what happened, estimated user base affected.' },
     ];
 
     let searchContext = '';
@@ -132,21 +145,30 @@ For each opportunity you MUST provide:
 2. **WHAT THEY CHARGE** — Their actual current pricing (per user/month, flat rate, etc.). Must be real pricing from their actual pricing page.
 3. **WHAT THEY DO** — Their core features (list their top 4-6 features as they advertise them)
 4. **THEIR WEAKNESS** — MUST be sourced from real user reviews in the search data above. Quote or paraphrase actual G2/Capterra/Slack directory complaints. Include the source (e.g. "G2 reviewer, 2 stars"). If the search data contains a real complaint about this app, use it verbatim. Focus on: UX frustrations, pricing complaints, setup complexity, missing features, poor mobile experience, slow support. Do NOT make up generic weaknesses — every weakness must trace back to real user feedback.
-5. **OUR APP** — Name, emoji, one-line description of our free alternative
-6. **HOW WE MATCH OR BEAT THEM** — List 4-6 features that match or exceed theirs. Be specific. Not "better UI" but "one-click setup from Slack command, no external dashboard needed"
-7. **OUR PRICING STRATEGY** — Free, Freemium (free core + paid power features), or Paid (but cheaper). If Freemium, specify exactly which features are free and which are paid. If Paid, specify our price and how much cheaper it is than the competitor.
+5. **TIMING SIGNAL** — Why is NOW the right time to build this? Look for: recent price increase, acquisition, product decline, rising complaints, competitor shutdown, market shift. If the research data contains a timing signal, cite it. If none exists, say "No timing signal. Stable competitor." Timing signals DOUBLE the opportunity value.
+6. **SWITCHING COST** — Rate LOW / MEDIUM / HIGH. How hard is it for a team to leave this competitor?
+   - LOW: No data lock-in, simple tool, can switch in minutes (e.g. a poll tool, standup bot)
+   - MEDIUM: Some historical data, but exportable. Switch takes a day (e.g. project tracker with CSV export)
+   - HIGH: Deep integrations, years of data, workflow dependencies. Switch is painful (e.g. full CRM, HRIS)
+   Only target LOW and MEDIUM switching costs. HIGH switching cost means users won't leave even if we're free.
+7. **OUR APP** — Name, emoji, one-line description of our free alternative
+8. **HOW WE MATCH OR BEAT THEM** — List 4-6 features that match or exceed theirs. Be specific. Not "better UI" but "one-click setup from Slack command, no external dashboard needed"
+9. **OUR PRICING STRATEGY** — Free, Freemium (free core + paid power features), or Paid (but cheaper). If Freemium, specify exactly which features are free and which are paid. If Paid, specify our price and how much cheaper it is than the competitor.
 
 PRICING MIX REQUIREMENT: Your 10 suggestions MUST include a mix of all 3 pricing tiers:
 - At least 4 FREE apps (completely free, no paid tier — these are our volume/install drivers)
 - At least 3 FREEMIUM apps (free core with paid power features — specify the split clearly)
 - At least 2 PAID apps (cheaper than competitor — these generate revenue, specify our price vs theirs)
 Order the list by score, not by pricing tier. Label each clearly.
-8. **OPPORTUNITY SCORE** (1-100) — based on:
-   - Their install base / market size (how many users we can steal) — 35%
-   - Price differential (how much cheaper we are) — 25%
-   - Build feasibility (can we ship this in 1-2 days as a Slack-native app?) — 25%
-   - Virality (does usage spread within a workspace?) — 15%
-9. **CATEGORY**: Team, Ops, Sales, Productivity, or Streaming
+10. **OPPORTUNITY SCORE** (1-100) — based on:
+   - Their install base / market size (how many users we can steal) — 25%
+   - Price differential (how much cheaper we are) — 20%
+   - Build feasibility (can we ship this in 1-2 days as a Slack-native app?) — 20%
+   - Switching cost (LOW = easy steal, HIGH = don't bother) — 15%
+   - Timing signal strength (active pain vs stable competitor) — 10%
+   - Virality (does usage spread within a workspace?) — 10%
+11. **CATEGORY**: Team, Ops, Sales, Productivity, or Streaming
+12. **DATA CONFIDENCE** — Rate HIGH / MEDIUM / LOW. Based on how much of your analysis comes from the actual search data vs your general knowledge. HIGH = pricing, reviews, and complaints all verified from search results. LOW = mostly from your training data, not confirmed by search.
 
 HARD RULES. FOLLOW THESE EXACTLY:
 - ONE APP PER COMPETITOR. Each of the 10 suggestions MUST target a DIFFERENT paid competitor. If two suggestions would both compete with the same paid app, merge them into one stronger suggestion or replace one with a different opportunity entirely. No two suggestions should overlap in the problem they solve. Before finalizing your list, review all 10 and verify there are no overlaps. If Suggestion 3 and Suggestion 7 both target the same space (e.g. both are standup/checkin tools), remove one and replace it.
@@ -174,10 +196,13 @@ FORMAT: Return as valid JSON:
       "target_app": "Real Slack App Name",
       "target_price": "$X/user/month",
       "target_features": ["their feature 1", "their feature 2", "their feature 3", "their feature 4"],
-      "target_weakness": "Direct quote or paraphrase from real G2/Capterra review with source cited (e.g. 'G2 reviewer: too complex for a 5-person team')",
-      "target_installs": "Actual install count or user count if available from search data, otherwise estimate range like '10K-50K installs'",
+      "target_weakness": "Direct quote or paraphrase from real review with source cited (e.g. 'Reddit r/Slack user: too complex for a 5-person team')",
+      "target_installs": "Actual install count if available from search data, otherwise estimate range like '10K-50K installs'",
       "target_rating": "G2 or Capterra rating if found (e.g. '4.3/5 on G2, 245 reviews')",
       "target_review_count": "Number of reviews if found",
+      "timing_signal": "Why NOW is the right time (price increase, acquisition, product decline, rising complaints). Or 'No timing signal. Stable competitor.'",
+      "switching_cost": "LOW / MEDIUM / HIGH",
+      "switching_reason": "One sentence explaining what makes switching easy or hard",
       "our_name": "Our App Name",
       "our_slug": "our-app-slug",
       "our_emoji": "emoji",
@@ -187,11 +212,15 @@ FORMAT: Return as valid JSON:
       "our_pricing_detail": "If Freemium: what's free vs what's paid",
       "score": 85,
       "score_breakdown": {
-        "market_size": 30,
-        "price_gap": 22,
+        "market_size": 25,
+        "price_gap": 20,
         "build_speed": 20,
-        "virality": 13
+        "switching_cost": 15,
+        "timing": 10,
+        "virality": 10
       },
+      "data_confidence": "HIGH / MEDIUM / LOW",
+      "data_sources": ["reddit", "g2", "capterra", "slack_directory"],
       "category": "Ops",
       "undercut_strategy": "One sentence — exactly how we win"
     }

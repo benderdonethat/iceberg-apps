@@ -737,6 +737,9 @@ export default function Factory() {
     competitors: ["${opp.target_app} ${opp.target_price}"],
     audience: "",
     entities: [],
+    timing: "${(opp.timing_signal || 'none').replace(/"/g, "'")}",
+    switchingCost: "${opp.switching_cost || 'MEDIUM'}",
+    dataConfidence: "${opp.data_confidence || 'MEDIUM'}",
   }`).join(',\n');
                             navigator.clipboard.writeText(`// BATCH BUILD: ${selected.length} apps\n[\n${batch}\n]`);
                             setBatchCopied(true);
@@ -872,6 +875,40 @@ export default function Factory() {
                           <div className="rounded-lg border border-red-500/10 bg-red-500/[0.03] p-3">
                             <div className="text-[9px] font-semibold uppercase tracking-widest text-red-400/60 mb-1">Their Weakness</div>
                             <p className="text-[11px] text-[#6b7d8d] leading-relaxed">{opp.target_weakness}</p>
+                          </div>
+
+                          {/* Intel signals row */}
+                          <div className="flex gap-2 flex-wrap">
+                            {opp.timing_signal && opp.timing_signal !== 'No timing signal. Stable competitor.' && (
+                              <div className="rounded-lg border border-amber-500/20 bg-amber-500/[0.05] px-3 py-2 flex-1 min-w-[200px]">
+                                <div className="text-[9px] font-semibold uppercase tracking-widest text-amber-400/70 mb-1">Timing Signal</div>
+                                <p className="text-[11px] text-amber-200/80">{opp.timing_signal}</p>
+                              </div>
+                            )}
+                            {opp.switching_cost && (
+                              <div className={`rounded-lg border px-3 py-2 min-w-[120px] ${
+                                opp.switching_cost === 'LOW' ? 'border-emerald-500/20 bg-emerald-500/[0.05]' :
+                                opp.switching_cost === 'MEDIUM' ? 'border-amber-500/20 bg-amber-500/[0.05]' :
+                                'border-red-500/20 bg-red-500/[0.05]'
+                              }`}>
+                                <div className="text-[9px] font-semibold uppercase tracking-widest text-[#6b7d8d] mb-1">Switching Cost</div>
+                                <div className={`text-sm font-bold ${
+                                  opp.switching_cost === 'LOW' ? 'text-emerald-400' :
+                                  opp.switching_cost === 'MEDIUM' ? 'text-amber-400' : 'text-red-400'
+                                }`}>{opp.switching_cost}</div>
+                                {opp.switching_reason && <p className="text-[10px] text-[#6b7d8d] mt-0.5">{opp.switching_reason}</p>}
+                              </div>
+                            )}
+                            {opp.data_confidence && (
+                              <div className="rounded-lg border border-white/10 px-3 py-2 min-w-[100px]">
+                                <div className="text-[9px] font-semibold uppercase tracking-widest text-[#6b7d8d] mb-1">Data Quality</div>
+                                <div className={`text-sm font-bold ${
+                                  opp.data_confidence === 'HIGH' ? 'text-emerald-400' :
+                                  opp.data_confidence === 'MEDIUM' ? 'text-amber-400' : 'text-red-400'
+                                }`}>{opp.data_confidence}</div>
+                                {opp.data_sources && <p className="text-[10px] text-[#3a4550] mt-0.5">{opp.data_sources.join(', ')}</p>}
+                              </div>
+                            )}
                           </div>
 
                           {/* Bottom row */}
