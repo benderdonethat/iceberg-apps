@@ -11,6 +11,8 @@ const APPS = [
   { name: 'Sensei', slug: 'sensei', url: 'https://sensei-production-1334.up.railway.app/stats' },
   { name: 'Pulse', slug: 'pulse', url: 'https://app-production-831c.up.railway.app/stats' },
   { name: 'Sync', slug: 'sync', url: 'https://app-production-2df7.up.railway.app/stats' },
+  { name: 'Daily', slug: 'daily', url: 'https://app-production-1e70.up.railway.app/stats' },
+  { name: 'Timer', slug: 'timer', url: 'https://app-production-02f4.up.railway.app/stats' },
 ];
 
 export default async function handler(req, res) {

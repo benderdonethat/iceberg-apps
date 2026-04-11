@@ -153,7 +153,39 @@ Recurring 1:1 pair setup (weekly, biweekly, monthly with day and time selection)
 App Home with stats bar (pairs, sessions, actions, goals). New 1:1, Action Items, and Goals buttons always visible. Active 1:1 pairs listed with View button and next date. Open action items shown with inline Done button. Goals with progress bars and Update button. Tips and Industry Workflows accessible from App Home. All creation and editing via modals. Confirmation DMs after every action.
 
 ## Known Limitations
-No Google Calendar integration (scheduling is in-app only). No video call link generation. No multi-party meetings (1:1 only). No file attachments in notes or talking points.`
+No Google Calendar integration (scheduling is in-app only). No video call link generation. No multi-party meetings (1:1 only). No file attachments in notes or talking points.`,
+
+  'daily': `# Daily
+## What This App Is
+Free Slack-based async standup tool. Teams set up recurring standups in channels, get DM reminders, respond via modal, answers post as threaded replies. Mood tracking included.
+## What This App Is NOT
+NOT a project management tool. NOT a meeting scheduler. NOT a full agile/scrum platform.
+## Target Audience
+Engineering teams, remote teams, agencies, any team doing daily check-ins. 2-50 people.
+## Correct Competitors
+Geekbot ($2.50/user), Standuply ($1.50/user), StandupBot ($3/user), Jell ($4/user).
+## Incorrect Competitors
+Jira, Asana, Monday.com, Slack Huddles.
+## Core Features
+Custom standup questions (any number). Schedule: weekdays, daily, MWF. DM reminders to each channel member. Responses post as threaded replies in channel. Mood tracking (great/good/okay/struggling/blocked). Session history with response counts. Tips and Industry Workflows.
+## Known Limitations
+No skip/vacation per-user scheduling. No analytics/trend graphs on mood over time.`,
+
+  'timer': `# Timer
+## What This App Is
+Free Slack-based time tracking. Start/stop timers, log manual entries, track by project, weekly summaries, billable tagging.
+## What This App Is NOT
+NOT a project management tool. NOT an invoicing system. NOT a payroll tracker.
+## Target Audience
+Freelancers, agencies, consultants, engineering teams tracking time per project. 1-30 people.
+## Correct Competitors
+Clockify ($4.99/user), Toggl ($9/user), Harvest ($12/user), TimeBot ($4/user).
+## Incorrect Competitors
+QuickBooks, FreshBooks, Jira time tracking.
+## Core Features
+One-click start/stop timer from App Home. Project auto-creation. Manual time entry. Weekly summary by project with total hours. Billable hour tagging. Long-running timer reminders (8+ hours). CSV-ready data.
+## Known Limitations
+No client/invoice generation. No team-wide admin dashboard. No calendar integration.`
 };
 
 export const config = { maxDuration: 300 };
