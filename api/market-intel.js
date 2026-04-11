@@ -30,6 +30,32 @@ export default async function handler(req, res) {
   };
 
   try {
+    // Step 0: Fetch our own live install data
+    let ourInstallData = '';
+    try {
+      const APPS_STATS = [
+        { name: 'Stream Line', url: 'https://app-production-ef06.up.railway.app/stats' },
+        { name: 'Sensei', url: 'https://sensei-production-1334.up.railway.app/stats' },
+        { name: 'Pulse', url: 'https://app-production-831c.up.railway.app/stats' },
+      ];
+      const statsLines = [];
+      for (const app of APPS_STATS) {
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 3000);
+          const r = await fetch(app.url, { signal: controller.signal });
+          clearTimeout(timeout);
+          if (r.ok) {
+            const d = await r.json();
+            statsLines.push(`${app.name}: ${d.installs || 0} installs, ${d.active || 0} active workspaces, ${d.users || 0} users`);
+          }
+        } catch {}
+      }
+      if (statsLines.length > 0) {
+        ourInstallData = `\n\nOUR LIVE INSTALL DATA (real numbers from our deployed apps):\n${statsLines.join('\n')}`;
+      }
+    } catch {}
+
     // Step 1: Search for real competitor data
     const searchQueries = [
       { query: 'most popular paid Slack apps 2026 pricing per user monthly', prompt: 'Find the top 10 most popular PAID Slack apps with their exact current pricing. Include app name, price per user, and what they do. Only include apps that charge money.' },
@@ -94,6 +120,7 @@ ${(currentApps || []).map(name => {
 }).join('\n')}
 
 CRITICAL: If a paid Slack app competes with ANY of our existing apps listed above, DO NOT suggest it. We already have a free alternative. For example, do NOT suggest Polly, Simple Poll, or any polling/survey/feedback app because Pulse already covers that. Do NOT suggest Guru, Tettra, or knowledge base apps because Sensei covers that. Only suggest opportunities in spaces we have NOT built for yet.
+${ourInstallData}
 
 YOUR TASK:
 Go through the Slack App Directory mentally. Find 10 REAL paid apps that are actively listed, actively charging money, and have real users. For each one, design our free killer alternative.
