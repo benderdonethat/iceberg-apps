@@ -101,7 +101,33 @@ Article creation with 5 templates. Full-text search via keyword index. Channel-s
 Slack App Home with role-aware layout. Header shows role badge. Members see invite code entry prompt, write/search/browse, team activity, recent articles. Admins also see analytics (article count, views, searches, tags), most viewed articles, and knowledge gaps. Owners also see Manage Team button. Every action opens a modal. Confirmation DM after every write/edit/delete with contextual follow-up buttons. App Home refreshes after every write/edit/delete.
 
 ## Known Limitations
-Search works on titles and keyword index, not encrypted body. Sequential editing (no real-time co-edit). No images in articles (Slack modal limitation).`
+Search works on titles and keyword index, not encrypted body. Sequential editing (no real-time co-edit). No images in articles (Slack modal limitation).`,
+
+  'pulse': `# Pulse
+
+## What This App Is
+A free Slack-based polling, survey, and anonymous feedback tool. Teams create polls (single choice, multiple choice, rating scale, ranking, open text), multi-question surveys, and recurring scheduled polls. Everything happens inside Slack via DMs and modals.
+
+## What This App Is NOT
+NOT a form builder with a web interface. NOT an employee engagement platform with dashboards. NOT a performance review tool. NOT a project management or standup tool.
+
+## Target Audience
+Small to mid-size teams (2-100 people) using Slack daily. Managers running team health checks and retros. HR and People Ops doing engagement surveys. Product teams running feature prioritization votes. Any team making group decisions in Slack.
+
+## Correct Competitors
+Polly ($3/user/month, polls and surveys in Slack), Simple Poll (freemium, basic Slack polls), Doodle ($6.95/user/month, scheduling polls), SurveyMonkey ($25/month, web surveys with Slack integration), Google Forms (free but not Slack-native).
+
+## Incorrect Competitors (NEVER compare against)
+Lattice, Culture Amp, 15Five, Typeform, Jotform, Airtable
+
+## Core Features
+Five poll types: single choice, multiple choice, rating scale (1-5 or 1-10), ranking, open text. Smart distribution: DM everyone in a channel, DM specific people, DM all Pulse users, or post in channel. Multi-question surveys with step-by-step builder (add one question at a time via DM). One-question-at-a-time survey experience with progress bar in modal chain. Recurring scheduled polls (daily, weekdays, weekly Mon/Fri, biweekly, monthly). Anonymous mode for sensitive feedback. Auto-close with deadline (15 min to 7 days). CSV export for all poll and survey results. Real-time result updates with visual progress bars. Poll confirmation DMs with direct View links. Survey results dashboard with per-question breakdowns and completion tracking. Saved poll templates for reuse. App Home with stats bar, recent polls, recent surveys, quick actions. How to Get the Most Out of Pulse tips. Industry Workflows with 7 team-type examples. AES-256-GCM encryption on bot tokens. Multi-tenant with row-level security.
+
+## UX Design
+App Home with stats bar (total polls, open, voters, total votes). Create Poll and Create Survey buttons always visible. Recent polls and surveys with View links to jump to message. Polls DM'd to each recipient individually (Messages tab). Survey builder is step-by-step via DM with Add Question button. Survey taking uses modal chain with progress bar, one question per screen, no page breaks. All voting via buttons in DMs or channel messages. Confirmation DMs after poll/survey creation with recipient count. Templates and Recurring Polls accessible from App Home. My Polls and My Surveys show channel, type, response count, and completion rate.
+
+## Known Limitations
+Ranking polls require a modal flow (cannot rank inline). Surveys have practical limit of ~20 questions. CSV export uses URL with workspace token (not file upload). No conditional/branching logic in surveys yet. No image or file attachment in poll options.`
 };
 
 export default async function handler(req, res) {
