@@ -107,9 +107,11 @@ export default async function handler(req, res) {
     let searchContext = '';
     for (const result of searchResults) {
       if (result.status === 'fulfilled' && result.value) {
-        searchContext += result.value + '\n\n';
+        searchContext += result.value.slice(0, 2000) + '\n\n';
       }
     }
+    // Cap total context to avoid prompt being too long
+    if (searchContext.length > 15000) searchContext = searchContext.slice(0, 15000) + '\n\n[Search context truncated for length]';
 
     // Step 2: Generate intel with real search data
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -121,7 +123,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 5000,
+        max_tokens: 8000,
         messages: [{
           role: 'user',
           content: `You are a competitive intelligence analyst for Slack apps. Your job is to find REAL, EXISTING paid Slack apps that are overcharging and identify exactly how we can build a free or cheaper alternative that is EQUAL OR BETTER — not a watered-down version.
