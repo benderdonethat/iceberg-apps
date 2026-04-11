@@ -7,6 +7,8 @@
  * Body: { currentApps: string[] }
  */
 
+export const config = { maxDuration: 300 };
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
@@ -79,9 +81,9 @@ export default async function handler(req, res) {
       { query: 'Slack app "acquired by" OR "shutting down" OR "sunset" OR layoffs 2026', prompt: 'Find Slack apps that were recently acquired, are shutting down, or had layoffs. These create user uncertainty and migration opportunities. Extract: app name, what happened, estimated user base affected.' },
     ];
 
-    let searchContext = '';
-    for (const { query, prompt } of searchQueries) {
-      try {
+    // Run all searches in parallel for speed
+    const searchResults = await Promise.allSettled(
+      searchQueries.map(async ({ query, prompt }) => {
         const searchRes = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',
           headers: {
@@ -98,9 +100,14 @@ export default async function handler(req, res) {
         });
         const searchData = await searchRes.json();
         const textBlocks = (searchData.content || []).filter(b => b.type === 'text').map(b => b.text);
-        if (textBlocks.length > 0) searchContext += textBlocks.join('\n') + '\n\n';
-      } catch (e) {
-        // Search failed, continue without this query
+        return textBlocks.join('\n');
+      })
+    );
+
+    let searchContext = '';
+    for (const result of searchResults) {
+      if (result.status === 'fulfilled' && result.value) {
+        searchContext += result.value + '\n\n';
       }
     }
 

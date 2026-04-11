@@ -156,6 +156,8 @@ App Home with stats bar (pairs, sessions, actions, goals). New 1:1, Action Items
 No Google Calendar integration (scheduling is in-app only). No video call link generation. No multi-party meetings (1:1 only). No file attachments in notes or talking points.`
 };
 
+export const config = { maxDuration: 300 };
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
