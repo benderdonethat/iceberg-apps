@@ -1,16 +1,72 @@
+import { CURRENT as TIP_CURRENT, isSendDay as isTipSendDay } from './_tip-issues.js';
+
+const TIP_AUDIENCE_ID = '72a0e8a2-24bd-4dab-9f17-641eb20878dd';
+
 export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
-  const { email, preferences } = req.body;
+  const { email, preferences, list } = req.body || {};
   if (!email || !email.includes('@')) return res.status(400).json({ error: 'valid email required' });
 
+  const RESEND_KEY = process.env.RESEND_API_KEY;
+  const RESEND_FULL = process.env.RESEND_FULL_KEY || RESEND_KEY;
+
+  // THE TIP signup branch
+  if (list === 'tip') {
+    try {
+      await fetch(`https://api.resend.com/audiences/${TIP_AUDIENCE_ID}/contacts`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${RESEND_FULL}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, unsubscribed: false }),
+      });
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: '@icebergsampson <iceberg@freeslackapps.com>',
+          to: 'justforaistorage@gmail.com',
+          subject: `[TIP SIGNUP] ${email}`,
+          text: `New Tip subscriber: ${email}\nSend day: ${isTipSendDay()}\nTime: ${new Date().toISOString()}`,
+        }),
+      }).catch(() => {});
+      let sameDay = false;
+      if (isTipSendDay()) {
+        const sendRes = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: '@icebergsampson <iceberg@freeslackapps.com>',
+            to: email,
+            reply_to: 'justforaistorage@gmail.com',
+            subject: TIP_CURRENT.subject,
+            html: TIP_CURRENT.html,
+            headers: { 'List-Unsubscribe': '<mailto:iceberg@freeslackapps.com?subject=unsubscribe>' },
+          }),
+        });
+        sameDay = sendRes.ok;
+      }
+      return res.status(200).json({
+        success: true,
+        email,
+        list: 'tip',
+        sentToday: sameDay,
+        message: sameDay ? `Today's issue is on its way. Next issue ships next Thursday.` : `Subscribed. First issue ships next Thursday.`,
+      });
+    } catch (err) {
+      console.error('Tip signup error:', err);
+      return res.status(500).json({ error: err.message });
+    }
+  }
+
+  // DEFAULT: freeslackapps welcome flow
   const prefs = preferences || {};
   const wantsReleases = prefs.releases !== false;
   const wantsNewsletter = prefs.newsletter !== false;
   const wantsPrompts = prefs.prompts !== false;
-
-  const RESEND_KEY = process.env.RESEND_API_KEY;
-  const RESEND_FULL = process.env.RESEND_FULL_KEY || RESEND_KEY;
   const AUDIENCE_ID = process.env.RESEND_AUDIENCE_ID;
 
   try {
