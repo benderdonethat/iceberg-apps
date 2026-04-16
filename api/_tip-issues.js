@@ -37,7 +37,7 @@ export const CURRENT = {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr><td align="left" valign="middle" style="vertical-align:middle;">
 <div style="font-family:'JetBrains Mono',Menlo,Consolas,monospace;font-size:10px;font-weight:700;letter-spacing:0.3em;color:#A8C8D8;text-transform:uppercase;">The Tip <span style="color:#3A4A55;">&nbsp;·&nbsp;</span> <span style="color:#F5F5F5;">No. 001</span></div>
-<div style="font-family:'JetBrains Mono',Menlo,Consolas,monospace;font-size:10px;color:#4A5A65;letter-spacing:0.15em;margin-top:6px;">April 16, 2026 &nbsp;·&nbsp; 4 MIN READ</div>
+<div style="font-family:'JetBrains Mono',Menlo,Consolas,monospace;font-size:10px;color:#4A5A65;letter-spacing:0.15em;margin-top:6px;">April 16, 2026 &nbsp;·&nbsp; 4 MIN READ &nbsp;·&nbsp; <a href="https://icebergsampson.vercel.app/tip/001" style="color:#A8C8D8;text-decoration:none;">Read online</a></div>
 </td><td align="right" valign="middle" style="vertical-align:middle;">
 <img src="https://icebergsampson.vercel.app/assets/avatar.png" width="44" height="44" alt="@icebergsampson" style="display:block;border-radius:50%;">
 </td></tr></table>
@@ -108,10 +108,19 @@ export const CURRENT = {
 </td></tr></table>
 </td></tr>
 
+<tr><td style="padding:0 0 32px 0;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0C1218;border:1px solid #1A2A35;border-radius:10px;">
+<tr><td style="padding:20px 24px;">
+<div style="font-family:'JetBrains Mono',Menlo,monospace;font-size:9px;font-weight:700;letter-spacing:0.24em;color:#A8C8D8;text-transform:uppercase;margin-bottom:10px;">Cite or share</div>
+<p style="margin:0 0 8px 0;font-size:13px;color:#9AAAB8;line-height:1.6;">Johnson, David. "The first job is disappearing." <em>The Tip</em>, No. 001, April 16, 2026.</p>
+<p style="margin:0;font-family:'JetBrains Mono',Menlo,monospace;font-size:11px;color:#D8D8E0;word-break:break-all;"><a href="https://icebergsampson.vercel.app/tip/001" style="color:#A8C8D8;text-decoration:none;">icebergsampson.vercel.app/tip/001</a></p>
+</td></tr></table>
+</td></tr>
+
 <tr><td align="center" style="padding:0;">
 <img src="https://icebergsampson.vercel.app/assets/avatar.png" width="28" height="28" alt="@icebergsampson" style="display:block;border-radius:50%;opacity:0.5;margin:0 auto;">
 <div style="font-family:'JetBrains Mono',Menlo,monospace;font-size:9px;font-weight:700;letter-spacing:0.3em;color:#3A4A55;text-transform:uppercase;margin-top:12px;">The Tip &nbsp;·&nbsp; @icebergsampson</div>
-<div style="font-size:11px;color:#3A4A55;margin-top:10px;line-height:1.6;"><a href="https://icebergsampson.vercel.app" style="color:#4A5A65;text-decoration:underline;">icebergsampson.vercel.app</a></div>
+<div style="font-size:11px;color:#3A4A55;margin-top:10px;line-height:1.6;"><a href="https://icebergsampson.vercel.app" style="color:#4A5A65;text-decoration:underline;">icebergsampson.vercel.app</a> &nbsp;·&nbsp; <a href="https://icebergsampson.vercel.app/tip" style="color:#4A5A65;text-decoration:underline;">Archive</a></div>
 </td></tr>
 
 </table></td></tr></table>

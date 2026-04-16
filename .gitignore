@@ -25,3 +25,6 @@ dist-ssr
 .env*.local
 graphify-out/
 .vercel
+.env.production.local
+.env.local
+send-tip.sh
